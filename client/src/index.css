@@ -10,3 +10,7 @@ body {
   background-color: hsl(218deg, 23%, 9%);
   color: hsl(36deg, 10%, 90%);
 }
+
+canvas {
+  position: fixed;
+}
