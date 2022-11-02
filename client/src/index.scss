@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
+
+$bg-dark: hsl(218, 23%, 9%);
+$bg-light: hsl(213, 23%, 17%);
+$font-bright: hsl(36, 10%, 90%);
+$font-dark: hsl(208, 25%, 65%);
+$font-big: 14px;
+$font-small: 13px;
+$font-xs: 10px;
+$spacing: 16px;
+$accent-primary: hsl(205, 86%, 58%);
+$accent-primary-dark: hsl(205, 86%, 38%);
+$accent-secondary: hsl(155, 68%, 38%);
+
+*, *::after, *::before {
+     box-sizing: border-box;
+     padding: 0;
+     margin: 0;
+     font-family: "Roboto", sans-serif;
+}
+
+body {
+     background-color: $bg-dark;
+     color: $font-bright;
+}

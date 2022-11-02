@@ -1,6 +1,12 @@
-*, *::before, *::after {
-     box-sizing: border-box;
-     margin: 0;
-     padding: 0;
-     font-family: "Roboto", sans-serif;
+@import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
+*, *::after, *::before {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  font-family: "Roboto", sans-serif;
+}
+
+body {
+  background-color: hsl(218deg, 23%, 9%);
+  color: hsl(36deg, 10%, 90%);
 }
