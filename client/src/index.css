@@ -3,7 +3,7 @@
   box-sizing: border-box;
   padding: 0;
   margin: 0;
-  font-family: "Roboto", sans-serif;
+  font-family: "Montserrat", sans-serif;
 }
 
 body {
@@ -13,4 +13,80 @@ body {
 
 canvas {
   position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -10;
+}
+
+.form__group {
+  position: relative;
+}
+.form__field {
+  width: 100%;
+  outline: 1px solid hsl(205deg, 86%, 58%);
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  color: hsl(36deg, 10%, 90%);
+  padding: 16px;
+  background: transparent;
+  transition: border-color 0.2s;
+}
+.form__field::-moz-placeholder {
+  color: transparent;
+}
+.form__field:-ms-input-placeholder {
+  color: transparent;
+}
+.form__field::placeholder {
+  color: transparent;
+}
+.form__field:-moz-placeholder-shown ~ .form__label {
+  font-size: 1.25rem;
+  top: 50%;
+  background-color: transparent;
+}
+.form__field:-ms-input-placeholder ~ .form__label {
+  font-size: 1.25rem;
+  top: 50%;
+  background-color: transparent;
+}
+.form__field:placeholder-shown ~ .form__label {
+  font-size: 1.25rem;
+  top: 50%;
+  background-color: transparent;
+}
+.form__field:hover {
+  outline: 3px solid hsl(205deg, 86%, 58%);
+}
+
+.form__label {
+  pointer-events: none;
+  position: absolute;
+  top: -4px;
+  translate: 0px -50%;
+  left: 8px;
+  transition: 0.2s;
+  color: hsl(205deg, 86%, 58%);
+  background-color: hsl(218deg, 23%, 9%);
+  font-size: 1rem;
+  padding-inline: 4px;
+}
+
+.form__field:focus {
+  font-weight: 700;
+  outline: 3px solid hsl(205deg, 86%, 58%);
+  border-image-slice: 1;
+}
+.form__field:focus ~ .form__label {
+  top: -4px;
+  font-size: 1rem;
+  font-weight: 700;
+  background-color: hsl(218deg, 23%, 9%);
+}
+
+input[type=password] {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
 }

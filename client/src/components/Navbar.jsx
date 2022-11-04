@@ -7,11 +7,11 @@ const Navbar = () => {
           <>
                <NavbarWrapper>
                     <NavbarHome to="/">
-                         <RiChatSmile3Line size="50px" fill="rgb(56, 163, 240)" />
+                         <RiChatSmile3Line size="50px" />
                     </NavbarHome>
                     <NavbarLinks>
                          <li>
-                              <Link to="/login" className="action">
+                              <Link to="/getStarted" className="action">
                                    Get Started
                               </Link>
                          </li>
@@ -35,6 +35,7 @@ const NavbarWrapper = styled.nav`
      padding: calc(var(--spacing) / 2) var(--spacing);
      font-size: 0.75rem;
      min-width: 300px;
+     background-color: transparent;
 `;
 
 const NavbarHome = styled(Link)`
@@ -42,7 +43,16 @@ const NavbarHome = styled(Link)`
      font-size: 2rem;
      width: max-content;
      text-transform: uppercase;
-     color: var(--font-bright);
+     color: rgb(var(--font-bright));
+
+     svg {
+          fill: rgb(var(--accent-primary));
+          transition: fill 150ms;
+
+          :hover {
+               fill: rgb(var(--accent-primary-dark));
+          }
+     }
 `;
 
 const NavbarLinks = styled.ul`
@@ -56,12 +66,17 @@ const NavbarLinks = styled.ul`
      a {
           text-decoration: none;
           position: relative;
-          color: var(--font-bright);
+          color: rgb(var(--font-bright));
 
           &.action {
-               background-color: var(--accent-primary);
+               background-color: rgb(var(--accent-primary));
                padding: 0.5em 1em;
                border-radius: 1em;
+               transition: background-color 150ms;
+
+               :hover {
+                    background-color: rgb(var(--accent-primary-dark));
+               }
           }
      }
      a::before {

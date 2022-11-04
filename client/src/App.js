@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Login from "./components/login/Login";
-import Chat from "./components/chat/Chat";
-import HomePage from "./components/homepage/HomePage";
+import GetStarted from "./components/GetStarted/GetStarted";
+import Chat from "./components/Chat/Chat";
+import HomePage from "./components/HomePage/HomePage";
 import Navbar from "./components/Navbar";
 
 function App() {
@@ -10,7 +10,7 @@ function App() {
                <Routes>
                     <Route path="/" element={<Navbar />}>
                          <Route path="/" element={<HomePage />} />
-                         <Route path="/login" element={<Login />} />
+                         <Route path="/getStarted" element={<GetStarted />} />
                     </Route>
                     <Route path="/chat" element={<Chat />} />
                </Routes>

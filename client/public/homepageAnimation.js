@@ -32,7 +32,7 @@ function windowResized() {
 class Dot {
      constructor() {
           this.maxSpeed = 2;
-          this.thickness = random(1, 5);
+          this.thickness = random(1, 10);
           this.pos = { x: random(width), y: random(height) };
           this.velocity = { x: random(-this.maxSpeed, this.maxSpeed), y: random(-this.maxSpeed, this.maxSpeed) };
           const variableSpeed = this.maxSpeed / 10;
@@ -57,8 +57,8 @@ class Dot {
           this.pos.y += this.velocity.y + this.randomness.y;
 
           // parallax effect
-          this.pos.x += map(movedX, 0, width, 0, 100);
-          this.pos.y += map(movedY, 0, height, 0, 100);
+          // this.pos.x += map(movedX, 0, width, 0, 100);
+          // this.pos.y += map(movedY, 0, height, 0, 100);
 
           if (frameCount % 100 === 0) {
                const variableSpeed = this.maxSpeed / 5;
