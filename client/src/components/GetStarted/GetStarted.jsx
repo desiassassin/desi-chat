@@ -1,13 +1,71 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { RiChatSmile3Line } from "react-icons/ri";
+import { isEmpty, isStrongPassword } from "validator";
+import Axios from "axios";
+import socket from "../../lib/socket";
 
 const GetStarted = () => {
-     const [username, setUsername] = useState("");
-     const [password, setPassword] = useState("");
+     const [registerUsername, setRegisterUsername] = useState("");
+     const registerPasswordRef = useRef();
 
-     const handleRegisterSubmit = (e) => {
+     const handleRegisterUsernameChange = (e) => {
+          const username = e.target.value;
+          setRegisterUsername(username);
+          socket.emit("register-username-change", { username });
+     };
+     const handleRegisterSubmit = async (e) => {
           e.preventDefault();
+
+          if (validateRegister()) {
+               // create user
+               try {
+                    const response = await Axios({
+                         method: "POST",
+                         url: `${process.env.REACT_APP_BASE_URL}/register`,
+                         data: { username: registerUsername, password: registerPasswordRef.current.value },
+                    });
+
+                    if (response.status === 200 && response.data.message === "Registered") console.log("Registered");
+               } catch (error) {
+                    console.log(error.message);
+               }
+          }
+     };
+
+     const validateRegister = () => {
+          // firstName
+          if (isEmpty(registerUsername)) {
+               showError(`Username can't be empty.`);
+               return false;
+          } else if (/[^a-zA-Z0-9 _]/.test(registerUsername)) {
+               showError("Username can only contain alpha-numeric character [A-Z][0-9] SPACE UNDERSCORE");
+               return false;
+          }
+
+          // password
+          if (isEmpty(registerPasswordRef.current.value)) {
+               showError(`Password can't be empty.`);
+               return false;
+          } else if (
+               !isStrongPassword(registerPasswordRef.current.value, {
+                    minLength: 8,
+                    minLowercase: 1,
+                    minUppercase: 0,
+                    minNumbers: 0,
+                    minSymbols: 0,
+               })
+          ) {
+               showError("Password must contain atleast 8 characters.");
+               return false;
+          }
+
+          showError("");
+          return true;
+     };
+
+     const showError = (message) => {
+          document.getElementById("register-error").innerText = message;
      };
 
      useEffect(() => {
@@ -55,29 +113,20 @@ const GetStarted = () => {
                                         placeholder="Username"
                                         name="username"
                                         id="username"
-                                        value={username}
-                                        onChange={(e) => setUsername(e.target.value)}
+                                        value={registerUsername}
+                                        onChange={handleRegisterUsernameChange}
                                    />
                                    <label htmlFor="username" className="form__label">
                                         Username
                                    </label>
                               </div>
                               <div className="form__group field">
-                                   <input
-                                        autoComplete="off"
-                                        type="password"
-                                        className="form__field"
-                                        placeholder="Password"
-                                        name="passsword"
-                                        id="password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                   />
+                                   <input ref={registerPasswordRef} autoComplete="off" type="password" className="form__field" placeholder="Password" name="passsword" id="password" />
                                    <label htmlFor="password" className="form__label">
                                         Password
                                    </label>
                               </div>
-                              <div id="register-error"></div>
+                              <div id="register-error" className="error"></div>
                               <Button className="ripple" type="submit">
                                    Sign Up
                               </Button>
@@ -112,6 +161,12 @@ const Wrapper = styled.div`
      background-color: transparent;
      backdrop-filter: blur(5px);
      border: 2px solid rgb(var(--accent-primary));
+
+     .error {
+          text-align: center;
+          color: rgb(var(--accent-error));
+          font-weight: 700;
+     }
 `;
 const SignUp = styled.div`
      padding: calc(var(--spacing) * 2);

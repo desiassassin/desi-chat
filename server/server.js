@@ -25,6 +25,31 @@ instrument(io, {
      },
 });
 
+// MODELS
+import { User } from "./model/user.js";
+
+// Connect to MongoDB Atlas
+(async () => {
+     try {
+          await mongoose.connect(process.env.DB_URL);
+          console.log("Connected to MongoDB Atlas Cloud Database");
+     } catch (error) {
+          console.log(`Error connecting to MongoDB Atlas Cloud Database.\n${error.message}`);
+
+          try {
+               console.log("Attempting to connect to the Local Fallback Database.");
+               await mongoose.connect(process.env.DB_URL_LOCAL);
+               console.log("Connected to the Local Fallback Database.");
+          } catch (error) {
+               console.log(`Error connecting to the Local Fallback Database.\n${error.message}`);
+               process.exit();
+          }
+     }
+})();
+
+// ROUTERS
+import { userRouter } from "./routes/user.js";
+
 // MIDDLEWARES
 app.use(
      express.json({
@@ -45,6 +70,25 @@ app.use(
      })
 );
 
-io.on("connection", () => {});
+app.post("/register", async (req, res) => {
+     console.log(req.body);
+     const { username, password } = req.body;
+     try {
+          await User.create({ username, password });
+          return res.json({ message: "Registered" });
+     } catch (error) {
+          console.log(err.message);
+          return res.status(400).json({ message: err });
+     }
+});
+
+// socket io
+io.on("connection", (socket) => {
+     console.log(`New connection: ${socket.id}`);
+
+     socket.on("register-username-change", ({ username }) => {
+          console.log(username);
+     });
+});
 
 httpServer.listen(3001, () => console.log("Server running on PORT 3001"));
