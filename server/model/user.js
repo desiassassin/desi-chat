@@ -7,15 +7,15 @@ const userSchema = new mongoose.Schema(
           username: {
                type: String,
                unique: true,
-               required: [true, "Userame is required."],
-               maxlength: [50, "Userame is too long."],
-               minlength: [3, "Userame is too short."],
+               required: [true, "Username is required."],
+               maxlength: [50, "Username is too long."],
+               minlength: [3, "Username is too short."],
                trim: true,
                validate: {
                     validator: function (name) {
-                         return !/[^a-zA-z0-9 _]/.test(name);
+                         return !/[^a-zA-Z0-9_]/.test(name);
                     },
-                    message: "Username should only contain alpha-numeric characters [a-z][A-Z][0-9] SPACE UNDERSCORE",
+                    message: "Username should only contain alpha-numeric characters [a-z][A-Z][0-9] UNDERSCORE",
                },
           },
           password: {

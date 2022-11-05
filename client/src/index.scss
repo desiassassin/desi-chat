@@ -35,10 +35,46 @@ canvas {
 
 .form__group {
      position: relative;
+     display: flex;
+     flex-direction: column;
+     // gap: calc($spacing / 2);
+
+     .error {
+          display: none;
+          color: $accent-error;
+          margin-top: calc($spacing / 4);
+          padding-inline: calc($spacing * 0.75);
+     }
 
      &.error {
+          .error {
+               display: block;
+          }
 
+          .form__label {
+               color: $accent-error;
+          }
+
+          .form__field {
+               outline: 1px solid $accent-error;
+
+               &:hover {
+                    outline: 3px solid $accent-error;
+               }
+               
+               &:placeholder-shown ~ .form__label {
+                    top: 35%;
+               }
+          }
+          .form__field:focus {
+               outline: 3px solid $accent-error;
+
+               ~ .form__label {
+                    top: calc($spacing / -4);
+               }
+          }
      }
+
  }
  .form__field {
      width: 100%;
@@ -54,16 +90,15 @@ canvas {
      &::placeholder {
          color: transparent;
      }
+     &:hover {
+          outline: 3px solid $accent-primary;
+     }
 
      // input is empty and not focused
      &:placeholder-shown ~ .form__label {
          font-size: 1.25rem;
-         top: 50%;
+         top: 45%;
          background-color: transparent;
-     }
-
-     &:hover {
-          outline: 3px solid $accent-primary
      }
  }
 
@@ -94,6 +129,63 @@ canvas {
           background-color: $bg-dark;
       }
  }
+// .form__group {
+//      position: relative;
+//  }
+//  .form__field {
+//      width: 100%;
+//      outline: 1px solid $accent-primary;
+//      border-radius: $border-radius;
+//      border: none;
+//      font-size: $font-big;
+//      color: $font-bright;
+//      padding: $spacing;
+//      background: transparent;
+//      transition: border-color 0.2s;
+
+//      &::placeholder {
+//          color: transparent;
+//      }
+
+//      // input is empty and not focused
+//      &:placeholder-shown ~ .form__label {
+//          font-size: 1.25rem;
+//          top: 50%;
+//          background-color: transparent;
+//      }
+
+//      &:hover {
+//           outline: 3px solid $accent-primary
+//      }
+//  }
+
+//  // input is not focused
+//  .form__label {
+//      pointer-events: none;
+//      position: absolute;
+//      top: calc($spacing / -4);
+//      translate: 0px -50%;
+//      left: calc($spacing / 2);
+//      transition: 0.2s;
+//      color: $accent-primary;
+//      background-color: $bg-dark;
+//      font-size: 1rem;
+//      padding-inline: calc($spacing / 4);
+//  }
+
+//  .form__field:focus {
+//       font-weight: 700;
+//       outline: 3px solid $accent-primary;
+//       border-image-slice: 1;
+      
+//       // input is focused
+//       ~ .form__label {
+//           top: calc($spacing / -4);
+//           font-size: 1rem;
+//           font-weight: 700;
+//           background-color: $bg-dark;
+//       }
+//  }
 
  input[type="password"] {
      font-family: Verdana, Geneva, Tahoma, sans-serif;

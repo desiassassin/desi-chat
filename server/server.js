@@ -7,6 +7,29 @@ import cors from "cors";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { instrument } from "@socket.io/admin-ui";
+import { readFileSync, writeFileSync } from "fs";
+
+const REGISTERED_NAMES = {
+     names: readFileSync("./data/registeredNames.txt", { encoding: "utf-8" }).split(/\r\n|\n|\r/),
+     update: function () {
+          writeFileSync("./data/registeredNames.txt", this.names.join("\n"));
+          return this;
+     },
+     add: function (name) {
+          this.names.push(name);
+          return this;
+     },
+     remove: function (names) {
+          for (const name of names) {
+               const index = this.names.indexOf(name);
+               this.names.splice(index, 1);
+          }
+          return this;
+     },
+     has: function (name) {
+          return this.names.includes(name);
+     },
+};
 
 const app = express();
 const httpServer = createServer(app);
@@ -71,23 +94,22 @@ app.use(
 );
 
 app.post("/register", async (req, res) => {
-     console.log(req.body);
      const { username, password } = req.body;
      try {
-          await User.create({ username, password });
+          const user = await new User({ username, password }).save();
+          // await ({ username, password });
+          REGISTERED_NAMES.add(username).update();
           return res.json({ message: "Registered" });
      } catch (error) {
-          console.log(err.message);
-          return res.status(400).json({ message: err });
+          console.log(error.message);
+          return res.status(400).json({ message: error });
      }
 });
 
 // socket io
 io.on("connection", (socket) => {
-     console.log(`New connection: ${socket.id}`);
-
      socket.on("register-username-change", ({ username }) => {
-          console.log(username);
+          socket.emit("register-username-change", { message: REGISTERED_NAMES.has(username) ? `"${username}" is already taken. Please use another one.` : "" });
      });
 });
 

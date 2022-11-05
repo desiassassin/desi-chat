@@ -35,6 +35,7 @@ class Dot {
           this.thickness = random(1, 10);
           this.pos = { x: random(width), y: random(height) };
           this.velocity = { x: random(-this.maxSpeed, this.maxSpeed), y: random(-this.maxSpeed, this.maxSpeed) };
+          this.slowSpeed = { x: random(-1, 1), y: random(-1, 1) };
           const variableSpeed = this.maxSpeed / 10;
           this.randomness = { x: random(-variableSpeed, variableSpeed), y: random(-variableSpeed, variableSpeed) };
      }
@@ -53,12 +54,16 @@ class Dot {
           else if (this.pos.y < 0) this.pos.y = height;
 
           // update position
-          this.pos.x += this.velocity.x + this.randomness.x;
-          this.pos.y += this.velocity.y + this.randomness.y;
 
-          // parallax effect
-          // this.pos.x += map(movedX, 0, width, 0, 100);
-          // this.pos.y += map(movedY, 0, height, 0, 100);
+          // sticky effect
+          const distance = dist(this.pos.x, this.pos.y, mouseX, mouseY);
+          if (distance < 100) {
+               this.pos.x += constrain(this.velocity.x, -0.25, 0.25);
+               this.pos.y += constrain(this.velocity.y, -0.25, 0.25);
+          } else {
+               this.pos.x += this.velocity.x + this.randomness.x;
+               this.pos.y += this.velocity.y + this.randomness.y;
+          }
 
           if (frameCount % 100 === 0) {
                const variableSpeed = this.maxSpeed / 5;

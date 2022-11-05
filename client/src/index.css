@@ -20,7 +20,43 @@ canvas {
 
 .form__group {
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
+.form__group .error {
+  display: none;
+  color: rgb(244, 67, 54);
+  margin-top: 4px;
+  padding-inline: 12px;
+}
+.form__group.error .error {
+  display: block;
+}
+.form__group.error .form__label {
+  color: rgb(244, 67, 54);
+}
+.form__group.error .form__field {
+  outline: 1px solid rgb(244, 67, 54);
+}
+.form__group.error .form__field:hover {
+  outline: 3px solid rgb(244, 67, 54);
+}
+.form__group.error .form__field:-moz-placeholder-shown ~ .form__label {
+  top: 35%;
+}
+.form__group.error .form__field:-ms-input-placeholder ~ .form__label {
+  top: 35%;
+}
+.form__group.error .form__field:placeholder-shown ~ .form__label {
+  top: 35%;
+}
+.form__group.error .form__field:focus {
+  outline: 3px solid rgb(244, 67, 54);
+}
+.form__group.error .form__field:focus ~ .form__label {
+  top: -4px;
+}
+
 .form__field {
   width: 100%;
   outline: 1px solid hsl(205deg, 86%, 58%);
@@ -41,23 +77,23 @@ canvas {
 .form__field::placeholder {
   color: transparent;
 }
+.form__field:hover {
+  outline: 3px solid hsl(205deg, 86%, 58%);
+}
 .form__field:-moz-placeholder-shown ~ .form__label {
   font-size: 1.25rem;
-  top: 50%;
+  top: 45%;
   background-color: transparent;
 }
 .form__field:-ms-input-placeholder ~ .form__label {
   font-size: 1.25rem;
-  top: 50%;
+  top: 45%;
   background-color: transparent;
 }
 .form__field:placeholder-shown ~ .form__label {
   font-size: 1.25rem;
-  top: 50%;
+  top: 45%;
   background-color: transparent;
-}
-.form__field:hover {
-  outline: 3px solid hsl(205deg, 86%, 58%);
 }
 
 .form__label {

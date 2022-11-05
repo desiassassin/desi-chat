@@ -120,3 +120,5 @@ dist
 requests.rest
 sendgrid.env
 uploads
+
+data/registeredNames.txt
