@@ -7,6 +7,7 @@ import cors from "cors";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { instrument } from "@socket.io/admin-ui";
+import { compare } from "bcrypt";
 import { readFileSync, writeFileSync } from "fs";
 
 const REGISTERED_NAMES = {
@@ -104,6 +105,30 @@ app.post("/register", async (req, res) => {
           console.log(error.message);
           return res.status(400).json({ message: error });
      }
+});
+
+app.post("/login", async (req, res) => {
+     const { username, password } = req.body;
+
+     if (username && password) {
+          try {
+               const user = await User.findOne({ username: username }, "username password");
+               if (user) {
+                    return (await compare(password, user.password))
+                         ? res.status(200).json({
+                                message: "Authenticated",
+                                user: {
+                                     id: user._id,
+                                     accessToken: jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "30d" }),
+                                },
+                           })
+                         : res.status(400).json({ message: "Wrong password." });
+               } else return res.status(400).json({ message: "Username does not exists." });
+          } catch (error) {
+               console.log(error.message);
+               return res.status(500).json({ message: "Something went wrong. Please try again later." });
+          }
+     } else return res.status(400).json({ message: "Please fill out all the fields." });
 });
 
 // socket io

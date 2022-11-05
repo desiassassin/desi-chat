@@ -1,43 +1,44 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { RiChatSmile3Line } from "react-icons/ri";
-import { isEmpty, isStrongPassword } from "validator";
+import isEmpty from "validator/es/lib/isEmpty";
+import isStrongPassword from "validator/es/lib/isStrongPassword";
 import socket from "../../lib/socket";
 import Axios from "axios";
 import { Button } from "./GetStarted";
 
 const Register = () => {
-     const [registerUsername, setRegisterUsername] = useState("");
-     const registerPasswordRef = useRef();
+     const [username, setUsername] = useState("");
+     const [password, setPassword] = useState("");
 
      useEffect(() => {
-          socket.on("register-username-change", ({ message }) => toggleRegistrationErrors({ elementName: "username", message, show: message ? true : false }));
+          socket.on("register-username-change", ({ message }) => toggleErrors({ elementName: "username", message, show: message ? true : false }));
           return () => socket.removeAllListeners("register-username-change");
      }, []);
 
-     const handleRegisterUsernameChange = (e) => {
+     const handleUsernameChange = (e) => {
           const username = e.target.value;
-          setRegisterUsername(username);
+          setUsername(username);
           socket.emit("register-username-change", { username });
      };
 
-     const validateRegister = () => {
+     const validate = () => {
           // clear previous errors
-          ["username", "password"].forEach((input) => toggleRegistrationErrors({ elementName: input }));
+          ["username", "password"].forEach((input) => toggleErrors({ elementName: input }));
           let errors = [];
 
           // firstName
-          if (isEmpty(registerUsername)) {
+          if (isEmpty(username)) {
                errors.push({ elementName: "username", message: `Username can't be empty.`, show: true });
-          } else if (/[^a-zA-Z0-9_]/.test(registerUsername)) {
+          } else if (/[^a-zA-Z0-9_]/.test(username)) {
                errors.push({ elementName: "username", message: "Username can only contain alpha-numeric character [A-Z][0-9]UNDERSCORE", show: true });
           }
 
           // password
-          if (isEmpty(registerPasswordRef.current.value)) {
+          if (isEmpty(password)) {
                errors.push({ elementName: "password", message: `Password can't be empty.`, show: true });
           } else if (
-               !isStrongPassword(registerPasswordRef.current.value, {
+               !isStrongPassword(password, {
                     minLength: 8,
                     minLowercase: 1,
                     minUppercase: 0,
@@ -51,23 +52,23 @@ const Register = () => {
           if (errors.length) {
                for (const error of errors) {
                     const { elementName, message, show } = error;
-                    toggleRegistrationErrors({ elementName, message, show });
+                    toggleErrors({ elementName, message, show });
                }
                return false;
           }
           return true;
      };
 
-     const handleRegisterSubmit = async (e) => {
+     const handleSubmit = async (e) => {
           e.preventDefault();
-
-          if (validateRegister()) {
+          const validated = validate();
+          if (validated) {
                // create user
                try {
                     const response = await Axios({
                          method: "POST",
                          url: `${process.env.REACT_APP_BASE_URL}/register`,
-                         data: { username: registerUsername, password: registerPasswordRef.current.value },
+                         data: { username: username, password: password },
                     });
 
                     if (response.status === 200 && response.data.message === "Registered") console.log("Registered");
@@ -75,15 +76,15 @@ const Register = () => {
                     const { message } = error?.response?.data;
                     if (message?.code === 11000) {
                          const value = message.keyValue[Object.keys(message.keyValue)];
-                         return toggleRegistrationErrors({ elementName: "username", message: `"${value}" is already taken. Please use another one.`, show: true });
+                         return toggleErrors({ elementName: "username", message: `"${value}" is already taken. Please use another one.`, show: true });
                     } else if (message?.errors) {
-                         Object.entries(message?.errors).forEach(([key, { message }]) => toggleRegistrationErrors({ elementName: key, message, show: true }));
+                         Object.entries(message?.errors).forEach(([key, { message }]) => toggleErrors({ elementName: key, message, show: true }));
                     }
                }
           }
      };
 
-     const toggleRegistrationErrors = ({ elementName, message = "", show = false }) => {
+     const toggleErrors = ({ elementName, message = "", show = false }) => {
           const element = document.getElementById(`register-${elementName}-error`);
           const { parentElement } = element;
 
@@ -104,7 +105,7 @@ const Register = () => {
                     <p>Just pick a username & password. Wallah! it's that simple.</p>
                </div>
                <hr />
-               <form onSubmit={handleRegisterSubmit}>
+               <form onSubmit={handleSubmit}>
                     <div className="form__group field">
                          <input
                               autoComplete="chrome-off"
@@ -112,9 +113,9 @@ const Register = () => {
                               className="form__field"
                               placeholder="Username"
                               name="username"
-                              id="registerUsername"
-                              value={registerUsername}
-                              onChange={handleRegisterUsernameChange}
+                              id="register-username"
+                              value={username}
+                              onChange={handleUsernameChange}
                          />
                          <label htmlFor="register-username" className="form__label">
                               Username
@@ -124,8 +125,17 @@ const Register = () => {
                          </div>
                     </div>
                     <div className="form__group field">
-                         <input ref={registerPasswordRef} autoComplete="off" type="password" className="form__field" placeholder="Password" name="passsword" id="register-password" />
-                         <label htmlFor="RegisterPassword" className="form__label">
+                         <input
+                              autoComplete="off"
+                              type="password"
+                              className="form__field"
+                              placeholder="Password"
+                              name="passsword"
+                              id="register-password"
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                         />
+                         <label htmlFor="register-password" className="form__label">
                               Password
                          </label>
                          <div id="register-password-error" className="error">
