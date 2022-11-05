@@ -67,7 +67,11 @@ export const Button = styled.button`
      position: relative;
      overflow: hidden;
 
-     padding: 1em 1em;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+
+     padding: 1em 2em;
      transition: background-color 250ms;
      cursor: pointer;
      font-weight: 700;
@@ -77,8 +81,87 @@ export const Button = styled.button`
      border-radius: var(--border-radius);
      background-color: rgb(var(--accent-primary-dark));
 
+     transition: background-color 500ms;
+
      :hover {
+          /* background-color: rgb(var(--accent-primary)); */
+          background-color: transparent;
+          outline: 1px solid rgb(var(--accent-primary));
+     }
+
+     .loader,
+     .success,
+     .failure {
+          display: none;
+          width: min-content;
+          margin: auto;
+          scale: 2.5;
+     }
+
+     &.loading {
           background-color: rgb(var(--accent-primary));
+
+          .text,
+          .success,
+          .failure {
+               display: none;
+          }
+          .loader {
+               display: flex;
+               animation: rotate 1s infinite linear;
+
+               @keyframes rotate {
+                    to {
+                         rotate: 360deg;
+                    }
+               }
+          }
+     }
+
+     &.loading-complete {
+          background-color: rgb(var(--accent-secondary));
+
+          .text,
+          .loader,
+          .failure {
+               display: none;
+          }
+
+          .success {
+               display: flex;
+          }
+     }
+
+     &.failed {
+          background-color: rgb(var(--accent-error));
+
+          .text,
+          .loader,
+          .success {
+               display: none;
+          }
+
+          .failure {
+               display: flex;
+          }
+     }
+
+     span.ripple {
+          position: absolute;
+          pointer-events: none;
+          border-radius: 50%;
+          scale: 0;
+          translate: -50% -50%;
+          animation: ripple 800ms linear;
+          background-color: rgba(255, 255, 255, 0.5);
+          /* background-color: rgba(0, 0, 0, 0.25); */
+     }
+
+     @keyframes ripple {
+          to {
+               scale: 2;
+               opacity: 0;
+          }
      }
 
      /* &.ripple {
@@ -93,22 +176,4 @@ export const Button = styled.button`
                transition: background 0s;
           }
      } */
-
-     span.ripple {
-          position: absolute;
-          pointer-events: none;
-          border-radius: 50%;
-          scale: 0;
-          translate: -50% -50%;
-          animation: ripple 800ms linear;
-          /* background-color: rgba(255, 255, 255, 0.5); */
-          background-color: rgba(0, 0, 0, 0.25);
-     }
-
-     @keyframes ripple {
-          to {
-               scale: 2;
-               opacity: 0;
-          }
-     }
 `;

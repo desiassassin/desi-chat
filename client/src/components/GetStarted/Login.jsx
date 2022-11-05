@@ -72,7 +72,6 @@ const Login = () => {
                     if (error?.message === "Network Error") return toggleErrors("Couldn't connect to server. Please try again later.");
                     else if (error?.response?.data?.message) {
                          const { message } = error.response.data;
-                         console.log(message);
                          if (message === "Username does not exists.") toggleErrors({ elementName: "username", message: `${error.response.data.message}`, show: true });
                          else if (message === "Wrong password.") toggleErrors({ elementName: "password", message: `${error.response.data.message}`, show: true });
                     }
