@@ -1,18 +1,21 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { RiChatSmile3Line } from "react-icons/ri";
+import { RiChatSmile3Line, RiCheckLine, RiCloseLine, RiLoader3Line } from "react-icons/ri";
 import isEmpty from "validator/es/lib/isEmpty";
 import isStrongPassword from "validator/es/lib/isStrongPassword";
 import socket from "../../lib/socket";
 import Axios from "axios";
+import { toast } from "react-toastify";
 import { Button } from "./GetStarted";
 
 const Register = () => {
+     // const [username, setUsername] = useState({error: false, message: "", value: ""});
      const [username, setUsername] = useState("");
      const [password, setPassword] = useState("");
 
      useEffect(() => {
-          socket.on("register-username-change", ({ message }) => toggleErrors({ elementName: "username", message, show: message ? true : false }));
+          // socket.on("register-username-change", ({ message }) => toggleErrors({ elementName: "username", message, show: message ? true : false }));
+          socket.on("register-username-change", ({ message }) => message && toggleErrors({ elementName: "username", message, show: true }));
           return () => socket.removeAllListeners("register-username-change");
      }, []);
 
@@ -20,6 +23,30 @@ const Register = () => {
           const username = e.target.value;
           setUsername(username);
           socket.emit("register-username-change", { username });
+
+          if (isEmpty(username)) {
+               toggleErrors({ elementName: "username", message: `Username can't be empty.`, show: true });
+          } else if (/[^a-zA-Z0-9_]/.test(username)) {
+               toggleErrors({ elementName: "username", message: "Username can only contain alpha-numeric character [A-Z][0-9]UNDERSCORE", show: true });
+          } else if (username.length < 3 || username.length > 50) toggleErrors({ elementName: "username", message: "Username must be 3 - 50 characters long.", show: true });
+          else toggleErrors({ elementName: "username" });
+     };
+     const handlePasswordChange = (e) => {
+          const password = e.target.value;
+          setPassword(password);
+          if (isEmpty(password)) {
+               toggleErrors({ elementName: "password", message: `Password can't be empty.`, show: true });
+          } else if (
+               !isStrongPassword(password, {
+                    minLength: 8,
+                    minLowercase: 1,
+                    minUppercase: 0,
+                    minNumbers: 0,
+                    minSymbols: 0,
+               })
+          ) {
+               toggleErrors({ elementName: "password", message: "Password must contain atleast 8 characters.", show: true });
+          } else toggleErrors({ elementName: "password" });
      };
 
      const validate = () => {
@@ -61,25 +88,49 @@ const Register = () => {
 
      const handleSubmit = async (e) => {
           e.preventDefault();
+          const button = e.currentTarget;
           const validated = validate();
+
           if (validated) {
-               // create user
                try {
+                    // disable the button and set it's state to loading
+                    button.disabled = true;
+                    button.classList.add("loading");
+
+                    // create user
                     const response = await Axios({
                          method: "POST",
                          url: `${process.env.REACT_APP_BASE_URL}/register`,
                          data: { username: username, password: password },
                     });
 
-                    if (response.status === 200 && response.data.message === "Registered") console.log("Registered");
+                    if (response.status === 200 && response.data.message === "Registered") {
+                         setTimeout(() => {
+                              button.classList.remove("loading");
+                              button.classList.add("loading-complete");
+                              toast.info("Account created successfully!");
+                         }, 2000);
+                    }
                } catch (error) {
                     const { message } = error?.response?.data;
-                    if (message?.code === 11000) {
-                         const value = message.keyValue[Object.keys(message.keyValue)];
-                         return toggleErrors({ elementName: "username", message: `"${value}" is already taken. Please use another one.`, show: true });
-                    } else if (message?.errors) {
-                         Object.entries(message?.errors).forEach(([key, { message }]) => toggleErrors({ elementName: key, message, show: true }));
-                    }
+                    setTimeout(() => {
+                         button.classList.remove("loading");
+                         button.classList.add("failed");
+
+                         if (message?.code === 11000) {
+                              const value = message.keyValue[Object.keys(message.keyValue)];
+                              return toggleErrors({ elementName: "username", message: `"${value}" is already taken. Please use another one.`, show: true });
+                         } else if (message?.errors) {
+                              Object.entries(message?.errors).forEach(([key, { message }]) => toggleErrors({ elementName: key, message, show: true }));
+                         }
+                    }, 2000);
+               } finally {
+                    setTimeout(() => {
+                         button.classList.remove("loading");
+                         button.classList.remove("loading-complete");
+                         button.classList.remove("failed");
+                         button.disabled = false;
+                    }, 4000);
                }
           }
      };
@@ -105,7 +156,8 @@ const Register = () => {
                     <p>Just pick a username & password. Wallah! it's that simple.</p>
                </div>
                <hr />
-               <form onSubmit={handleSubmit}>
+               {/* <form onSubmit={handleSubmit}> */}
+               <form>
                     <div className="form__group field">
                          <input
                               autoComplete="chrome-off"
@@ -116,6 +168,7 @@ const Register = () => {
                               id="register-username"
                               value={username}
                               onChange={handleUsernameChange}
+                              maxLength={50}
                          />
                          <label htmlFor="register-username" className="form__label">
                               Username
@@ -133,7 +186,8 @@ const Register = () => {
                               name="passsword"
                               id="register-password"
                               value={password}
-                              onChange={(e) => setPassword(e.target.value)}
+                              onChange={handlePasswordChange}
+                              maxLength={64}
                          />
                          <label htmlFor="register-password" className="form__label">
                               Password
@@ -142,8 +196,17 @@ const Register = () => {
                               Is this even gonna work?
                          </div>
                     </div>
-                    <Button className="ripple" type="submit">
-                         Sign Up
+                    <Button className="ripple" type="submit" onClick={handleSubmit}>
+                         <div className="text">Sign Up</div>
+                         <div className="loader">
+                              <RiLoader3Line size="16px" />
+                         </div>
+                         <div className="success">
+                              <RiCheckLine size="16px" />
+                         </div>
+                         <div className="failure">
+                              <RiCloseLine size="16px" />
+                         </div>
                     </Button>
                </form>
           </SignUp>
