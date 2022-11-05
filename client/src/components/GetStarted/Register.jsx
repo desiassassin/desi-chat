@@ -9,35 +9,48 @@ import { toast } from "react-toastify";
 import { Button } from "./GetStarted";
 
 const Register = () => {
-     // const [username, setUsername] = useState({error: false, message: "", value: ""});
+     const [errors, setErrors] = useState({ username: { message: "Username can't be empty.", show: false }, password: { message: "Password can't be empty.", show: false } });
      const [username, setUsername] = useState("");
      const [password, setPassword] = useState("");
 
      useEffect(() => {
-          // socket.on("register-username-change", ({ message }) => toggleErrors({ elementName: "username", message, show: message ? true : false }));
           socket.on("register-username-change", ({ message }) => message && toggleErrors({ elementName: "username", message, show: true }));
           return () => socket.removeAllListeners("register-username-change");
      }, []);
 
-     const handleUsernameChange = (e) => {
-          const username = e.target.value;
-          setUsername(username);
-          socket.emit("register-username-change", { username });
+     useEffect(() => {
+          for (const [elementName, { message, show }] of Object.entries(errors)) {
+               toggleErrors({ elementName, message, show });
+          }
+     }, [errors]);
 
-          if (isEmpty(username)) {
-               toggleErrors({ elementName: "username", message: `Username can't be empty.`, show: true });
-          } else if (/[^a-zA-Z0-9_]/.test(username)) {
-               toggleErrors({ elementName: "username", message: "Username can only contain alpha-numeric character [A-Z][0-9]UNDERSCORE", show: true });
-          } else if (username.length < 3 || username.length > 50) toggleErrors({ elementName: "username", message: "Username must be 3 - 50 characters long.", show: true });
-          else toggleErrors({ elementName: "username" });
+     const handleUsernameChange = (e) => {
+          const { value } = e.target;
+          const elementName = "username";
+          let message = "";
+
+          socket.emit("register-username-change", { username: value });
+
+          if (isEmpty(value)) {
+               message = "Username can't be empty";
+          } else if (/[^a-zA-Z0-9_]/.test(value)) {
+               message = "Username can only contain alpha-numeric character [A-Z][0-9]UNDERSCORE";
+          } else if (value.length < 3 || value.length > 50) {
+               message = "Username must be 3 - 50 characters long.";
+          }
+
+          setErrors({ ...errors, [elementName]: { message, show: message ? true : false } });
+          setUsername(value);
      };
      const handlePasswordChange = (e) => {
-          const password = e.target.value;
-          setPassword(password);
-          if (isEmpty(password)) {
-               toggleErrors({ elementName: "password", message: `Password can't be empty.`, show: true });
+          const { value } = e.target;
+          const elementName = "password";
+          let message = "";
+
+          if (isEmpty(value)) {
+               message = `Password can't be empty.`;
           } else if (
-               !isStrongPassword(password, {
+               !isStrongPassword(value, {
                     minLength: 8,
                     minLowercase: 1,
                     minUppercase: 0,
@@ -45,93 +58,65 @@ const Register = () => {
                     minSymbols: 0,
                })
           ) {
-               toggleErrors({ elementName: "password", message: "Password must contain atleast 8 characters.", show: true });
-          } else toggleErrors({ elementName: "password" });
-     };
-
-     const validate = () => {
-          // clear previous errors
-          ["username", "password"].forEach((input) => toggleErrors({ elementName: input }));
-          let errors = [];
-
-          // firstName
-          if (isEmpty(username)) {
-               errors.push({ elementName: "username", message: `Username can't be empty.`, show: true });
-          } else if (/[^a-zA-Z0-9_]/.test(username)) {
-               errors.push({ elementName: "username", message: "Username can only contain alpha-numeric character [A-Z][0-9]UNDERSCORE", show: true });
+               message = "Password must contain atleast 8 characters.";
           }
 
-          // password
-          if (isEmpty(password)) {
-               errors.push({ elementName: "password", message: `Password can't be empty.`, show: true });
-          } else if (
-               !isStrongPassword(password, {
-                    minLength: 8,
-                    minLowercase: 1,
-                    minUppercase: 0,
-                    minNumbers: 0,
-                    minSymbols: 0,
-               })
-          ) {
-               errors.push({ elementName: "password", message: "Password must contain atleast 8 characters.", show: true });
-          }
-
-          if (errors.length) {
-               for (const error of errors) {
-                    const { elementName, message, show } = error;
-                    toggleErrors({ elementName, message, show });
-               }
-               return false;
-          }
-          return true;
+          setErrors({ ...errors, [elementName]: { message, show: message ? true : false } });
+          setPassword(value);
      };
 
      const handleSubmit = async (e) => {
           e.preventDefault();
           const button = e.currentTarget;
-          const validated = validate();
+          const errorsExist = !!Object.keys(errors).length;
 
-          if (validated) {
-               try {
-                    // disable the button and set it's state to loading
-                    button.disabled = true;
-                    button.classList.add("loading");
-
-                    // create user
-                    const response = await Axios({
-                         method: "POST",
-                         url: `${process.env.REACT_APP_BASE_URL}/register`,
-                         data: { username: username, password: password },
-                    });
-
-                    if (response.status === 200 && response.data.message === "Registered") {
-                         setTimeout(() => {
-                              button.classList.remove("loading");
-                              button.classList.add("loading-complete");
-                              toast.info("Account created successfully!");
-                         }, 2000);
-                    }
-               } catch (error) {
-                    const { message } = error?.response?.data;
-                    setTimeout(() => {
-                         button.classList.remove("loading");
-                         button.classList.add("failed");
-
-                         if (message?.code === 11000) {
-                              const value = message.keyValue[Object.keys(message.keyValue)];
-                              return toggleErrors({ elementName: "username", message: `"${value}" is already taken. Please use another one.`, show: true });
-                         } else if (message?.errors) {
-                              Object.entries(message?.errors).forEach(([key, { message }]) => toggleErrors({ elementName: key, message, show: true }));
-                         }
-                    }, 2000);
-               } finally {
-                    setTimeout(() => {
-                         button.classList.remove("loading");
-                         button.classList.remove("loading-complete");
-                         button.classList.remove("failed");
-                         button.disabled = false;
-                    }, 4000);
+          if (errorsExist) {
+               for (const [elementName, { message, show }] of Object.entries(errors)) {
+                    toggleErrors({ elementName, message, show });
                }
+               return;
+          }
+
+          // create user
+          console.log("creating");
+          try {
+               // disable the button and set it's state to loading
+               button.disabled = true;
+               button.classList.add("loading");
+
+               const response = await Axios({
+                    method: "POST",
+                    url: `${process.env.REACT_APP_BASE_URL}/register`,
+                    data: { username: username.value, password: password.value },
+               });
+
+               if (response.status === 200 && response.data.message === "Registered") {
+                    setTimeout(() => {
+                         button.classList.remove("loading");
+                         button.classList.add("loading-complete");
+                         toast.info("Account created successfully!");
+                    }, 2000);
+               }
+          } catch (error) {
+               const { message } = error?.response?.data;
+               setTimeout(() => {
+                    button.classList.remove("loading");
+                    button.classList.add("failed");
+
+                    if (message?.code === 11000) {
+                         const value = message.keyValue[Object.keys(message.keyValue)];
+                         return toggleErrors({ elementName: "username", message: `"${value}" is already taken. Please use another one.`, show: true });
+                    } else if (message?.errors) {
+                         Object.entries(message?.errors).forEach(([key, { message }]) => toggleErrors({ elementName: key, message, show: true }));
+                    }
+               }, 2000);
+          } finally {
+               setTimeout(() => {
+                    button.classList.remove("loading");
+                    button.classList.remove("loading-complete");
+                    button.classList.remove("failed");
+                    button.disabled = false;
+               }, 4000);
           }
      };
 
