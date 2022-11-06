@@ -5,6 +5,7 @@ const TARGET_DENSITY = 0.00018;
 
 function setup() {
      createCanvas(windowWidth, windowHeight, P2D);
+     frameRate(24);
      MAX_DOTS = floor(width * height * TARGET_DENSITY);
      // create dots
      for (let i = 0; i < MAX_DOTS; i++) dots.push(new Dot());
@@ -56,14 +57,14 @@ class Dot {
           // update position
 
           // sticky effect
-          const distance = dist(this.pos.x, this.pos.y, mouseX, mouseY);
-          if (distance < 100) {
-               this.pos.x += constrain(this.velocity.x, -0.25, 0.25);
-               this.pos.y += constrain(this.velocity.y, -0.25, 0.25);
-          } else {
-               this.pos.x += this.velocity.x + this.randomness.x;
-               this.pos.y += this.velocity.y + this.randomness.y;
-          }
+          // const distance = dist(this.pos.x, this.pos.y, mouseX, mouseY);
+          // if (distance < 100) {
+          //      this.pos.x += constrain(this.velocity.x, -0.25, 0.25);
+          //      this.pos.y += constrain(this.velocity.y, -0.25, 0.25);
+          // } else {
+          this.pos.x += this.velocity.x + this.randomness.x;
+          this.pos.y += this.velocity.y + this.randomness.y;
+          // }
 
           if (frameCount % 100 === 0) {
                const variableSpeed = this.maxSpeed / 5;

@@ -37,18 +37,48 @@ canvas {
 }
 .form__group.error .form__field {
   outline: 1px solid rgb(244, 67, 54);
+  -webkit-animation: shake 250ms linear;
+          animation: shake 250ms linear;
+}
+@-webkit-keyframes shake {
+  25% {
+    translate: 10px 0px;
+  }
+  50% {
+    translate: 0px 0px;
+  }
+  75% {
+    translate: -10px 0px;
+  }
+  100% {
+    translate: 0px 0px;
+  }
+}
+@keyframes shake {
+  25% {
+    translate: 10px 0px;
+  }
+  50% {
+    translate: 0px 0px;
+  }
+  75% {
+    translate: -10px 0px;
+  }
+  100% {
+    translate: 0px 0px;
+  }
 }
 .form__group.error .form__field:hover {
   outline: 3px solid rgb(244, 67, 54);
 }
 .form__group.error .form__field:-moz-placeholder-shown ~ .form__label {
-  top: 35%;
+  top: 25px;
 }
 .form__group.error .form__field:-ms-input-placeholder ~ .form__label {
-  top: 35%;
+  top: 25px;
 }
 .form__group.error .form__field:placeholder-shown ~ .form__label {
-  top: 35%;
+  top: 25px;
 }
 .form__group.error .form__field:focus {
   outline: 3px solid rgb(244, 67, 54);
@@ -82,17 +112,17 @@ canvas {
 }
 .form__field:-moz-placeholder-shown ~ .form__label {
   font-size: 1.25rem;
-  top: 45%;
+  top: 25px;
   background-color: transparent;
 }
 .form__field:-ms-input-placeholder ~ .form__label {
   font-size: 1.25rem;
-  top: 45%;
+  top: 25px;
   background-color: transparent;
 }
 .form__field:placeholder-shown ~ .form__label {
   font-size: 1.25rem;
-  top: 45%;
+  top: 25px;
   background-color: transparent;
 }
 

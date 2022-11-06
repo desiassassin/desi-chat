@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
 import { RiChatSmile3Line, RiCheckLine, RiCloseLine, RiLoader3Line } from "react-icons/ri";
 import isEmpty from "validator/es/lib/isEmpty";
@@ -9,19 +9,24 @@ import { toast } from "react-toastify";
 import { Button } from "./GetStarted";
 
 const Register = () => {
-     const [errors, setErrors] = useState({ username: { message: "Username can't be empty.", show: false }, password: { message: "Password can't be empty.", show: false } });
+     const initialRender = useRef(true);
+     const [errors, setErrors] = useState({
+          username: { message: "", show: true },
+          password: { message: "", show: true },
+     });
      const [username, setUsername] = useState("");
      const [password, setPassword] = useState("");
 
      useEffect(() => {
-          socket.on("register-username-change", ({ message }) => message && toggleErrors({ elementName: "username", message, show: true }));
+          socket.on("register-username-change", ({ message }) => message && setErrors((errors) => ({ ...errors, username: { message, show: true } })));
           return () => socket.removeAllListeners("register-username-change");
      }, []);
 
      useEffect(() => {
           for (const [elementName, { message, show }] of Object.entries(errors)) {
-               toggleErrors({ elementName, message, show });
+               !initialRender.current && toggleErrors({ elementName, message, show });
           }
+          initialRender.current = false;
      }, [errors]);
 
      const handleUsernameChange = (e) => {
@@ -31,6 +36,7 @@ const Register = () => {
 
           socket.emit("register-username-change", { username: value });
 
+          // validations for username
           if (isEmpty(value)) {
                message = "Username can't be empty";
           } else if (/[^a-zA-Z0-9_]/.test(value)) {
@@ -39,7 +45,7 @@ const Register = () => {
                message = "Username must be 3 - 50 characters long.";
           }
 
-          setErrors({ ...errors, [elementName]: { message, show: message ? true : false } });
+          setErrors((errors) => ({ ...errors, [elementName]: { message, show: message ? true : false } }));
           setUsername(value);
      };
      const handlePasswordChange = (e) => {
@@ -47,6 +53,7 @@ const Register = () => {
           const elementName = "password";
           let message = "";
 
+          // validations for password
           if (isEmpty(value)) {
                message = `Password can't be empty.`;
           } else if (
@@ -61,24 +68,28 @@ const Register = () => {
                message = "Password must contain atleast 8 characters.";
           }
 
-          setErrors({ ...errors, [elementName]: { message, show: message ? true : false } });
+          setErrors((errors) => ({ ...errors, [elementName]: { message, show: message ? true : false } }));
           setPassword(value);
      };
 
      const handleSubmit = async (e) => {
           e.preventDefault();
           const button = e.currentTarget;
-          const errorsExist = !!Object.keys(errors).length;
+          const error = Object.fromEntries(
+               Object.entries(errors)
+                    .filter(([elementName, { show }]) => show)
+                    .map(([elementName, { message, show }]) => [elementName, { message, show }])
+          );
+          const errorsExist = !!Object.keys(error).length;
 
           if (errorsExist) {
-               for (const [elementName, { message, show }] of Object.entries(errors)) {
+               for (const [elementName, { message, show }] of Object.entries(error)) {
                     toggleErrors({ elementName, message, show });
                }
                return;
           }
 
           // create user
-          console.log("creating");
           try {
                // disable the button and set it's state to loading
                button.disabled = true;
@@ -87,7 +98,7 @@ const Register = () => {
                const response = await Axios({
                     method: "POST",
                     url: `${process.env.REACT_APP_BASE_URL}/register`,
-                    data: { username: username.value, password: password.value },
+                    data: { username, password },
                });
 
                if (response.status === 200 && response.data.message === "Registered") {
@@ -105,9 +116,10 @@ const Register = () => {
 
                     if (message?.code === 11000) {
                          const value = message.keyValue[Object.keys(message.keyValue)];
-                         return toggleErrors({ elementName: "username", message: `"${value}" is already taken. Please use another one.`, show: true });
+                         return setErrors((errors) => ({ ...errors, username: { message: `"${value}" is already taken. Please use another one.`, show: true } }));
                     } else if (message?.errors) {
-                         Object.entries(message?.errors).forEach(([key, { message }]) => toggleErrors({ elementName: key, message, show: true }));
+                         // Object.entries(message?.errors).forEach(([key, { message }]) => toggleErrors({ elementName: key, message, show: true }));
+                         Object.entries(message?.errors).forEach(([key, { message }]) => setErrors((errors) => ({ ...errors, [key]: { message, show: true } })));
                     }
                }, 2000);
           } finally {
@@ -232,7 +244,6 @@ const SignUp = styled.div`
 
           input {
                background-color: transparent;
-               backdrop-filter: blur(100px);
                letter-spacing: 2px;
           }
      }

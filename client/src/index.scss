@@ -37,7 +37,6 @@ canvas {
      position: relative;
      display: flex;
      flex-direction: column;
-     // gap: calc($spacing / 2);
 
      .error {
           display: none;
@@ -56,14 +55,31 @@ canvas {
           }
 
           .form__field {
+               $deltaX: 10px;
                outline: 1px solid $accent-error;
+               animation: shake 250ms linear;
+
+               @keyframes shake {
+                    25% {
+                         translate: $deltaX 0px;
+                    }
+                    50% {
+                         translate: 0px 0px;
+                    }
+                    75% {
+                         translate: -$deltaX 0px;
+                    }
+                    100% {
+                         translate: 0px 0px;
+                    }
+               }
 
                &:hover {
                     outline: 3px solid $accent-error;
                }
                
                &:placeholder-shown ~ .form__label {
-                    top: 35%;
+                    top: 25px;
                }
           }
           .form__field:focus {
@@ -97,7 +113,7 @@ canvas {
      // input is empty and not focused
      &:placeholder-shown ~ .form__label {
          font-size: 1.25rem;
-         top: 45%;
+         top: 25px;
          background-color: transparent;
      }
  }
@@ -129,63 +145,6 @@ canvas {
           background-color: $bg-dark;
       }
  }
-// .form__group {
-//      position: relative;
-//  }
-//  .form__field {
-//      width: 100%;
-//      outline: 1px solid $accent-primary;
-//      border-radius: $border-radius;
-//      border: none;
-//      font-size: $font-big;
-//      color: $font-bright;
-//      padding: $spacing;
-//      background: transparent;
-//      transition: border-color 0.2s;
-
-//      &::placeholder {
-//          color: transparent;
-//      }
-
-//      // input is empty and not focused
-//      &:placeholder-shown ~ .form__label {
-//          font-size: 1.25rem;
-//          top: 50%;
-//          background-color: transparent;
-//      }
-
-//      &:hover {
-//           outline: 3px solid $accent-primary
-//      }
-//  }
-
-//  // input is not focused
-//  .form__label {
-//      pointer-events: none;
-//      position: absolute;
-//      top: calc($spacing / -4);
-//      translate: 0px -50%;
-//      left: calc($spacing / 2);
-//      transition: 0.2s;
-//      color: $accent-primary;
-//      background-color: $bg-dark;
-//      font-size: 1rem;
-//      padding-inline: calc($spacing / 4);
-//  }
-
-//  .form__field:focus {
-//       font-weight: 700;
-//       outline: 3px solid $accent-primary;
-//       border-image-slice: 1;
-      
-//       // input is focused
-//       ~ .form__label {
-//           top: calc($spacing / -4);
-//           font-size: 1rem;
-//           font-weight: 700;
-//           background-color: $bg-dark;
-//       }
-//  }
 
  input[type="password"] {
      font-family: Verdana, Geneva, Tahoma, sans-serif;
