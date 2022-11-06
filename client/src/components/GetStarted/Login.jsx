@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import { RiChatSmile3Line } from "react-icons/ri";
 import { Button } from "./GetStarted";
@@ -7,35 +7,38 @@ import { useNavigate } from "react-router-dom";
 import isEmpty from "validator/es/lib/isEmpty";
 
 const Login = () => {
+     const initialRender = useRef(true);
      const navigate = useNavigate();
+     const [errors, setErrors] = useState({ username: { message: "", show: true }, password: { message: "", show: true } });
      const [username, setUsername] = useState("");
      const [password, setPassword] = useState("");
 
+     useEffect(() => {
+          for (const [elementName, { message, show }] of Object.entries(errors)) {
+               !initialRender.current && toggleErrors({ elementName, message, show });
+          }
+          initialRender.current = false;
+     }, [errors]);
+
      const handleUsernameChange = (e) => {
-          toggleErrors({ elementName: "username" });
-          setUsername(e.target.value);
+          const { value } = e.target;
+          const elementName = "username";
+          let message = "";
+
+          if (isEmpty(value)) message = `Username can't be empty.`;
+
+          setErrors((errors) => ({ ...errors, [elementName]: { message, show: message ? true : false } }));
+          setUsername(value);
      };
      const handlePasswordChange = (e) => {
-          toggleErrors({ elementName: "password" });
-          setPassword(e.target.value);
-     };
-     const validate = () => {
-          ["username", "password"].forEach((input) => toggleErrors({ elementName: input }));
-          let errors = [];
+          const { value } = e.target;
+          const elementName = "password";
+          let message = "";
 
-          // username
-          if (isEmpty(username)) errors.push({ elementName: "username", message: `Username can't be empty.`, show: true });
-          // password
-          if (isEmpty(password)) errors.push({ elementName: "password", message: `Password can't be empty.`, show: true });
+          if (isEmpty(value)) message = `Password can't be empty.`;
 
-          if (errors.length) {
-               for (const error of errors) {
-                    const { elementName, message, show } = error;
-                    toggleErrors({ elementName, message, show });
-               }
-               return false;
-          }
-          return true;
+          setPassword(value);
+          setErrors((errors) => ({ ...errors, [elementName]: { message, show: message ? true : false } }));
      };
      const toggleErrors = ({ elementName, message = "", show = false }) => {
           const element = document.getElementById(`login-${elementName}-error`);
@@ -54,27 +57,38 @@ const Login = () => {
      const handleLoginSubmit = async (e) => {
           e.preventDefault();
 
-          const validated = validate();
+          // const validated = validate();
+          const error = Object.fromEntries(
+               Object.entries(errors)
+                    .filter(([elementName, { show }]) => show)
+                    .map(([elementName, { message, show }]) => [elementName, { message, show }])
+          );
+          const errorsExist = !!Object.keys(error).length;
 
-          if (validated) {
-               // request
-               try {
-                    const response = await Axios({ method: "POST", baseURL: `${process.env.REACT_APP_BASE_URL}/login`, data: { username, password } });
-                    console.log(response.data);
+          if (errorsExist) {
+               for (const [elementName, { message, show }] of Object.entries(error)) {
+                    toggleErrors({ elementName, message, show });
+               }
+               return;
+          }
 
-                    if (response.status === 200 && response.data.message === "Authenticated") {
-                         // cookies.set("accessToken", response.data.user.accessToken, { path: "/" });
-                         // const { user } = response.data;
-                         // store.dispatch({ type: ACTIONS.USER.LOGGED_IN, payload: user });
-                         navigate("/chat");
-                    }
-               } catch (error) {
-                    if (error?.message === "Network Error") return toggleErrors("Couldn't connect to server. Please try again later.");
-                    else if (error?.response?.data?.message) {
-                         const { message } = error.response.data;
-                         if (message === "Username does not exists.") toggleErrors({ elementName: "username", message: `${error.response.data.message}`, show: true });
-                         else if (message === "Wrong password.") toggleErrors({ elementName: "password", message: `${error.response.data.message}`, show: true });
-                    }
+          // request
+          try {
+               const response = await Axios({ method: "POST", baseURL: `${process.env.REACT_APP_BASE_URL}/login`, data: { username, password } });
+               console.log(response.data);
+
+               if (response.status === 200 && response.data.message === "Authenticated") {
+                    // cookies.set("accessToken", response.data.user.accessToken, { path: "/" });
+                    // const { user } = response.data;
+                    // store.dispatch({ type: ACTIONS.USER.LOGGED_IN, payload: user });
+                    navigate("/chat");
+               }
+          } catch (error) {
+               if (error?.message === "Network Error") return toggleErrors("Couldn't connect to server. Please try again later.");
+               else if (error?.response?.data?.message) {
+                    const { message } = error.response.data;
+                    if (message === "Username does not exists.") toggleErrors({ elementName: "username", message: `${error.response.data.message}`, show: true });
+                    else if (message === "Wrong password.") toggleErrors({ elementName: "password", message: `${error.response.data.message}`, show: true });
                }
           }
      };
@@ -83,7 +97,7 @@ const Login = () => {
                <div className="header">
                     <RiChatSmile3Line fill="rgb(var(--accent-primary))" size="80px" />
                     <h1>Connect to your family & friends with Desi Chat</h1>
-                    {/* <p>Just pick a username & password. Wallah! it's that simple.</p> */}
+                    <p>Use the registered username and password.</p>
                </div>
                <hr />
                <form onSubmit={handleLoginSubmit}>
