@@ -11,9 +11,9 @@ import { compare } from "bcrypt";
 import { readFileSync, writeFileSync } from "fs";
 
 const REGISTERED_NAMES = {
-     names: readFileSync("./data/registeredNames.txt", { encoding: "utf-8" }).split(/\r\n|\n|\r/),
+     names: JSON.parse(readFileSync("./data/registeredNames.json")),
      update: function () {
-          writeFileSync("./data/registeredNames.txt", this.names.join("\n"));
+          writeFileSync("./data/registeredNames.json", JSON.stringify(this.names, null, 5));
           return this;
      },
      add: function (name) {
@@ -134,7 +134,7 @@ app.post("/login", async (req, res) => {
 // socket io
 io.on("connection", (socket) => {
      socket.on("register-username-change", ({ username }) => {
-          socket.emit("register-username-change", { message: REGISTERED_NAMES.has(username) ? `"${username}" is already taken. Please use another one.` : "" });
+          socket.emit("register-username-change", { exists: REGISTERED_NAMES.has(username) });
      });
 });
 

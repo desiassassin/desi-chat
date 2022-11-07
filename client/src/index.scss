@@ -1,18 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Verdana&display=swap');
 
-$bg-dark: hsl(218, 23%, 9%);
-$bg-light: hsl(213, 23%, 17%);
-$font-bright: hsl(36, 10%, 90%);
-$font-dark: hsl(208, 25%, 65%);
 $font-big: 14px;
 $font-small: 13px;
 $font-xs: 10px;
 $spacing: 16px;
-$accent-primary: hsl(205, 86%, 58%);
-$accent-primary-dark: hsl(205, 86%, 38%);
-$accent-secondary: hsl(155, 68%, 38%);
+$transition-time: 150ms;
+
+$bg-dark: rgb(18, 22, 28);
+$bg-light: rgb(33, 42, 53);
+$font-bright: rgb(232, 230, 227);
+$font-dark: rgb(143, 167, 188);
+$accent-primary: rgb(56, 163, 240);
+$accent-primary-light: rgb(79, 195, 247);
+$accent-primary-dark: rgb(14, 111, 180);
+$accent-secondary: rgb(31, 163, 108);
+$accent-secondary-light: rgb(129, 199, 132);
+$accent-secondary-dark: rgb(56, 142, 60);
 $accent-error: rgb(244, 67, 54);
+$accent-error-light: rgb(229, 115, 115);
+$accent-error-dark: rgb(211, 47, 47);
 $border-radius: 8px;
 
 *, *::after, *::before {
@@ -128,7 +135,7 @@ canvas {
      color: $font-bright;
      padding: $spacing;
      background: transparent;
-     transition: border-color 0.2s;
+     transition: border-color $transition-time;
 
      &::placeholder {
          color: transparent;
@@ -152,7 +159,7 @@ canvas {
      top: calc($spacing / -4);
      translate: 0px -50%;
      left: calc($spacing / 2);
-     transition: 0.2s;
+     transition: $transition-time;
      color: $accent-primary;
      background-color: $bg-dark;
      font-size: 1rem;
@@ -177,4 +184,16 @@ canvas {
      font-family: Verdana, Geneva, Tahoma, sans-serif;
      font-size: $font-big;
      font-weight: 700;
+}
+
+.backdrop {
+     display: none;
+     position: fixed;
+     inset: 0px;
+     z-index: 100;
+     background-color: transparent;
+     backdrop-filter: blur(50px);
+     &.show {
+          display: block;
+     }
 }

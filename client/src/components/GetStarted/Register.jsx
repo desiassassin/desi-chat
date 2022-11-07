@@ -1,13 +1,14 @@
 import Axios from "axios";
 import { useEffect, useRef, useState } from "react";
-import { RiChatSmile3Line, RiCheckLine, RiCloseLine, RiLoader3Line, RiEyeLine, RiEyeOffLine } from "react-icons/ri";
+import { RiChatSmile3Line, RiCheckLine, RiCloseLine, RiEyeLine, RiEyeOffLine, RiLoader3Line } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import styled from "styled-components";
 import isEmpty from "validator/es/lib/isEmpty";
 import isStrongPassword from "validator/es/lib/isStrongPassword";
 import socket from "../../lib/socket";
-import { addRippleToButtons, Button, MainWrapper, Wrapper } from "./misc";
+import { MainWrapper, Wrapper } from "./misc";
+import { Button } from "../misc/Button";
 
 const Register = () => {
      const initialRender = useRef(true);
@@ -19,11 +20,12 @@ const Register = () => {
      const [password, setPassword] = useState("");
 
      useEffect(() => {
-          socket.on("register-username-change", ({ message }) => message && setErrors((errors) => ({ ...errors, username: { message, show: true } })));
+          socket.on(
+               "register-username-change",
+               ({ exists }) => exists && setErrors((errors) => ({ ...errors, username: { message: `"${username}" is already registered. Please choose another one.`, show: true } }))
+          );
           return () => socket.removeAllListeners("register-username-change");
-     }, []);
-
-     useEffect(addRippleToButtons, []);
+     }, [username]);
 
      useEffect(() => {
           for (const [elementName, { message, show }] of Object.entries(errors)) {
@@ -153,9 +155,7 @@ const Register = () => {
                     <SignUp>
                          <div className="header">
                               <RiChatSmile3Line fill="rgb(var(--accent-primary))" size="80px" />
-                              {/* <h1>Get started with Desi Chat</h1> */}
-                              <h1>Create an account.</h1>
-                              {/* <p>Just pick a username. It's that simple.</p> */}
+                              <h1>Create an account to get started.</h1>
                          </div>
                          <hr />
                          <form>

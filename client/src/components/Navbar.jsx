@@ -1,6 +1,6 @@
+import { RiChatSmile3Line } from "react-icons/ri";
 import { Link, Outlet } from "react-router-dom";
 import styled from "styled-components";
-import { RiChatSmile3Line } from "react-icons/ri";
 
 const Navbar = () => {
      return (
@@ -10,6 +10,10 @@ const Navbar = () => {
                          <RiChatSmile3Line size="50px" />
                     </NavbarHome>
                     <NavbarLinks>
+                         <li>
+                              <Link to="/@me">Chat</Link>
+                         </li>
+
                          <li>
                               <Link to="/login" className="action">
                                    Get Started
@@ -36,6 +40,7 @@ const NavbarWrapper = styled.nav`
      font-size: 0.75rem;
      min-width: 300px;
      background-color: transparent;
+     backdrop-filter: blur(20px);
 `;
 
 const NavbarHome = styled(Link)`
@@ -47,7 +52,7 @@ const NavbarHome = styled(Link)`
 
      svg {
           fill: rgb(var(--accent-primary));
-          transition: fill 150ms;
+          transition: fill var(--transition-time);
 
           :hover {
                fill: rgb(var(--accent-primary-dark));
@@ -59,6 +64,7 @@ const NavbarLinks = styled.ul`
      display: flex;
      flex-wrap: wrap;
      justify-content: center;
+     align-items: center;
      gap: 2rem;
      list-style-type: none;
      font-size: 1.25rem;
@@ -72,7 +78,7 @@ const NavbarLinks = styled.ul`
                background-color: rgb(var(--accent-primary));
                padding: 0.5em 1em;
                border-radius: 1em;
-               transition: background-color 150ms;
+               transition: background-color var(--transition-time);
 
                :hover {
                     background-color: rgb(var(--accent-primary-dark));
@@ -84,7 +90,7 @@ const NavbarLinks = styled.ul`
           position: absolute;
           width: 0;
           inset: calc(100% - 1px) 0 0 0;
-          transition: width 100ms;
+          transition: width var(--transition-time);
           transform-origin: left;
      }
      a:hover::before {
@@ -95,7 +101,7 @@ const NavbarLinks = styled.ul`
           position: absolute;
           width: 0;
           inset: 0 0 calc(100% - 1px) 0;
-          transition: width 100ms;
+          transition: width var(--transition-time);
           transform-origin: right;
      }
      a:hover::after {

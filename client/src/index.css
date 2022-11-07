@@ -8,8 +8,8 @@
 }
 
 body {
-  background-color: hsl(218deg, 23%, 9%);
-  color: hsl(36deg, 10%, 90%);
+  background-color: rgb(18, 22, 28);
+  color: rgb(232, 230, 227);
 }
 
 canvas {
@@ -112,14 +112,14 @@ canvas {
 
 .form__field {
   width: 100%;
-  outline: 1px solid hsl(205deg, 86%, 58%);
+  outline: 1px solid rgb(56, 163, 240);
   border-radius: 8px;
   border: none;
   font-size: 14px;
-  color: hsl(36deg, 10%, 90%);
+  color: rgb(232, 230, 227);
   padding: 16px;
   background: transparent;
-  transition: border-color 0.2s;
+  transition: border-color 150ms;
 }
 .form__field::-moz-placeholder {
   color: transparent;
@@ -131,7 +131,7 @@ canvas {
   color: transparent;
 }
 .form__field:hover {
-  outline: 3px solid hsl(205deg, 86%, 58%);
+  outline: 3px solid rgb(56, 163, 240);
 }
 .form__field:-moz-placeholder-shown ~ .form__label {
   font-size: 1.25rem;
@@ -155,27 +155,40 @@ canvas {
   top: -4px;
   translate: 0px -50%;
   left: 8px;
-  transition: 0.2s;
-  color: hsl(205deg, 86%, 58%);
-  background-color: hsl(218deg, 23%, 9%);
+  transition: 150ms;
+  color: rgb(56, 163, 240);
+  background-color: rgb(18, 22, 28);
   font-size: 1rem;
   padding-inline: 4px;
 }
 
 .form__field:focus {
   font-weight: 700;
-  outline: 3px solid hsl(205deg, 86%, 58%);
+  outline: 3px solid rgb(56, 163, 240);
   border-image-slice: 1;
 }
 .form__field:focus ~ .form__label {
   top: -4px;
   font-size: 1rem;
   font-weight: 700;
-  background-color: hsl(218deg, 23%, 9%);
+  background-color: rgb(18, 22, 28);
 }
 
 input[type=password] {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   font-size: 14px;
   font-weight: 700;
+}
+
+.backdrop {
+  display: none;
+  position: fixed;
+  inset: 0px;
+  z-index: 100;
+  background-color: transparent;
+  -webkit-backdrop-filter: blur(50px);
+          backdrop-filter: blur(50px);
+}
+.backdrop.show {
+  display: block;
 }

@@ -1,11 +1,12 @@
 import Axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { RiChatSmile3Line, RiEyeLine, RiEyeOffLine } from "react-icons/ri";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import isEmpty from "validator/es/lib/isEmpty";
-import { addRippleToButtons, Button, MainWrapper, Wrapper } from "./misc";
-import { Link } from "react-router-dom";
+import cookies from "../../lib/universalCookies";
+import { MainWrapper, Wrapper } from "./misc";
+import { Button } from "../misc/Button";
 
 const Login = () => {
      const initialRender = useRef(true);
@@ -21,7 +22,25 @@ const Login = () => {
           initialRender.current = false;
      }, [errors]);
 
-     useEffect(addRippleToButtons, []);
+     useEffect(() => {
+          (async function () {
+               const token = cookies.get("accessToken");
+               if (token) {
+                    try {
+                         const response = await Axios({
+                              method: "post",
+                              headers: { authorization: `Bearer ${token}` },
+                              url: `${process.env.REACT_APP_BASE_URL}/login`,
+                         });
+                         if (response.status === 200 && response.data.message === "Authenticated") {
+                              navigate("/@me", { replace: true });
+                         }
+                    } catch (error) {
+                         console.log(error.message);
+                    }
+               }
+          })();
+     }, []);
 
      const handleUsernameChange = (e) => {
           const { value } = e.target;
@@ -78,10 +97,9 @@ const Login = () => {
           // request
           try {
                const response = await Axios({ method: "POST", baseURL: `${process.env.REACT_APP_BASE_URL}/login`, data: { username, password } });
-               console.log(response.data);
 
                if (response.status === 200 && response.data.message === "Authenticated") {
-                    // cookies.set("accessToken", response.data.user.accessToken, { path: "/" });
+                    cookies.set("accessToken", response.data.user.accessToken, { path: "/" });
                     // const { user } = response.data;
                     // store.dispatch({ type: ACTIONS.USER.LOGGED_IN, payload: user });
                     navigate("/@me");
@@ -102,10 +120,9 @@ const Login = () => {
                          <div className="header">
                               <RiChatSmile3Line fill="rgb(var(--accent-primary))" size="80px" />
                               <h1>Sign in into Desi Chat</h1>
-                              {/* <h1>Connect to your family & friends with Desi Chat</h1> */}
                          </div>
                          <hr />
-                         <form onSubmit={handleLoginSubmit}>
+                         <form>
                               <div className="form__group field">
                                    <input
                                         autoComplete="chrome-off"
@@ -157,7 +174,7 @@ const Login = () => {
                                         <RiEyeOffLine className="hide" />
                                    </div>
                               </div>
-                              <Button className="ripple" type="submit">
+                              <Button className="ripple" type="submit" onClick={handleLoginSubmit}>
                                    Log In
                               </Button>
                          </form>
