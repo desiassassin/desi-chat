@@ -1,12 +1,13 @@
-import { useEffect, useState, useRef } from "react";
+import Axios from "axios";
+import { useEffect, useRef, useState } from "react";
+import { RiChatSmile3Line, RiCheckLine, RiCloseLine, RiLoader3Line, RiEyeLine, RiEyeOffLine } from "react-icons/ri";
+import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import styled from "styled-components";
-import { RiChatSmile3Line, RiCheckLine, RiCloseLine, RiLoader3Line } from "react-icons/ri";
 import isEmpty from "validator/es/lib/isEmpty";
 import isStrongPassword from "validator/es/lib/isStrongPassword";
 import socket from "../../lib/socket";
-import Axios from "axios";
-import { toast } from "react-toastify";
-import { Button } from "./GetStarted";
+import { addRippleToButtons, Button, MainWrapper, Wrapper } from "./misc";
 
 const Register = () => {
      const initialRender = useRef(true);
@@ -21,6 +22,8 @@ const Register = () => {
           socket.on("register-username-change", ({ message }) => message && setErrors((errors) => ({ ...errors, username: { message, show: true } })));
           return () => socket.removeAllListeners("register-username-change");
      }, []);
+
+     useEffect(addRippleToButtons, []);
 
      useEffect(() => {
           for (const [elementName, { message, show }] of Object.entries(errors)) {
@@ -38,9 +41,9 @@ const Register = () => {
 
           // validations for username
           if (isEmpty(value)) {
-               message = "Username can't be empty";
+               message = "Username can't be empty.";
           } else if (/[^a-zA-Z0-9_]/.test(value)) {
-               message = "Username can only contain alpha-numeric character [A-Z][0-9]UNDERSCORE";
+               message = "Username can only contain alpha-numeric character [A-Z][0-9]UNDERSCORE.";
           } else if (value.length < 3 || value.length > 50) {
                message = "Username must be 3 - 50 characters long.";
           }
@@ -118,7 +121,6 @@ const Register = () => {
                          const value = message.keyValue[Object.keys(message.keyValue)];
                          return setErrors((errors) => ({ ...errors, username: { message: `"${value}" is already taken. Please use another one.`, show: true } }));
                     } else if (message?.errors) {
-                         // Object.entries(message?.errors).forEach(([key, { message }]) => toggleErrors({ elementName: key, message, show: true }));
                          Object.entries(message?.errors).forEach(([key, { message }]) => setErrors((errors) => ({ ...errors, [key]: { message, show: true } })));
                     }
                }, 2000);
@@ -146,67 +148,90 @@ const Register = () => {
           element.innerText = message;
      };
      return (
-          <SignUp>
-               <div className="header">
-                    <RiChatSmile3Line fill="rgb(var(--accent-primary))" size="80px" />
-                    <h1>Get started with Desi Chat</h1>
-                    <p>Just pick a username & password. Wallah! it's that simple.</p>
-               </div>
-               <hr />
-               {/* <form onSubmit={handleSubmit}> */}
-               <form>
-                    <div className="form__group field">
-                         <input
-                              autoComplete="chrome-off"
-                              type="text"
-                              className="form__field"
-                              placeholder="Username"
-                              name="username"
-                              id="register-username"
-                              value={username}
-                              onChange={handleUsernameChange}
-                              maxLength={50}
-                         />
-                         <label htmlFor="register-username" className="form__label">
-                              Username
-                         </label>
-                         <div id="register-username-error" className="error">
-                              Is this even gonna work?
+          <MainWrapper>
+               <Wrapper>
+                    <SignUp>
+                         <div className="header">
+                              <RiChatSmile3Line fill="rgb(var(--accent-primary))" size="80px" />
+                              {/* <h1>Get started with Desi Chat</h1> */}
+                              <h1>Create an account.</h1>
+                              {/* <p>Just pick a username. It's that simple.</p> */}
                          </div>
-                    </div>
-                    <div className="form__group field">
-                         <input
-                              autoComplete="off"
-                              type="password"
-                              className="form__field"
-                              placeholder="Password"
-                              name="passsword"
-                              id="register-password"
-                              value={password}
-                              onChange={handlePasswordChange}
-                              maxLength={64}
-                         />
-                         <label htmlFor="register-password" className="form__label">
-                              Password
-                         </label>
-                         <div id="register-password-error" className="error">
-                              Is this even gonna work?
+                         <hr />
+                         <form>
+                              <div className="form__group field">
+                                   <input
+                                        autoComplete="chrome-off"
+                                        type="text"
+                                        className="form__field"
+                                        placeholder="Username"
+                                        name="username"
+                                        id="register-username"
+                                        value={username}
+                                        onChange={handleUsernameChange}
+                                        maxLength={50}
+                                   />
+                                   <label htmlFor="register-username" className="form__label">
+                                        Username
+                                   </label>
+                                   <div id="register-username-error" className="error"></div>
+                              </div>
+                              <div className="form__group field">
+                                   <input
+                                        autoComplete="off"
+                                        type="password"
+                                        className="form__field"
+                                        placeholder="Password"
+                                        name="passsword"
+                                        id="register-password"
+                                        value={password}
+                                        onChange={handlePasswordChange}
+                                        maxLength={64}
+                                   />
+                                   <label htmlFor="register-password" className="form__label">
+                                        Password
+                                   </label>
+                                   <div id="register-password-error" className="error"></div>
+                                   <div
+                                        className="show-password hidden"
+                                        onClick={(e) => {
+                                             const { currentTarget } = e;
+                                             const password = document.getElementById("register-password");
+                                             if (password.type === "password") {
+                                                  password.type = "text";
+                                                  currentTarget.classList.add("shown");
+                                                  currentTarget.classList.remove("hidden");
+                                             } else {
+                                                  password.type = "password";
+                                                  currentTarget.classList.add("hidden");
+                                                  currentTarget.classList.remove("shown");
+                                             }
+                                        }}
+                                   >
+                                        <RiEyeLine className="show" />
+                                        <RiEyeOffLine className="hide" />
+                                   </div>
+                              </div>
+                              <Button className="ripple" type="submit" onClick={handleSubmit}>
+                                   <div className="text">Sign Up</div>
+                                   <div className="loader">
+                                        <RiLoader3Line size="16px" />
+                                   </div>
+                                   <div className="success">
+                                        <RiCheckLine size="16px" />
+                                   </div>
+                                   <div className="failure">
+                                        <RiCloseLine size="16px" />
+                                   </div>
+                              </Button>
+                         </form>
+                         <div className="redirect">
+                              Do you already have an account?
+                              <Link to="/login">Login</Link>
                          </div>
-                    </div>
-                    <Button className="ripple" type="submit" onClick={handleSubmit}>
-                         <div className="text">Sign Up</div>
-                         <div className="loader">
-                              <RiLoader3Line size="16px" />
-                         </div>
-                         <div className="success">
-                              <RiCheckLine size="16px" />
-                         </div>
-                         <div className="failure">
-                              <RiCloseLine size="16px" />
-                         </div>
-                    </Button>
-               </form>
-          </SignUp>
+                    </SignUp>
+               </Wrapper>
+          </MainWrapper>
      );
 };
 export default Register;
@@ -245,6 +270,17 @@ const SignUp = styled.div`
           input {
                background-color: transparent;
                letter-spacing: 2px;
+          }
+     }
+
+     .redirect {
+          text-align: center;
+
+          a {
+               color: rgb(var(--accent-primary));
+               font-weight: 700;
+               text-decoration: none;
+               margin-left: 5px;
           }
      }
 `;

@@ -11,7 +11,7 @@ const Navbar = () => {
                     </NavbarHome>
                     <NavbarLinks>
                          <li>
-                              <Link to="/getStarted" className="action">
+                              <Link to="/login" className="action">
                                    Get Started
                               </Link>
                          </li>

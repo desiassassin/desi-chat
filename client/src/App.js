@@ -1,10 +1,11 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import GetStarted from "./components/GetStarted/GetStarted";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.min.css";
 import Chat from "./components/Chat/Chat";
+import Login from "./components/GetStarted/Login";
+import Register from "./components/GetStarted/Register";
 import HomePage from "./components/HomePage/HomePage";
 import Navbar from "./components/Navbar";
-import "react-toastify/dist/ReactToastify.min.css";
 
 function App() {
      return (
@@ -13,9 +14,11 @@ function App() {
                <Routes>
                     <Route path="/" element={<Navbar />}>
                          <Route path="/" element={<HomePage />} />
-                         <Route path="/getStarted" element={<GetStarted />} />
+                         <Route path="login" element={<Login />} />
+                         <Route path="register" element={<Register />} />
+                         <Route path="*" element={<HomePage />} />
                     </Route>
-                    <Route path="/chat" element={<Chat />} />
+                    <Route path="/@me" element={<Chat />} />
                </Routes>
           </Router>
      );

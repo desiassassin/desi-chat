@@ -1,56 +1,38 @@
-import { useEffect } from "react";
 import styled from "styled-components";
-import Register from "./Register";
-import Login from "./Login";
 
-const GetStarted = () => {
-     useEffect(() => {
-          function createRipple(event) {
-               const button = event.currentTarget;
-               const circle = document.createElement("span");
-               // diameter = greatest of button's height or width
-               const diameter = Math.max(button.clientWidth, button.clientHeight);
+export const addRippleToButtons = () => {
+     function createRipple(event) {
+          const button = event.currentTarget;
+          const circle = document.createElement("span");
+          // diameter = greatest of button's height or width
+          const diameter = Math.max(button.clientWidth, button.clientHeight);
 
-               circle.style.width = circle.style.height = `${diameter}px`;
-               const rect = button.getBoundingClientRect();
-               circle.style.left = event.clientX - rect.left + "px";
-               circle.style.top = event.clientY - rect.top + "px";
+          circle.style.width = circle.style.height = `${diameter}px`;
+          const rect = button.getBoundingClientRect();
+          circle.style.left = event.clientX - rect.left + "px";
+          circle.style.top = event.clientY - rect.top + "px";
 
-               circle.classList.add("ripple");
-               const ripple = button.getElementsByClassName("ripple")[0];
-               if (ripple) ripple.remove();
-               button.appendChild(circle);
-          }
+          circle.classList.add("ripple");
+          const ripple = button.getElementsByClassName("ripple")[0];
+          if (ripple) ripple.remove();
+          button.appendChild(circle);
+     }
 
-          const buttons = document.getElementsByTagName("button");
-          buttons.forEach((button) => (button.onclick = createRipple));
+     const buttons = document.getElementsByTagName("button");
+     buttons.forEach((button) => (button.onclick = createRipple));
 
-          return () => {
-               buttons.forEach((button) => (button.onclick = null));
-          };
-     }, []);
-
-     return (
-          <MainWrapper>
-               <Wrapper>
-                    <Register />
-               </Wrapper>
-               <Wrapper>
-                    <Login />
-               </Wrapper>
-          </MainWrapper>
-     );
+     return () => {
+          buttons.forEach((button) => (button.onclick = null));
+     };
 };
 
-export default GetStarted;
-
-const MainWrapper = styled.div`
+export const MainWrapper = styled.div`
      display: flex;
      gap: calc(var(--spacing) * 2);
      flex-wrap: wrap;
      padding: calc(var(--spacing) * 2);
 `;
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
      min-width: 300px;
      width: 600px;
      max-width: 600px;

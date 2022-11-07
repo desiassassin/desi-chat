@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect } from "react";
-import styled from "styled-components";
-import { RiChatSmile3Line } from "react-icons/ri";
-import { Button } from "./GetStarted";
 import Axios from "axios";
+import { useEffect, useRef, useState } from "react";
+import { RiChatSmile3Line, RiEyeLine, RiEyeOffLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import isEmpty from "validator/es/lib/isEmpty";
+import { addRippleToButtons, Button, MainWrapper, Wrapper } from "./misc";
+import { Link } from "react-router-dom";
 
 const Login = () => {
      const initialRender = useRef(true);
@@ -19,6 +20,8 @@ const Login = () => {
           }
           initialRender.current = false;
      }, [errors]);
+
+     useEffect(addRippleToButtons, []);
 
      const handleUsernameChange = (e) => {
           const { value } = e.target;
@@ -81,7 +84,7 @@ const Login = () => {
                     // cookies.set("accessToken", response.data.user.accessToken, { path: "/" });
                     // const { user } = response.data;
                     // store.dispatch({ type: ACTIONS.USER.LOGGED_IN, payload: user });
-                    navigate("/chat");
+                    navigate("/@me");
                }
           } catch (error) {
                if (error?.message === "Network Error") return toggleErrors("Couldn't connect to server. Please try again later.");
@@ -93,51 +96,78 @@ const Login = () => {
           }
      };
      return (
-          <LogIn>
-               <div className="header">
-                    <RiChatSmile3Line fill="rgb(var(--accent-primary))" size="80px" />
-                    <h1>Connect to your family & friends with Desi Chat</h1>
-                    <p>Use the registered username and password.</p>
-               </div>
-               <hr />
-               <form onSubmit={handleLoginSubmit}>
-                    <div className="form__group field">
-                         <input
-                              autoComplete="chrome-off"
-                              type="text"
-                              className="form__field"
-                              placeholder="Username"
-                              name="username"
-                              id="login-username"
-                              value={username}
-                              onChange={handleUsernameChange}
-                         />
-                         <label htmlFor="login-username" className="form__label">
-                              Username
-                         </label>
-                         <div id="login-username-error" className="error"></div>
-                    </div>
-                    <div className="form__group field">
-                         <input
-                              autoComplete="off"
-                              type="password"
-                              className="form__field"
-                              placeholder="Password"
-                              name="passsword"
-                              id="login-password"
-                              value={password}
-                              onChange={handlePasswordChange}
-                         />
-                         <label htmlFor="login-password" className="form__label">
-                              Password
-                         </label>
-                         <div id="login-password-error" className="error"></div>
-                    </div>
-                    <Button className="ripple" type="submit">
-                         Log In
-                    </Button>
-               </form>
-          </LogIn>
+          <MainWrapper>
+               <Wrapper>
+                    <LogIn>
+                         <div className="header">
+                              <RiChatSmile3Line fill="rgb(var(--accent-primary))" size="80px" />
+                              <h1>Sign in into Desi Chat</h1>
+                              {/* <h1>Connect to your family & friends with Desi Chat</h1> */}
+                         </div>
+                         <hr />
+                         <form onSubmit={handleLoginSubmit}>
+                              <div className="form__group field">
+                                   <input
+                                        autoComplete="chrome-off"
+                                        type="text"
+                                        className="form__field"
+                                        placeholder="Username"
+                                        name="username"
+                                        id="login-username"
+                                        value={username}
+                                        onChange={handleUsernameChange}
+                                   />
+                                   <label htmlFor="login-username" className="form__label">
+                                        Username
+                                   </label>
+                                   <div id="login-username-error" className="error"></div>
+                              </div>
+                              <div className="form__group field">
+                                   <input
+                                        autoComplete="off"
+                                        type="password"
+                                        className="form__field"
+                                        placeholder="Password"
+                                        name="passsword"
+                                        id="login-password"
+                                        value={password}
+                                        onChange={handlePasswordChange}
+                                   />
+                                   <label htmlFor="login-password" className="form__label">
+                                        Password
+                                   </label>
+                                   <div id="login-password-error" className="error"></div>
+                                   <div
+                                        className="show-password hidden"
+                                        onClick={(e) => {
+                                             const { currentTarget } = e;
+                                             const password = document.getElementById("login-password");
+                                             if (password.type === "password") {
+                                                  password.type = "text";
+                                                  currentTarget.classList.add("shown");
+                                                  currentTarget.classList.remove("hidden");
+                                             } else {
+                                                  password.type = "password";
+                                                  currentTarget.classList.add("hidden");
+                                                  currentTarget.classList.remove("shown");
+                                             }
+                                        }}
+                                   >
+                                        <RiEyeLine className="show" />
+                                        <RiEyeOffLine className="hide" />
+                                   </div>
+                              </div>
+                              <Button className="ripple" type="submit">
+                                   Log In
+                              </Button>
+                         </form>
+                         <div className="redirect">
+                              Need an account?
+                              <Link to="/register">Register</Link>
+                         </div>
+                    </LogIn>
+               </Wrapper>
+          </MainWrapper>
      );
 };
 
@@ -178,6 +208,17 @@ const LogIn = styled.div`
                background-color: transparent;
                backdrop-filter: blur(100px);
                letter-spacing: 2px;
+          }
+     }
+
+     .redirect {
+          text-align: center;
+
+          a {
+               color: rgb(var(--accent-primary));
+               font-weight: 700;
+               text-decoration: none;
+               margin-left: 5px;
           }
      }
 `;

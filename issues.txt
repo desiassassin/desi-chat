@@ -1,0 +1,4 @@
+CLIENT
+- Socket io isn't working on mobile devices.
+
+SERVER:
