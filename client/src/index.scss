@@ -28,10 +28,10 @@ $border-radius: 8px;
      margin: 0;
      font-family: "Montserrat", sans-serif;
 }
-
 body {
      background-color: $bg-dark;
      color: $font-bright;
+     min-height: 100vh;
 }
 
 canvas {

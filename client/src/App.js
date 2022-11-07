@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
-import Chat from "./components/Chat/Chat";
+import Dashboard from "./components/Dashboard/Dashboard";
 import Login from "./components/GetStarted/Login";
 import Register from "./components/GetStarted/Register";
 import HomePage from "./components/HomePage/HomePage";
@@ -20,7 +20,7 @@ function App() {
                          <Route path="register" element={<Register />} />
                          <Route path="*" element={<HomePage />} />
                     </Route>
-                    <Route path="/@me" element={<Chat />} />
+                    <Route path="/@me" element={<Dashboard />} />
                </Routes>
           </Router>
      );

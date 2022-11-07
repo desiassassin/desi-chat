@@ -10,6 +10,7 @@
 body {
   background-color: rgb(18, 22, 28);
   color: rgb(232, 230, 227);
+  min-height: 100vh;
 }
 
 canvas {
