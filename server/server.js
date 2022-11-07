@@ -118,6 +118,7 @@ app.post("/login", async (req, res) => {
                          ? res.status(200).json({
                                 message: "Authenticated",
                                 user: {
+                                     username: user.username,
                                      id: user._id,
                                      accessToken: jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "30d" }),
                                 },

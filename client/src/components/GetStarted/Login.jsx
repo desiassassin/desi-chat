@@ -7,6 +7,8 @@ import isEmpty from "validator/es/lib/isEmpty";
 import cookies from "../../lib/universalCookies";
 import { MainWrapper, Wrapper } from "./misc";
 import { Button } from "../misc/Button";
+import store from "../../redux/store";
+import * as ACTIONS from "../../redux/actions";
 
 const Login = () => {
      const initialRender = useRef(true);
@@ -100,9 +102,9 @@ const Login = () => {
 
                if (response.status === 200 && response.data.message === "Authenticated") {
                     cookies.set("accessToken", response.data.user.accessToken, { path: "/" });
-                    // const { user } = response.data;
-                    // store.dispatch({ type: ACTIONS.USER.LOGGED_IN, payload: user });
-                    navigate("/@me");
+                    const { user } = response.data;
+                    store.dispatch({ type: ACTIONS.USER.LOGGED_IN, payload: user });
+                    navigate("/@me", { replace: true });
                }
           } catch (error) {
                if (error?.message === "Network Error") return toggleErrors("Couldn't connect to server. Please try again later.");
