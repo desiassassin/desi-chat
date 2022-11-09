@@ -36,7 +36,7 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
      cors: {
-          origin: ["https://admin.socket.io", "http://localhost:3000"],
+          origin: "*",
           credentials: true,
      },
 });
@@ -98,7 +98,6 @@ app.post("/register", async (req, res) => {
      const { username, password } = req.body;
      try {
           const user = await new User({ username, password }).save();
-          // await ({ username, password });
           REGISTERED_NAMES.add(username).update();
           return res.json({ message: "Registered" });
      } catch (error) {

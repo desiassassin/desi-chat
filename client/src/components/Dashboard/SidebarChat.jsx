@@ -6,18 +6,16 @@ const SidebarChat = () => {
           <Slakdjald className="sidebar-chat">
                <div className="profile-container">
                     <div className="photo">
-                         <FaUserCircle size="50px" />
+                         <FaUserCircle size="40px" />
                     </div>
                     <div className="details">
                          <div className="username-time">
-                              <div className="username">Sharry Mann</div>
-                              <div className="time">03:00pm</div>
+                              <div className="username">Ajay Devgan</div>
+                              <div className="time">03:00 PM</div>
                          </div>
                          <div className="last-message-unread">
-                              <div className="last-message">Chal aa gaya fer..!! na bhia me to ni aara. me kyu aau isme mera kya fayeda mujhe kya mil ra</div>
-                              <div className="unread">
-                                   <div className="amount">2</div>
-                              </div>
+                              <div className="last-message">Bhai gaadi dega?</div>
+                              <div className="unread">1</div>
                          </div>
                     </div>
                </div>
@@ -31,37 +29,49 @@ const Slakdjald = styled.div`
      &.sidebar-chat {
           padding: var(--spacing);
           cursor: pointer;
+          background-color: rgb(var(--bg-light));
 
+          &.active,
           :hover {
-               background-color: rgb(var(--bg-light));
+               background-color: rgb(var(--bg-light), 0);
           }
 
           .profile-container {
                display: flex;
-               gap: calc(var(--spacing));
+               gap: calc(var(--spacing) / 4 * 3);
 
-               .photo svg {
-                    fill: rgb(var(--accent-primary));
+               .photo {
+                    display: flex;
+                    align-items: center;
+                    svg {
+                         fill: rgb(var(--accent-primary));
+                    }
                }
 
                .details {
                     display: flex;
                     flex-direction: column;
-                    gap: calc(var(--spacing) / 2);
+                    justify-content: space-around;
                     overflow: hidden;
+                    width: 100%;
 
                     .username-time {
                          display: flex;
                          justify-content: space-between;
+                         align-items: center;
+                         gap: calc(var(--spacing) / 2);
 
                          .username {
                               color: rgb(var(--font-bright));
                               font-weight: 700;
+                              text-overflow: ellipsis;
+                              white-space: nowrap;
+                              overflow: hidden;
                          }
 
                          .time {
                               color: rgb(var(--font-dark));
-                              font-size: var(--font-small);
+                              font-size: var(--font-xs);
                          }
                     }
 
@@ -69,6 +79,7 @@ const Slakdjald = styled.div`
                          display: flex;
                          justify-content: space-between;
                          align-items: center;
+                         gap: calc(var(--spacing) / 4);
 
                          .last-message {
                               color: rgb(var(--font-dark));
@@ -78,18 +89,12 @@ const Slakdjald = styled.div`
                          }
 
                          .unread {
-                              background-color: rgb(var(--accent-primary));
-                              border-radius: 50%;
-                              display: flex;
-                              align-items: center;
-                              justify-content: center;
+                              background-color: rgb(var(--accent-error));
+                              border-radius: 1em;
+                              padding: 0px calc(var(--spacing) / 3);
+                              /* padding: 0px 7px; */
+                              font-weight: 700;
                               font-size: var(--font-small);
-
-                              .amount {
-                                   text-align: center;
-                                   width: 15px;
-                                   height: 15px;
-                              }
                          }
                     }
                }

@@ -21,8 +21,8 @@ export default Dashboard;
 const MainWrapper = styled.div`
      display: flex;
      justify-content: center;
-     /* align-items: center; */
-     gap: calc(var(--spacing) * 2);
+     align-items: center;
+     gap: calc(var(--spacing) * 1);
      min-height: 100vh;
-     padding: calc(var(--spacing) * 2);
+     padding: calc(var(--spacing) * 1);
 `;

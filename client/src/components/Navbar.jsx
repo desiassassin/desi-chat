@@ -37,10 +37,11 @@ const NavbarWrapper = styled.nav`
      flex-grow: 2;
      flex-shrink: 0;
      padding: calc(var(--spacing) / 2) var(--spacing);
-     font-size: 0.75rem;
      min-width: 300px;
      background-color: transparent;
      backdrop-filter: blur(20px);
+
+     font-size: 1.25rem;
 `;
 
 const NavbarHome = styled(Link)`
@@ -67,7 +68,6 @@ const NavbarLinks = styled.ul`
      align-items: center;
      gap: 2rem;
      list-style-type: none;
-     font-size: 1.25rem;
 
      a {
           text-decoration: none;

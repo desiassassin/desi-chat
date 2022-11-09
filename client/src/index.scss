@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Verdana&display=swap');
 
-$font-big: 14px;
+$font-big: 16px;
+$font-normal: 14px;
 $font-small: 13px;
 $font-xs: 10px;
 $spacing: 16px;
@@ -21,6 +21,10 @@ $accent-error: rgb(244, 67, 54);
 $accent-error-light: rgb(229, 115, 115);
 $accent-error-dark: rgb(211, 47, 47);
 $border-radius: 8px;
+
+:root {
+     font-size: $font-normal;
+}
 
 *, *::after, *::before {
      box-sizing: border-box;
@@ -181,7 +185,7 @@ canvas {
  }
 
  input[type="password"] {
-     font-family: Verdana, Geneva, Tahoma, sans-serif;
+     // font-family: Verdana, Geneva, Tahoma, sans-serif;
      font-size: $font-big;
      font-weight: 700;
 }
