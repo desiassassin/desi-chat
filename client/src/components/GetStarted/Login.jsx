@@ -35,14 +35,14 @@ const Login = () => {
                               url: `${process.env.REACT_APP_BASE_URL}/login`,
                          });
                          if (response.status === 200 && response.data.message === "Authenticated") {
-                              navigate("/@me", { replace: true });
+                              navigate("/me", { replace: true });
                          }
                     } catch (error) {
                          console.log(error.message);
                     }
                }
           })();
-     }, []);
+     }, [navigate]);
 
      const handleUsernameChange = (e) => {
           const { value } = e.target;
@@ -104,7 +104,7 @@ const Login = () => {
                     cookies.set("accessToken", response.data.user.accessToken, { path: "/" });
                     const { user } = response.data;
                     store.dispatch({ type: ACTIONS.USER.LOGGED_IN, payload: user });
-                    navigate("/@me", { replace: true });
+                    navigate("/me", { replace: true });
                }
           } catch (error) {
                if (error?.message === "Network Error") return toggleErrors("Couldn't connect to server. Please try again later.");

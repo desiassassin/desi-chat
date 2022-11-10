@@ -1,5 +1,6 @@
 import { FaUserCircle } from "react-icons/fa";
 import { RiMoreFill } from "react-icons/ri";
+import { IoIosSearch } from "react-icons/io";
 import styled from "styled-components";
 import SidebarChat from "./SidebarChat";
 
@@ -12,16 +13,18 @@ const LeftSidebar = () => {
                               <FaUserCircle size="40px" />
                          </div>
                          <div className="details">
-                              <div className="username">Arun Sehrawat</div>
+                              <div className="username">desiassassin</div>
                               <div className="bio">Founder, Desi Chat</div>
                          </div>
                     </div>
                     <RiMoreFill className="more-options" />
                     {/* <div className="options"></div> */}
                </Profile>
-               <div className="recent-chats">
-                    <input type="text" placeholder="Search conversations" />
-                    {/* <div className="search-friends"></div> */}
+               <div className="recent-chats ">
+                    <div className="search">
+                         <input type="search" placeholder="Search conversations" spellCheck="false" />
+                         <IoIosSearch size="18px" />
+                    </div>
                     Recent Chats
                </div>
                <SidebarChat />
@@ -44,6 +47,7 @@ const Wrapper = styled.div`
      overflow-y: auto;
      display: flex;
      flex-direction: column;
+     outline: 1px solid rgb(var(--bg-light));
 
      .recent-chats {
           display: flex;
@@ -54,14 +58,38 @@ const Wrapper = styled.div`
           background-color: rgb(var(--bg-light));
           padding: var(--spacing);
 
-          input {
-               background-color: transparent;
-               outline: 1px solid rgb(255, 255, 255, 0.5);
-               border: none;
-               color: rgb(var(--font-bright));
-               font-weight: 700;
-               padding: var(--spacing);
-               border-radius: var(--border-radius);
+          .search {
+               position: relative;
+               input {
+                    width: 100%;
+                    background-color: transparent;
+                    outline: 1px solid rgb(255, 255, 255, 0.5);
+                    border: none;
+                    color: rgb(var(--font-bright));
+                    /* font-weight: 700; */
+                    font-size: 1rem;
+                    padding: calc(var(--spacing));
+                    padding-left: 35px;
+                    border-radius: var(--border-radius);
+
+                    &::-webkit-search-cancel-button {
+                         scale: 1.25;
+                         cursor: pointer;
+                    }
+
+                    :focus,
+                    :hover {
+                         outline: 2px solid rgb(255, 255, 255, 0.5);
+                    }
+               }
+
+               svg {
+                    position: absolute;
+                    left: 10px;
+                    top: 50%;
+                    translate: 0 -50%;
+                    fill: rgb(var(--font-dark));
+               }
           }
      }
 `;

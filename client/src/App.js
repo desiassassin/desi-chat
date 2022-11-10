@@ -7,6 +7,8 @@ import Register from "./components/GetStarted/Register";
 import HomePage from "./components/HomePage/HomePage";
 import SessionExpired from "./components/misc/SessionExpired";
 import Navbar from "./components/Navbar";
+import Chat from "./components/Dashboard/Chat";
+import Home from "./components/Dashboard/Home";
 
 function App() {
      return (
@@ -20,7 +22,10 @@ function App() {
                          <Route path="register" element={<Register />} />
                          <Route path="*" element={<HomePage />} />
                     </Route>
-                    <Route path="/@me" element={<Dashboard />} />
+                    <Route path="/me" element={<Dashboard />}>
+                         <Route path="/me/" element={<Home />} />
+                         <Route path=":username" element={<Chat />} />
+                    </Route>
                </Routes>
           </Router>
      );

@@ -56,6 +56,7 @@ export const Button = styled.button`
      }
      &.loading-complete {
           background-color: rgb(var(--accent-secondary));
+          outline: none;
           .text,
           .loader,
           .failure {

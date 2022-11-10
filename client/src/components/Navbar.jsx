@@ -11,7 +11,7 @@ const Navbar = () => {
                     </NavbarHome>
                     <NavbarLinks>
                          <li>
-                              <Link to="/@me">Chat</Link>
+                              <Link to="/me">Chat</Link>
                          </li>
 
                          <li>

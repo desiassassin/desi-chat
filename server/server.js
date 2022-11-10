@@ -17,20 +17,22 @@ const REGISTERED_NAMES = {
           return this;
      },
      add: function (name) {
-          this.names.push(name);
+          this.names.push(name.toLowerCase());
           return this;
      },
      remove: function (names) {
           for (const name of names) {
-               const index = this.names.indexOf(name);
+               const index = this.names.indexOf(name.toLowerCase());
                this.names.splice(index, 1);
           }
           return this;
      },
      has: function (name) {
-          return this.names.includes(name);
+          return this.names.includes(name.toLowerCase());
      },
 };
+
+REGISTERED_NAMES.has("laksjdld");
 
 const app = express();
 const httpServer = createServer(app);

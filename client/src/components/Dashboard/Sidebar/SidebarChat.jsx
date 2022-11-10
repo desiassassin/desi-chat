@@ -31,6 +31,10 @@ const Slakdjald = styled.div`
           cursor: pointer;
           background-color: rgb(var(--bg-light));
 
+          * {
+               pointer-events: none;
+          }
+
           &.active,
           :hover {
                background-color: rgb(var(--bg-light), 0);

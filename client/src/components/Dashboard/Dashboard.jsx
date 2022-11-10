@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { fetchToken } from "../../lib/universalCookies";
 import styled from "styled-components";
 import Main from "./Main";
-import LeftSidebar from "./LeftSidebar";
+import LeftSidebar from "./Sidebar/LeftSidebar";
 
 const Dashboard = () => {
      useEffect(() => {
@@ -10,8 +10,8 @@ const Dashboard = () => {
      });
      return (
           <MainWrapper>
-               <LeftSidebar></LeftSidebar>
-               <Main></Main>
+               <LeftSidebar />
+               <Main />
           </MainWrapper>
      );
 };
