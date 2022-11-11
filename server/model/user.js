@@ -37,6 +37,10 @@ const userSchema = new mongoose.Schema(
                     message: "Password is weak.",
                },
           },
+          friends: [{ type: mongoose.Types.ObjectId, ref: "User" }],
+          friendRequestsSent: [{ type: mongoose.Types.ObjectId, ref: "User" }],
+          friendRequestsPending: [{ type: mongoose.Types.ObjectId, ref: "User" }],
+          blocked: [{ type: mongoose.Types.ObjectId, ref: "User" }],
           locked: {
                type: Boolean,
                default: false,

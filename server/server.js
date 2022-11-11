@@ -10,41 +10,8 @@ import { instrument } from "@socket.io/admin-ui";
 import { compare } from "bcrypt";
 import { readFileSync, writeFileSync } from "fs";
 import { authenticateTokenAndSendUserDetails } from "./controller/middlewares.js";
-
-const REGISTERED_NAMES = {
-     names: JSON.parse(readFileSync("./data/registeredNames.json")),
-     update: function () {
-          writeFileSync("./data/registeredNames.json", JSON.stringify(this.names, null, 5));
-          return this;
-     },
-     add: function (name) {
-          this.names.push(name.toLowerCase());
-          return this;
-     },
-     remove: function (names) {
-          for (const name of names) {
-               const index = this.names.indexOf(name.toLowerCase());
-               this.names.splice(index, 1);
-          }
-          return this;
-     },
-     has: function (name) {
-          return this.names.includes(name.toLowerCase());
-     },
-};
-
-const ONLINE_USERS = {
-     users: [],
-     add: function ({ username, socketId }) {
-          this.users.push({ username, socketId });
-     },
-     remove: function ({ socketId }) {
-          this.users = this.users.filter(({ socket }) => socket === socketId);
-     },
-     isOnline: function ({ username, socketId }) {
-          return this.users.find((user) => user.username === username);
-     },
-};
+import { User } from "./model/user.js";
+import { REGISTERED_USERS, ONLINE_USERS } from "./Globals.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -63,8 +30,11 @@ instrument(io, {
      },
 });
 
+// namespace creation
+const registerNamespace = io.of("/register");
+const userNamespace = io.of("/users");
+
 // MODELS
-import { User } from "./model/user.js";
 
 // Connect to MongoDB Atlas
 (async () => {
@@ -86,7 +56,6 @@ import { User } from "./model/user.js";
 })();
 
 // ROUTERS
-import { userRouter } from "./routes/user.js";
 
 // MIDDLEWARES
 app.use(
@@ -112,7 +81,7 @@ app.post("/register", async (req, res) => {
      const { username, password } = req.body;
      try {
           const user = await new User({ username, password }).save();
-          REGISTERED_NAMES.add(username).update();
+          REGISTERED_USERS.add({ id: user._id, username: user.username }).update();
           return res.json({ message: "Registered" });
      } catch (error) {
           console.log(error.message);
@@ -146,27 +115,56 @@ app.post("/login", authenticateTokenAndSendUserDetails, async (req, res) => {
 });
 
 // socket io
-io.on("connection", (socket) => {
-     socket.on("connect", () => {
-          console.log(socket.query);
-          // ONLINE_USERS.add({});
-     });
 
+// register namespace
+registerNamespace.on("connection", (socket) => {
      socket.on("register-username-change", ({ username }) => {
-          socket.emit("register-username-change", { exists: REGISTERED_NAMES.has(username) });
+          socket.emit("register-username-change", { exists: REGISTERED_USERS.exists(username) });
+     });
+});
+
+userNamespace.on("connection", (socket) => {
+     ONLINE_USERS.add({ username: socket.handshake.query.username, socketId: socket.id, id: socket.handshake.query.id });
+     console.log(ONLINE_USERS.users);
+
+     socket.on("disconnect", () => {
+          ONLINE_USERS.remove({ socketId: socket.id });
+          console.log(ONLINE_USERS.users);
      });
 
-     socket.on("disconnecting", (reason) => {
-          console.log(`${socket.id} disconnected. Reason: ${reason}`);
-     });
+     socket.on("add-friend", async ({ username, usernameToAdd }) => {
+          /*
+               1a. Check if the user exists
+               1b. If user exists, skip to Step 2.
+               1c. Send a message saying user doesn't exists
+               2a. Add the friend request in the friendRequests part of the requested user
+               2b. Notify the requested user
 
-     socket.on("add-friend", ({ usernameToAdd }) => {
+               friend-request-try
+               friend-request-try-response : currentUser
+               friend-request-sent : currentUser
+               friend-request-recieved : requestedUser
+               friend-request-accepted: currentUser
+          */
+          const userExists = REGISTERED_USERS.exists(usernameToAdd);
+
+          if (!userExists) {
+               socket.emit("add-friend-response", `${usernameToAdd} doesn't exists. Maybe there's a typo?`);
+          }
+
+          // user exists
+          try {
+               const currentUser = await User.findOne({ username: username });
+               await User.findOneAndUpdate({ username: usernameToAdd }, { $push: { friendRequests: currentUser._id } });
+
+               // socket responses
+          } catch (error) {
+               console.log(error.message);
+          }
+
           console.log(usernameToAdd);
+          console.log(ONLINE_USERS.isOnline({ username: usernameToAdd }));
      });
 });
 
 httpServer.listen(3001, () => console.log("Server running on PORT 3001"));
-
-// setInterval(() => {
-//      console.log(ONLINE_USERS.users);
-// }, 5000);
