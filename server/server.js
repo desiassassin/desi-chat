@@ -9,6 +9,7 @@ import { Server } from "socket.io";
 import { instrument } from "@socket.io/admin-ui";
 import { compare } from "bcrypt";
 import { readFileSync, writeFileSync } from "fs";
+import { authenticateTokenAndSendUserDetails } from "./controller/middlewares.js";
 
 const REGISTERED_NAMES = {
      names: JSON.parse(readFileSync("./data/registeredNames.json")),
@@ -32,7 +33,18 @@ const REGISTERED_NAMES = {
      },
 };
 
-REGISTERED_NAMES.has("laksjdld");
+const ONLINE_USERS = {
+     users: [],
+     add: function ({ username, socketId }) {
+          this.users.push({ username, socketId });
+     },
+     remove: function ({ socketId }) {
+          this.users = this.users.filter(({ socket }) => socket === socketId);
+     },
+     isOnline: function ({ username, socketId }) {
+          return this.users.find((user) => user.username === username);
+     },
+};
 
 const app = express();
 const httpServer = createServer(app);
@@ -108,7 +120,7 @@ app.post("/register", async (req, res) => {
      }
 });
 
-app.post("/login", async (req, res) => {
+app.post("/login", authenticateTokenAndSendUserDetails, async (req, res) => {
      const { username, password } = req.body;
 
      if (username && password) {
@@ -121,7 +133,7 @@ app.post("/login", async (req, res) => {
                                 user: {
                                      username: user.username,
                                      id: user._id,
-                                     accessToken: jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "30d" }),
+                                     accessToken: jwt.sign({ id: user._id, username }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "30d" }),
                                 },
                            })
                          : res.status(400).json({ message: "Wrong password." });
@@ -135,9 +147,26 @@ app.post("/login", async (req, res) => {
 
 // socket io
 io.on("connection", (socket) => {
+     socket.on("connect", () => {
+          console.log(socket.query);
+          // ONLINE_USERS.add({});
+     });
+
      socket.on("register-username-change", ({ username }) => {
           socket.emit("register-username-change", { exists: REGISTERED_NAMES.has(username) });
+     });
+
+     socket.on("disconnecting", (reason) => {
+          console.log(`${socket.id} disconnected. Reason: ${reason}`);
+     });
+
+     socket.on("add-friend", ({ usernameToAdd }) => {
+          console.log(usernameToAdd);
      });
 });
 
 httpServer.listen(3001, () => console.log("Server running on PORT 3001"));
+
+// setInterval(() => {
+//      console.log(ONLINE_USERS.users);
+// }, 5000);
