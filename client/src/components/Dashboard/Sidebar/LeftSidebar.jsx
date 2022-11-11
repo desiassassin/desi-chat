@@ -1,10 +1,21 @@
 import { FaUserCircle } from "react-icons/fa";
-import { RiMoreFill } from "react-icons/ri";
+import { RiMoreFill, RiEdit2Fill } from "react-icons/ri";
 import { IoIosSearch } from "react-icons/io";
+import { MdLogout } from "react-icons/md";
 import styled from "styled-components";
 import SidebarChat from "./SidebarChat";
+import store from "../../../redux/store";
+import { useSelector } from "react-redux";
+import cookies from "../../../lib/universalCookies";
+import { useNavigate } from "react-router-dom";
 
 const LeftSidebar = () => {
+     const navigate = useNavigate();
+     const { username, bio } = useSelector((state) => state.user);
+     const handleLogout = (e) => {
+          cookies.remove("accessToken", { path: "/" });
+          navigate("/login");
+     };
      return (
           <Wrapper>
                <Profile className="">
@@ -13,12 +24,21 @@ const LeftSidebar = () => {
                               <FaUserCircle size="40px" />
                          </div>
                          <div className="details">
-                              <div className="username">desiassassin</div>
-                              <div className="bio">Founder, Desi Chat</div>
+                              <div className="username">{username}</div>
+                              <div className="bio">{bio || "Bio"}</div>
                          </div>
                     </div>
-                    <RiMoreFill className="more-options" />
-                    {/* <div className="options"></div> */}
+                    <div className="more-options" tabIndex={0}>
+                         <RiMoreFill className="" />
+                         <div className="options">
+                              <div className="option edit" tabIndex={0}>
+                                   Edit <RiEdit2Fill />
+                              </div>
+                              <div className="option logout" onClick={handleLogout} tabIndex={0}>
+                                   Logout <MdLogout />
+                              </div>
+                         </div>
+                    </div>
                </Profile>
                <div className="recent-chats ">
                     <div className="search">
@@ -27,9 +47,9 @@ const LeftSidebar = () => {
                     </div>
                     Recent Chats
                </div>
+               {/* <SidebarChat />
                <SidebarChat />
-               <SidebarChat />
-               <SidebarChat />
+               <SidebarChat /> */}
                <Filler />
           </Wrapper>
      );
@@ -106,9 +126,44 @@ const Profile = styled.div`
      .more-options {
           cursor: pointer;
           border-radius: 50%;
+          position: relative;
 
-          :hover {
-               background-color: rgb(var(--bg-light));
+          .options {
+               display: none;
+               position: absolute;
+               right: 0;
+               top: var(--spacing);
+               top: 0;
+               z-index: 1;
+               background-color: black;
+               border-radius: var(--border-radius);
+
+               .option {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: var(--spacing);
+                    padding: calc(var(--spacing) / 2) var(--spacing);
+                    font-weight: 700;
+                    color: rgb(var(--font-bright));
+
+                    svg {
+                         fill: rgb(var(--font-bright));
+                    }
+
+                    &.logout,
+                    &.logout > svg {
+                         color: rgb(var(--accent-error));
+                         fill: rgb(var(--accent-error));
+                    }
+               }
+          }
+
+          :hover,
+          :focus-within {
+               .options {
+                    display: block;
+               }
           }
      }
 
