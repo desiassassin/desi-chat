@@ -23,9 +23,16 @@ const Home = () => {
                store.dispatch({ type: ACTIONS.FRIENDS.REQUEST_SENT, payload: { _id, username } });
           });
 
+          socket.on("friend-request-initiated-response", (message) => toast.error(message));
+
+          socket.on("friend-request-accept-success", ({ acceptedUser, _id }) => {
+               store.dispatch({ type: ACTIONS.FRIENDS.REQUEST_ACCEPTED_CURRENT_USER, payload: { acceptedUser, _id } });
+          });
+
           return () => {
                socket.off("friend-request-initiated-response");
                socket.off("friend-request-sent");
+               socket.off("friend-request-initiated-response");
           };
      }, []);
 
@@ -57,7 +64,7 @@ const Home = () => {
      };
      const acceptFriendRequest = (event) => {
           const { username, _id } = event.currentTarget.dataset;
-          socket.emit("friend-request-accepted", { currentUser: user.username, username, _id });
+          socket.emit("friend-request-accept-initiated", { currentUser: user.username, acceptedUser: username, _id });
      };
      const rejectFriendRequest = (event) => {};
      const cancelFriendRequest = (event) => {};

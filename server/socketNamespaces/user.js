@@ -74,8 +74,24 @@ const userNamespaceController = (socket) => {
           }
      });
 
-     socket.on("friend-request-accepted", ({ currentUser, _id, username }) => {
-          console.log({ currentUser, _id, username });
+     socket.on("friend-request-accept-initiated", async ({ currentUser, _id, acceptedUser }) => {
+          const currentUserId = REGISTERED_USERS.users[currentUser].id;
+          const acceptedUserId = REGISTERED_USERS.users[acceptedUser].id;
+
+          try {
+               await User.findByIdAndUpdate(currentUserId, { $pull: { friendRequestsPending: acceptedUserId }, $push: { friends: acceptedUserId } });
+               await User.findByIdAndUpdate(acceptedUserId, { $pull: { friendRequestsSent: currentUserId }, $push: { friends: currentUserId } });
+          } catch (error) {
+               console.log(error.message);
+               socket.emit("friend-request-accept-initiated-response", "Something went wrong");
+               return;
+          }
+
+          socket.emit("friend-request-accept-success", { acceptedUser, _id });
+
+          if (ONLINE_USERS.isOnline({ username: acceptedUser })) {
+               socket.to(ONLINE_USERS.users[acceptedUser].socketId).emit("friend-request-accepted", { acceptedByUser: currentUser, _id });
+          }
      });
 
      socket.on("friend-request-rejected", ({ _id, username }) => {});
