@@ -10,48 +10,77 @@ const userNamespaceController = (socket) => {
           console.log(ONLINE_USERS.users);
      });
 
-     socket.on("friend-request-try", async ({ username, usernameToAdd }) => {
-          /*
-               1a. Check if the user exists
-               1b. If user exists, skip to Step 2.
-               1c. Send a message saying user doesn't exists
-               2a. Add the friend request in the friendRequests part of the requested user
-               2b. Notify the requested user
-
-               friend-request-try
-               friend-request-try-response : currentUser
-               friend-request-sent : currentUser
-               friend-request-recieved : requestedUser
-               friend-request-accepted: currentUser
-          */
+     socket.on("friend-request-initiated", async ({ username, usernameToAdd }) => {
+          // 1
           const userExists = REGISTERED_USERS.exists(usernameToAdd);
-
+          // 2
           if (!userExists) {
-               socket.emit("friend-request-try-response", `${usernameToAdd} doesn't exists. Maybe there's a typo?`);
+               socket.emit("friend-request-initiated-response", `${usernameToAdd} doesn't exists.`);
+               return;
+          } else if (username === usernameToAdd) {
+               socket.emit("friend-request-initiated-response", `You can not add yourself.`);
+               return;
+          }
+          // 3
+          let currentUser = null;
+          try {
+               currentUser = await User.findById(REGISTERED_USERS.users[username].id).populate("friends friendRequestsSent friendRequestsPending blocked", "username");
+          } catch (error) {
+               console.log(error.message);
+               socket.emit("friend-request-initiated-response", "Something went wrong.");
+               return;
+          }
+
+          // 4
+          const inFriends = currentUser.friends.find((friend) => friend.username === usernameToAdd);
+          const inFriendRequestsSent = currentUser.friendRequestsSent.find((request) => request.username === usernameToAdd);
+          const inFriendRequestsPending = currentUser.friendRequestsPending.find((request) => request.username === usernameToAdd);
+          const inBlocked = currentUser.blocked.find((user) => user.username === usernameToAdd);
+
+          // 5
+          if (inFriends || inFriendRequestsSent || inFriendRequestsPending || inBlocked) {
+               let message = "";
+
+               if (inFriends) message = `You and ${usernameToAdd} are already friends.`;
+               else if (inFriendRequestsSent) message = `A friend request to ${usernameToAdd} has already been sent.`;
+               else if (inFriendRequestsPending) message = `${usernameToAdd} has already sent you a friend request. Check your pending requests.`;
+               else if (inBlocked) message = `You have blocked ${usernameToAdd}. Unblock them to send a friend request.`;
+
+               socket.emit("friend-request-initiated-response", message);
                return;
           }
 
           const currentUserId = REGISTERED_USERS.users[username].id;
           const requestedUserId = REGISTERED_USERS.users[usernameToAdd].id;
-          // user exists
+
+          // 6
           try {
                // update sender
                await User.findByIdAndUpdate(currentUserId, { $push: { friendRequestsSent: requestedUserId } });
                // update receiver
                await User.findByIdAndUpdate(requestedUserId, { $push: { friendRequestsPending: currentUserId } });
-
-               // socket responses
-               socket.emit("friend-request-sent");
-               if (ONLINE_USERS.isOnline({ usernameToAdd })) {
-                    socket.to(ONLINE_USERS.users[usernameToAdd].socketId).emit("friend-request-recieved", { username });
-               }
           } catch (error) {
                console.log(error.message);
+               socket.emit("friend-request-initiated-response", "Something went wrong.");
+               return;
           }
 
-          console.log(usernameToAdd);
-          console.log(ONLINE_USERS.isOnline({ username: usernameToAdd }));
+          // 7
+          socket.emit("friend-request-sent", { _id: requestedUserId, username: usernameToAdd });
+
+          // 8
+          if (ONLINE_USERS.isOnline({ username: usernameToAdd })) {
+               socket.to(ONLINE_USERS.users[usernameToAdd].socketId).emit("friend-request-received", { username, _id: currentUserId });
+          }
      });
+
+     socket.on("friend-request-accepted", ({ currentUser, _id, username }) => {
+          console.log({ currentUser, _id, username });
+     });
+
+     socket.on("friend-request-rejected", ({ _id, username }) => {});
+
+     socket.on("friend-request-cancelled", ({ _id, username }) => {});
 };
 
 export default userNamespaceController;
