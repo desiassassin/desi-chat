@@ -6,10 +6,11 @@ import { toast } from "react-toastify";
 import styled from "styled-components";
 import isEmpty from "validator/es/lib/isEmpty";
 import isStrongPassword from "validator/es/lib/isStrongPassword";
-import socket from "../../lib/socket";
 import { MainWrapper, Wrapper } from "./misc";
 import { Button } from "../misc/Button";
+import { io } from "socket.io-client";
 
+const socket = io(`${process.env.REACT_APP_BASE_URL}/register`);
 const Register = () => {
      const initialRender = useRef(true);
      const [errors, setErrors] = useState({
@@ -20,11 +21,20 @@ const Register = () => {
      const [password, setPassword] = useState("");
 
      useEffect(() => {
+          socket.connect();
+          return () => {
+               socket.disconnect();
+          };
+     }, []);
+
+     useEffect(() => {
           socket.on(
-               "register-username-change",
+               "register-username-validated",
                ({ exists }) => exists && setErrors((errors) => ({ ...errors, username: { message: `"${username}" is already registered. Please choose another one.`, show: true } }))
           );
-          return () => socket.removeAllListeners("register-username-change");
+          return () => {
+               socket.removeAllListeners("register-username-validated");
+          };
      }, [username]);
 
      useEffect(() => {

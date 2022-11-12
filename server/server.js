@@ -94,7 +94,7 @@ app.post("/login", authenticateTokenAndSendUserDetails, async (req, res) => {
 
      if (username && password) {
           try {
-               const user = await User.findOne({ username: username }, "username password");
+               const user = await User.findOne({ username: username }).populate("friends friendRequestsSent friendRequestsPending blocked", "username");
                if (user) {
                     return (await compare(password, user.password))
                          ? res.status(200).json({
@@ -103,6 +103,9 @@ app.post("/login", authenticateTokenAndSendUserDetails, async (req, res) => {
                                      username: user.username,
                                      id: user._id,
                                      accessToken: jwt.sign({ id: user._id, username }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "30d" }),
+                                     friends: user.friends,
+                                     friendRequestsSent: user.friendRequestsSent,
+                                     friendRequestsPending: user.friendRequestsPending,
                                 },
                            })
                          : res.status(400).json({ message: "Wrong password." });
@@ -119,7 +122,7 @@ app.post("/login", authenticateTokenAndSendUserDetails, async (req, res) => {
 // register namespace
 registerNamespace.on("connection", (socket) => {
      socket.on("register-username-change", ({ username }) => {
-          socket.emit("register-username-change", { exists: REGISTERED_USERS.exists(username) });
+          socket.emit("register-username-validated", { exists: REGISTERED_USERS.exists(username) });
      });
 });
 
@@ -132,7 +135,7 @@ userNamespace.on("connection", (socket) => {
           console.log(ONLINE_USERS.users);
      });
 
-     socket.on("add-friend", async ({ username, usernameToAdd }) => {
+     socket.on("friend-request-try", async ({ username, usernameToAdd }) => {
           /*
                1a. Check if the user exists
                1b. If user exists, skip to Step 2.
@@ -149,15 +152,22 @@ userNamespace.on("connection", (socket) => {
           const userExists = REGISTERED_USERS.exists(usernameToAdd);
 
           if (!userExists) {
-               socket.emit("add-friend-response", `${usernameToAdd} doesn't exists. Maybe there's a typo?`);
+               socket.emit("friend-request-try-response", `${usernameToAdd} doesn't exists. Maybe there's a typo?`);
+               return;
           }
 
+          const currentUserId = REGISTERED_USERS.users[username].id;
+          const requestedUserId = REGISTERED_USERS.users[usernameToAdd].id;
           // user exists
           try {
-               const currentUser = await User.findOne({ username: username });
-               await User.findOneAndUpdate({ username: usernameToAdd }, { $push: { friendRequests: currentUser._id } });
+               // update sender
+               await User.findByIdAndUpdate(currentUserId, { $push: { friendRequestsSent: requestedUserId } });
+               // update receiver
+               await User.findByIdAndUpdate(requestedUserId, { $push: { friendRequestsPending: currentUserId } });
 
                // socket responses
+               socket.emit("friend-request-sent");
+               if (ONLINE_USERS.isOnline({ usernameToAdd })) socket.emit("friend-request-recieved");
           } catch (error) {
                console.log(error.message);
           }

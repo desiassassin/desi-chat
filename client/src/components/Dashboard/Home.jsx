@@ -1,16 +1,48 @@
 import styled from "styled-components";
 import { FaUserFriends } from "react-icons/fa";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { socket } from "./Dashboard";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
 const Home = () => {
+     const user = useSelector((state) => state.user);
      const [optionSelected, setOptionSelected] = useState("Online");
+
+     useEffect(() => {
+          socket.on("friend-request-try-response", (message) => {
+               const errorDiv = document.getElementById("friend-request-error");
+               errorDiv.innerText = message;
+          });
+
+          socket.on("friend-request-sent", () => {
+               toast.success("Friend request sent.");
+          });
+
+          return () => socket.off("add-friend-response");
+     }, []);
+
      const handleOptionChange = (e) => {
           const { innerText } = e.target;
           setOptionSelected(innerText);
      };
      const sendFriendRequest = (event) => {
           event.preventDefault();
-          const username = document.getElementById("");
+          const usernameToAdd = document.getElementById("friend-request-username").value;
+          const errorDiv = document.getElementById("friend-request-error");
+          let errorMessage = "";
+          // validations
+          if (user.username === usernameToAdd) {
+               // display error
+               errorMessage = "Ahh silly! You can't add yourself.";
+          } else if (user.friends.includes(usernameToAdd)) {
+               // display error
+               errorMessage = `You and ${usernameToAdd} are already friends.`;
+          }
+
+          errorDiv.innerText = errorMessage;
+
+          !errorMessage && socket.emit("friend-request-try", { usernameToAdd, username: user.username });
      };
 
      return (
@@ -36,28 +68,61 @@ const Home = () => {
                          Add Friend
                     </div>
                </TopBar>
-               {optionSelected === "Add Friend" && (
+
+               {(() => {
+                    switch (optionSelected) {
+                         case "Add Friend":
+                              return (
+                                   <AddFriend>
+                                        <form className="wrapper" onSubmit={sendFriendRequest}>
+                                             <input
+                                                  type="text"
+                                                  name="username"
+                                                  id="friend-request-username"
+                                                  className="add-friend"
+                                                  placeholder="Enter a username"
+                                                  autoFocus
+                                                  onChange={(e) => {
+                                                       const username = e.target.value.trim();
+                                                       const button = document.getElementById("friend-request-button");
+                                                       document.getElementById("friend-request-error").innerText = "";
+                                                       button.disabled = username ? false : true;
+                                                  }}
+                                             />
+                                             <button id="friend-request-button" type="submit" disabled>
+                                                  Send Friend Request
+                                             </button>
+                                        </form>
+                                        <div id="friend-request-error"></div>
+                                   </AddFriend>
+                              );
+                    }
+               })()}
+
+               {/* {optionSelected === "Add Friend" && (
                     <AddFriend>
                          <form className="wrapper" onSubmit={sendFriendRequest}>
                               <input
                                    type="text"
                                    name="username"
-                                   id=""
+                                   id="friend-request-username"
                                    className="add-friend"
                                    placeholder="Enter a username"
                                    autoFocus
                                    onChange={(e) => {
-                                        const username = e.target.value;
-                                        const button = document.getElementById("send-friend-request-button");
+                                        const username = e.target.value.trim();
+                                        const button = document.getElementById("friend-request-button");
+                                        document.getElementById("friend-request-error").innerText = "";
                                         button.disabled = username ? false : true;
                                    }}
                               />
-                              <button id="send-friend-request-button" type="submit" disabled>
+                              <button id="friend-request-button" type="submit" disabled>
                                    Send Friend Request
                               </button>
                          </form>
+                         <div id="friend-request-error"></div>
                     </AddFriend>
-               )}
+               )} */}
           </>
      );
 };
@@ -101,6 +166,7 @@ const TopBar = styled.div`
           &.add-friend {
                background-color: rgb(var(--accent-secondary-dark));
                color: rgb(var(--font-bright));
+               width: max-content;
 
                &.selected {
                     font-weight: 700;
@@ -113,6 +179,19 @@ const TopBar = styled.div`
 
 const AddFriend = styled.div`
      padding: var(--spacing);
+     display: flex;
+     flex-direction: column;
+     gap: calc(var(--spacing) / 2);
+     border-bottom: 1px solid rgb(var(--bg-dark));
+
+     #friend-request-error {
+          color: rgb(var(--accent-error));
+          padding-inline: var(--spacing);
+
+          :empty {
+               display: none;
+          }
+     }
 
      .wrapper {
           display: flex;
