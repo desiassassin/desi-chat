@@ -1,6 +1,7 @@
 import Axios from "axios";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import { io } from "socket.io-client";
 import styled from "styled-components";
 import { fetchToken } from "../../lib/universalCookies";
@@ -31,6 +32,17 @@ const Dashboard = () => {
                socket.disconnect();
           };
      }, [user.username, user.id]);
+
+     useEffect(() => {
+          socket.on("friend-request-received", ({ _id, username }) => {
+               store.dispatch({ type: ACTIONS.FRIENDS.REQUEST_RECEIVED, payload: { _id, username } });
+               toast.info(`New request from ${username}`);
+          });
+
+          return () => {
+               socket.off("friend-request-recieved");
+          };
+     }, []);
 
      useEffect(() => {
           (async function () {

@@ -5,6 +5,7 @@ import { MdLogout } from "react-icons/md";
 import styled from "styled-components";
 import SidebarChat from "./SidebarChat";
 import store from "../../../redux/store";
+import * as ACTIONS from "../../../redux/actions";
 import { useSelector } from "react-redux";
 import cookies from "../../../lib/universalCookies";
 import { useNavigate } from "react-router-dom";
@@ -14,6 +15,7 @@ const LeftSidebar = () => {
      const { username, bio } = useSelector((state) => state.user);
      const handleLogout = (e) => {
           cookies.remove("accessToken", { path: "/" });
+          store.dispatch({ type: ACTIONS.USER.LOGGED_OUT });
           navigate("/login");
      };
      return (

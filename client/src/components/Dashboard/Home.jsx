@@ -5,22 +5,28 @@ import { useEffect, useState } from "react";
 import { socket } from "./Dashboard";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import store from "../../redux/store";
+import * as ACTIONS from "../../redux/actions";
 
 const Home = () => {
      const user = useSelector((state) => state.user);
      const [optionSelected, setOptionSelected] = useState("Online");
 
      useEffect(() => {
-          socket.on("friend-request-try-response", (message) => {
+          socket.on("friend-request-initiated-response", (message) => {
                const errorDiv = document.getElementById("friend-request-error");
                errorDiv.innerText = message;
           });
 
-          socket.on("friend-request-sent", () => {
+          socket.on("friend-request-sent", ({ _id, username }) => {
                toast.success("Friend request sent.");
+               store.dispatch({ type: ACTIONS.FRIENDS.REQUEST_SENT, payload: { _id, username } });
           });
 
-          return () => socket.off("add-friend-response");
+          return () => {
+               socket.off("friend-request-initiated-response");
+               socket.off("friend-request-sent");
+          };
      }, []);
 
      const handleOptionChange = (e) => {
@@ -33,23 +39,28 @@ const Home = () => {
           const errorDiv = document.getElementById("friend-request-error");
           let errorMessage = "";
 
-          // validations
+          // validations;
           if (user.username === usernameToAdd) {
                errorMessage = "Ahh silly! You can't add yourself.";
-          } else if (user.friends.find((request) => request.username === usernameToAdd)) {
+          } else if (user.friends.length && user.friends.find((request) => request.username === usernameToAdd)) {
                errorMessage = `You and ${usernameToAdd} are already friends.`;
           } else if (user.friendRequestsSent.length && user.friendRequestsSent.find((request) => request.username === usernameToAdd)) {
                errorMessage = `A friend request to ${usernameToAdd} has already been sent.`;
           } else if (user.friendRequestsPending.length && user.friendRequestsPending.find((request) => request.username === usernameToAdd)) {
-               errorMessage = `A friend request to ${usernameToAdd} has already been sent.`;
+               errorMessage = `${usernameToAdd} has already sent you a friend request. Check your pending requests.`;
           } else if (user.blocked.length && user.blocked.find((user) => user.username === usernameToAdd)) {
                errorMessage = `You have blocked ${usernameToAdd}. Unblock them to send a friend request.`;
           }
 
-          errorDiv.innerText = errorMessage;
-
-          !errorMessage && socket.emit("friend-request-try", { usernameToAdd, username: user.username });
+          // errorDiv.innerText = errorMessage;
+          !errorMessage && socket.emit("friend-request-initiated", { usernameToAdd, username: user.username });
      };
+     const acceptFriendRequest = (event) => {
+          const { username, _id } = event.currentTarget.dataset;
+          socket.emit("friend-request-accepted", { currentUser: user.username, username, _id });
+     };
+     const rejectFriendRequest = (event) => {};
+     const cancelFriendRequest = (event) => {};
 
      return (
           <>
@@ -80,15 +91,32 @@ const Home = () => {
                          case "Pending":
                               return (
                                    <Pending>
-                                        {user.friendRequestsPending.map(({ username }) => (
+                                        {user.friendRequestsPending.map(({ username, _id }) => (
                                              <div key={username} className="request">
                                                   <div className="user">
                                                        <FaUserCircle className="profile" size="30px" />
-                                                       {username}
+                                                       <div>
+                                                            <div className="username">{username}</div>
+                                                            <div className="request-type">Incoming friend request</div>
+                                                       </div>
                                                   </div>
                                                   <div className="actions">
-                                                       <BsCheckCircle title="Accept" className="accept" size="25px" />
-                                                       <BsXCircle title="Reject" className="reject" size="25px" />
+                                                       <BsCheckCircle title="Accept" className="accept" size="25px" onClick={acceptFriendRequest} data-username={username} data-_id={_id} />
+                                                       <BsXCircle title="Reject" className="reject" size="25px" onClick={rejectFriendRequest} data-username={username} data-_id={_id} />
+                                                  </div>
+                                             </div>
+                                        ))}
+                                        {user.friendRequestsSent.map(({ username, _id }) => (
+                                             <div key={username} className="request">
+                                                  <div className="user">
+                                                       <FaUserCircle className="profile" size="30px" />
+                                                       <div>
+                                                            <div className="username">{username}</div>
+                                                            <div className="request-type">Outgoing friend request</div>
+                                                       </div>
+                                                  </div>
+                                                  <div className="actions">
+                                                       <BsXCircle title="Cancel request" className="reject" size="25px" onClick={cancelFriendRequest} data-username={username} data-_id={_id} />
                                                   </div>
                                              </div>
                                         ))}
@@ -194,6 +222,11 @@ const Pending = styled.div`
 
                .profile {
                     fill: rgb(var(--accent-primary));
+               }
+
+               .request-type {
+                    color: rgb(var(--font-dark));
+                    font-size: var(--font-small);
                }
           }
 
