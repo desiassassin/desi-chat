@@ -1,13 +1,13 @@
-import { useEffect, useRef } from "react";
-import { fetchToken } from "../../lib/universalCookies";
+import Axios from "axios";
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { io } from "socket.io-client";
 import styled from "styled-components";
+import { fetchToken } from "../../lib/universalCookies";
+import * as ACTIONS from "../../redux/actions";
+import store from "../../redux/store";
 import Main from "./Main";
 import LeftSidebar from "./Sidebar/LeftSidebar";
-import { io } from "socket.io-client";
-import store from "../../redux/store";
-import Axios from "axios";
-import * as ACTIONS from "../../redux/actions";
-import { useSelector } from "react-redux";
 
 let query = { username: null, id: null };
 export const socket = io(`${process.env.REACT_APP_BASE_URL}/users`, {

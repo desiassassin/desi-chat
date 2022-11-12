@@ -19,6 +19,7 @@ export const authenticateTokenAndSendUserDetails = (req, res, next) => {
                          friends: currentUser.friends,
                          friendRequestsSent: currentUser.friendRequestsSent,
                          friendRequestsPending: currentUser.friendRequestsPending,
+                         blocked: currentUser.blocked,
                     },
                });
           });

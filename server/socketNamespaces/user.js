@@ -42,7 +42,9 @@ const userNamespaceController = (socket) => {
 
                // socket responses
                socket.emit("friend-request-sent");
-               if (ONLINE_USERS.isOnline({ usernameToAdd })) socket.emit("friend-request-recieved");
+               if (ONLINE_USERS.isOnline({ usernameToAdd })) {
+                    socket.to(ONLINE_USERS.users[usernameToAdd].socketId).emit("friend-request-recieved", { username });
+               }
           } catch (error) {
                console.log(error.message);
           }

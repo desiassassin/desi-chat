@@ -1,5 +1,6 @@
 import styled from "styled-components";
-import { FaUserFriends } from "react-icons/fa";
+import { FaUserFriends, FaUserCircle } from "react-icons/fa";
+import { BsCheckCircle, BsXCircle } from "react-icons/bs";
 import { useEffect, useState } from "react";
 import { socket } from "./Dashboard";
 import { useSelector } from "react-redux";
@@ -31,13 +32,18 @@ const Home = () => {
           const usernameToAdd = document.getElementById("friend-request-username").value;
           const errorDiv = document.getElementById("friend-request-error");
           let errorMessage = "";
+
           // validations
           if (user.username === usernameToAdd) {
-               // display error
                errorMessage = "Ahh silly! You can't add yourself.";
-          } else if (user.friends.includes(usernameToAdd)) {
-               // display error
+          } else if (user.friends.find((request) => request.username === usernameToAdd)) {
                errorMessage = `You and ${usernameToAdd} are already friends.`;
+          } else if (user.friendRequestsSent.length && user.friendRequestsSent.find((request) => request.username === usernameToAdd)) {
+               errorMessage = `A friend request to ${usernameToAdd} has already been sent.`;
+          } else if (user.friendRequestsPending.length && user.friendRequestsPending.find((request) => request.username === usernameToAdd)) {
+               errorMessage = `A friend request to ${usernameToAdd} has already been sent.`;
+          } else if (user.blocked.length && user.blocked.find((user) => user.username === usernameToAdd)) {
+               errorMessage = `You have blocked ${usernameToAdd}. Unblock them to send a friend request.`;
           }
 
           errorDiv.innerText = errorMessage;
@@ -71,6 +77,23 @@ const Home = () => {
 
                {(() => {
                     switch (optionSelected) {
+                         case "Pending":
+                              return (
+                                   <Pending>
+                                        {user.friendRequestsPending.map(({ username }) => (
+                                             <div key={username} className="request">
+                                                  <div className="user">
+                                                       <FaUserCircle className="profile" size="30px" />
+                                                       {username}
+                                                  </div>
+                                                  <div className="actions">
+                                                       <BsCheckCircle title="Accept" className="accept" size="25px" />
+                                                       <BsXCircle title="Reject" className="reject" size="25px" />
+                                                  </div>
+                                             </div>
+                                        ))}
+                                   </Pending>
+                              );
                          case "Add Friend":
                               return (
                                    <AddFriend>
@@ -96,33 +119,10 @@ const Home = () => {
                                         <div id="friend-request-error"></div>
                                    </AddFriend>
                               );
+                         default:
+                              return;
                     }
                })()}
-
-               {/* {optionSelected === "Add Friend" && (
-                    <AddFriend>
-                         <form className="wrapper" onSubmit={sendFriendRequest}>
-                              <input
-                                   type="text"
-                                   name="username"
-                                   id="friend-request-username"
-                                   className="add-friend"
-                                   placeholder="Enter a username"
-                                   autoFocus
-                                   onChange={(e) => {
-                                        const username = e.target.value.trim();
-                                        const button = document.getElementById("friend-request-button");
-                                        document.getElementById("friend-request-error").innerText = "";
-                                        button.disabled = username ? false : true;
-                                   }}
-                              />
-                              <button id="friend-request-button" type="submit" disabled>
-                                   Send Friend Request
-                              </button>
-                         </form>
-                         <div id="friend-request-error"></div>
-                    </AddFriend>
-               )} */}
           </>
      );
 };
@@ -172,6 +172,47 @@ const TopBar = styled.div`
                     font-weight: 700;
                     background-color: transparent;
                     color: rgb(var(--accent-secondary-dark));
+               }
+          }
+     }
+`;
+
+const Pending = styled.div`
+     padding: var(--spacing);
+
+     .request {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: var(--spacing);
+          border-bottom: 1px solid rgb(var(--font-dark), 0.5);
+
+          .user {
+               display: flex;
+               align-items: center;
+               gap: var(--spacing);
+
+               .profile {
+                    fill: rgb(var(--accent-primary));
+               }
+          }
+
+          .actions {
+               display: flex;
+               align-items: center;
+               gap: var(--spacing);
+
+               .accept,
+               .reject {
+                    cursor: pointer;
+                    fill: rgb(var(--font-dark));
+               }
+
+               .accept:hover {
+                    fill: rgb(var(--accent-secondary-dark));
+               }
+               .reject:hover {
+                    fill: rgb(var(--accent-error));
                }
           }
      }

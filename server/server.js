@@ -24,11 +24,14 @@ const io = new Server(httpServer, {
 });
 
 instrument(io, {
-     auth: {
-          type: "basic",
-          username: "admin",
-          password: "$2b$10$Gw6MHmE9GRCUkMKHuN4Uwe9xq40t6KergyFRroOxyPUoLQkgCvc3C",
-     },
+     namespaceName: "/adminUI",
+     mode: "development",
+     auth: false,
+     // auth: {
+     //      type: "basic",
+     //      username: "admin",
+     //      password: "$2b$10$Gw6MHmE9GRCUkMKHuN4Uwe9xq40t6KergyFRroOxyPUoLQkgCvc3C",
+     // },
 });
 
 // namespace creation
@@ -107,6 +110,7 @@ app.post("/login", authenticateTokenAndSendUserDetails, async (req, res) => {
                                      friends: user.friends,
                                      friendRequestsSent: user.friendRequestsSent,
                                      friendRequestsPending: user.friendRequestsPending,
+                                     blocked: user.blocked,
                                 },
                            })
                          : res.status(400).json({ message: "Wrong password." });
