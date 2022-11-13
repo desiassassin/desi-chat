@@ -10,4 +10,5 @@ export const FRIENDS = {
      REQUEST_ACCEPTED: "requestAccepted",
      REQUEST_REJECTED_CURRENT_USER: "requestRejectedCurrentUser",
      REQUEST_REJECTED: "requestRejected",
+     // UNFRIEND: "unfriend",
 };

@@ -1,12 +1,15 @@
-import styled from "styled-components";
-import { FaUserFriends, FaUserCircle } from "react-icons/fa";
-import { BsCheckCircle, BsXCircle } from "react-icons/bs";
 import { useEffect, useState } from "react";
-import { socket } from "./Dashboard";
+import { BsCheckCircle, BsThreeDotsVertical, BsXCircle } from "react-icons/bs";
+import { FaUserCircle, FaUserFriends } from "react-icons/fa";
+import { RiMessage2Fill } from "react-icons/ri";
+import { MdPersonOff } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import store from "../../redux/store";
+import styled from "styled-components";
 import * as ACTIONS from "../../redux/actions";
+import store from "../../redux/store";
+import { socket } from "./Dashboard";
+import { IoIosCall, IoIosVideocam } from "react-icons/io";
 
 const Home = () => {
      const user = useSelector((state) => state.user);
@@ -33,6 +36,7 @@ const Home = () => {
                socket.off("friend-request-initiated-response");
                socket.off("friend-request-sent");
                socket.off("friend-request-initiated-response");
+               socket.off("friend-request-accept-success");
           };
      }, []);
 
@@ -68,6 +72,7 @@ const Home = () => {
      };
      const rejectFriendRequest = (event) => {};
      const cancelFriendRequest = (event) => {};
+     const openConversation = (event) => {};
 
      return (
           <>
@@ -82,8 +87,9 @@ const Home = () => {
                     <div className={`home-options ${optionSelected === "All" ? "selected" : ""}`} onClick={handleOptionChange}>
                          All
                     </div>
-                    <div className={`home-options ${optionSelected === "Pending" ? "selected" : ""}`} onClick={handleOptionChange}>
+                    <div className={`home-options pending ${optionSelected === "Pending" ? "selected" : ""}`} onClick={handleOptionChange}>
                          Pending
+                         {!!user?.friendRequestsPending?.length && <span>{user.friendRequestsPending.length}</span>}
                     </div>
                     <div className={`home-options ${optionSelected === "Blocked" ? "selected" : ""}`} onClick={handleOptionChange}>
                          Blocked
@@ -95,6 +101,44 @@ const Home = () => {
 
                {(() => {
                     switch (optionSelected) {
+                         case "All":
+                              return (
+                                   <All>
+                                        {user.friends.map(({ username, _id, status }) => (
+                                             <div key={username} className="contact">
+                                                  <div className="user">
+                                                       <FaUserCircle className="profile" size="30px" />
+                                                       <div>
+                                                            <div className="username">{username}</div>
+                                                            <div className="status">{status ? status : "Offline"}</div>
+                                                       </div>
+                                                  </div>
+                                                  <div className="actions">
+                                                       <div className="message">
+                                                            <RiMessage2Fill title="Send Message" size="20px" onClick={openConversation} data-username={username} data-_id={_id} />
+                                                       </div>
+                                                       <div className="more-options">
+                                                            <BsThreeDotsVertical title="Options" size="20px" data-username={username} data-_id={_id} />
+                                                            <div className="options">
+                                                                 <div className="option">
+                                                                      <span>Voice Call</span>
+                                                                      <IoIosCall />
+                                                                 </div>
+                                                                 <div className="option">
+                                                                      <span>Video Call</span>
+                                                                      <IoIosVideocam />
+                                                                 </div>
+                                                                 <div className="option remove-friend">
+                                                                      <span>Unfriend</span>
+                                                                      <MdPersonOff />
+                                                                 </div>
+                                                            </div>
+                                                       </div>
+                                                  </div>
+                                             </div>
+                                        ))}
+                                   </All>
+                              );
                          case "Pending":
                               return (
                                    <Pending>
@@ -198,6 +242,25 @@ const TopBar = styled.div`
                color: rgb(var(--font-bright));
           }
 
+          &.pending {
+               display: flex;
+               align-items: center;
+               gap: calc(var(--spacing) / 4);
+
+               span {
+                    background-color: rgb(var(--accent-error-dark));
+                    color: rgb(var(--font-bright));
+                    padding: 1px 4px;
+                    border-radius: var(--border-radius);
+                    font-size: var(--font-xs);
+                    font-weight: 700;
+
+                    :empty {
+                         display: none;
+                    }
+               }
+          }
+
           &.add-friend {
                background-color: rgb(var(--accent-secondary-dark));
                color: rgb(var(--font-bright));
@@ -207,6 +270,128 @@ const TopBar = styled.div`
                     font-weight: 700;
                     background-color: transparent;
                     color: rgb(var(--accent-secondary-dark));
+               }
+          }
+     }
+`;
+
+const All = styled.div`
+     padding: var(--spacing);
+
+     .contact {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: var(--spacing);
+          border-bottom: 1px solid rgb(var(--font-dark), 0.5);
+
+          &:hover {
+               .actions {
+                    .message,
+                    .more-options {
+                         background-color: rgb(var(--bg-dark));
+                    }
+               }
+          }
+
+          .user {
+               display: flex;
+               align-items: center;
+               gap: var(--spacing);
+
+               .profile {
+                    fill: rgb(var(--accent-primary));
+               }
+
+               .status {
+                    color: rgb(var(--font-dark));
+                    font-size: var(--font-small);
+               }
+          }
+
+          .actions {
+               display: flex;
+               align-items: center;
+               gap: var(--spacing);
+
+               .message,
+               .more-options {
+                    cursor: pointer;
+                    padding: 5px;
+                    background-color: rgb(var(--bg-dark), 0.5);
+                    border-radius: 50%;
+                    display: flex;
+                    padding: calc(var(--spacing) / 2);
+
+                    svg {
+                         fill: rgb(var(--font-dark));
+                    }
+
+                    :hover svg {
+                         fill: rgb(var(--font-bright));
+                    }
+               }
+
+               .more-options {
+                    position: relative;
+
+                    .options {
+                         display: none;
+                         position: absolute;
+                         right: 0;
+                         top: 0;
+                         z-index: 1;
+                         background-color: black;
+                         border-radius: var(--border-radius);
+                         overflow: hidden;
+                         padding: 0;
+
+                         .option {
+                              display: flex;
+                              align-items: center;
+                              justify-content: space-between;
+                              gap: var(--spacing);
+                              color: rgb(var(--font-bright));
+                              padding-inline: var(--spacing);
+                              padding-block: calc(var(--spacing) / 2);
+                              font-size: var(--font-small);
+
+                              span {
+                                   width: max-content;
+                              }
+                              svg {
+                                   fill: rgb(var(--font-bright));
+                                   scale: 1.5;
+                              }
+
+                              &.remove-friend {
+                                   color: rgb(var(--accent-error));
+
+                                   svg {
+                                        fill: rgb(var(--accent-error));
+                                   }
+
+                                   :hover {
+                                        color: rgb(var(--font-bright));
+                                        background-color: rgb(var(--accent-error));
+                                        svg {
+                                             fill: rgb(var(--font-bright));
+                                        }
+                                   }
+                              }
+
+                              :hover {
+                                   background-color: rgb(var(--font-bright), 0.25);
+                              }
+                         }
+                    }
+
+                    :hover,
+                    :focus-within {
+                         .options {
+                              display: block;
+                         }
+                    }
                }
           }
      }

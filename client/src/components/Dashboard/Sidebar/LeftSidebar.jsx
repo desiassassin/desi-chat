@@ -34,10 +34,12 @@ const LeftSidebar = () => {
                          <RiMoreFill className="" />
                          <div className="options">
                               <div className="option edit" tabIndex={0}>
-                                   Edit <RiEdit2Fill />
+                                   <span>Edit</span>
+                                   <RiEdit2Fill />
                               </div>
                               <div className="option logout" onClick={handleLogout} tabIndex={0}>
-                                   Logout <MdLogout />
+                                   <span>Logout</span>
+                                   <MdLogout />
                               </div>
                          </div>
                     </div>
@@ -134,29 +136,49 @@ const Profile = styled.div`
                display: none;
                position: absolute;
                right: 0;
-               top: var(--spacing);
                top: 0;
                z-index: 1;
                background-color: black;
                border-radius: var(--border-radius);
+               overflow: hidden;
+               padding: 0;
 
                .option {
                     display: flex;
                     align-items: center;
                     justify-content: space-between;
                     gap: var(--spacing);
-                    padding: calc(var(--spacing) / 2) var(--spacing);
                     font-weight: 700;
                     color: rgb(var(--font-bright));
+                    padding-inline: var(--spacing);
+                    padding-block: calc(var(--spacing) / 2);
 
+                    span {
+                         width: max-content;
+                    }
                     svg {
                          fill: rgb(var(--font-bright));
+                         scale: 1.5;
                     }
 
-                    &.logout,
-                    &.logout > svg {
+                    &.logout {
                          color: rgb(var(--accent-error));
-                         fill: rgb(var(--accent-error));
+
+                         svg {
+                              fill: rgb(var(--accent-error));
+                         }
+
+                         :hover {
+                              color: rgb(var(--font-bright));
+                              background-color: rgb(var(--accent-error));
+                              svg {
+                                   fill: rgb(var(--font-bright));
+                              }
+                         }
+                    }
+
+                    :hover {
+                         background-color: rgb(var(--font-bright), 0.25);
                     }
                }
           }
@@ -164,7 +186,10 @@ const Profile = styled.div`
           :hover,
           :focus-within {
                .options {
-                    display: block;
+                    /* display: block; */
+                    display: flex;
+                    flex-direction: column;
+                    gap: calc(var(--spacing) / 2);
                }
           }
      }
@@ -201,19 +226,6 @@ const Profile = styled.div`
                     white-space: nowrap;
                     overflow: hidden;
                     font-size: var(--font-small);
-               }
-          }
-     }
-
-     .options {
-          padding: calc(var(--spacing) / 4);
-          svg {
-               border-radius: 50%;
-               cursor: pointer;
-               scale: 1.5;
-               fill: rgb(var(--font-dark));
-               :hover {
-                    background-color: rgb(var(--bg-light));
                }
           }
      }
