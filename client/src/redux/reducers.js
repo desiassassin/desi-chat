@@ -26,6 +26,14 @@ export const user = (state = initialState.user, { type, payload }) => {
                const friendRequestsSent = state.friendRequestsSent.filter((request) => request.username !== payload.acceptedByUser);
                return { ...state, friendRequestsSent, friends: [...state.friends, { username: payload.acceptedByUser, _id: payload._id }] };
           }
+          case ACTIONS.FRIENDS.REQUEST_REJECTED_BY_CURRENT_USER: {
+               const friendRequestsPending = state.friendRequestsPending.filter((request) => request.username !== payload.rejectedOfUser);
+               return { ...state, friendRequestsPending };
+          }
+          case ACTIONS.FRIENDS.REQUEST_REJECTED: {
+               const friendRequestsSent = state.friendRequestsSent.filter((request) => request.username !== payload.rejectedByUser);
+               return { ...state, friendRequestsSent };
+          }
           case ACTIONS.FRIENDS.UNFRIEND_BY_CURRENT_USER: {
                const friends = state.friends.filter((friend) => friend.username !== payload.removedUser);
                return { ...state, friends };

@@ -48,10 +48,15 @@ const Dashboard = () => {
                store.dispatch({ type: ACTIONS.FRIENDS.UNFRIEND, payload: { removedByUser, _id } });
           });
 
+          socket.on("friend-request-rejected", ({ rejectedByUser, _id }) => {
+               store.dispatch({ type: ACTIONS.FRIENDS.REQUEST_REJECTED, payload: { rejectedByUser, _id } });
+          });
+
           return () => {
                socket.off("friend-request-recieved");
                socket.off("friend-request-accepted");
                socket.off("friend-removed");
+               socket.off("friend-request-rejected");
           };
      }, []);
 

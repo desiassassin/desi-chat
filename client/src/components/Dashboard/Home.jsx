@@ -23,7 +23,6 @@ const Home = () => {
           });
           // friend request was sent successfully
           socket.on("friend-request-sent", ({ _id, username }) => {
-               toast.success("Friend request sent.");
                store.dispatch({ type: ACTIONS.FRIENDS.REQUEST_SENT, payload: { _id, username } });
           });
 
@@ -32,6 +31,13 @@ const Home = () => {
           // an incoming friend request was successfully accepted
           socket.on("friend-request-accept-success", ({ acceptedUser, _id }) => {
                store.dispatch({ type: ACTIONS.FRIENDS.REQUEST_ACCEPTED_BY_CURRENT_USER, payload: { acceptedUser, _id } });
+          });
+
+          //error occured while rejecting an incoming friend request
+          socket.on("friend-request-reject-response", (message) => toast.error(message));
+          // an incoming friend request was successfully rejected
+          socket.on("friend-request-reject-success", ({ rejectedOfUser, _id }) => {
+               store.dispatch({ type: ACTIONS.FRIENDS.REQUEST_REJECTED_BY_CURRENT_USER, payload: { rejectedOfUser, _id } });
           });
 
           // error occured while removing friend
@@ -46,6 +52,8 @@ const Home = () => {
                socket.off("friend-request-sent");
                socket.off("friend-request-accept-initiated-response");
                socket.off("friend-request-accept-success");
+               socket.off("friend-request-reject-response");
+               socket.off("friend-request-reject-success");
                socket.off("friend-remove-response");
                socket.off("friend-remove-success");
           };
@@ -83,7 +91,10 @@ const Home = () => {
           const { username, _id } = event.currentTarget.dataset;
           socket.emit("friend-request-accept-initiated", { currentUser: user.username, acceptedUser: username, _id });
      };
-     const rejectFriendRequest = (event) => {};
+     const rejectFriendRequest = (event) => {
+          const { username, _id } = event.currentTarget.dataset;
+          socket.emit("friend-request-reject", { currentUser: user.username, rejectedOfUser: username, _id });
+     };
      const cancelFriendRequest = (event) => {};
      const removeFriend = (event) => {
           const { username, _id } = event.currentTarget.dataset;

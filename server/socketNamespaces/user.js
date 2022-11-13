@@ -90,13 +90,31 @@ const userNamespaceController = (socket) => {
           socket.emit("friend-request-accept-success", { acceptedUser, _id });
 
           if (ONLINE_USERS.isOnline({ username: acceptedUser })) {
-               socket.to(ONLINE_USERS.users[acceptedUser].socketId).emit("friend-request-accepted", { acceptedByUser: currentUser, _id });
+               socket.to(ONLINE_USERS.users[acceptedUser].socketId).emit("friend-request-accepted", { acceptedByUser: currentUser, _id: currentUserId });
           }
      });
 
-     socket.on("friend-request-rejected", ({ _id, username }) => {});
+     socket.on("friend-request-reject", async ({ currentUser, _id, rejectedOfUser }) => {
+          const currentUserId = REGISTERED_USERS.users[currentUser].id;
+          const rejectedOfUserId = REGISTERED_USERS.users[rejectedOfUser].id;
 
-     socket.on("friend-request-cancelled", ({ _id, username }) => {});
+          try {
+               await User.findByIdAndUpdate(currentUserId, { $pull: { friendRequestsPending: rejectedOfUserId } });
+               await User.findByIdAndUpdate(rejectedOfUserId, { $pull: { friendRequestsSent: currentUserId } });
+          } catch (error) {
+               console.log(error.message);
+               socket.emit("friend-request-reject-response", "Something went wrong");
+               return;
+          }
+
+          socket.emit("friend-request-reject-success", { rejectedOfUser, _id });
+
+          if (ONLINE_USERS.isOnline({ username: rejectedOfUser })) {
+               socket.to(ONLINE_USERS.users[rejectedOfUser].socketId).emit("friend-request-rejected", { rejectedByUser: currentUser, _id: currentUserId });
+          }
+     });
+
+     socket.on("friend-request-cancel", ({ _id, username }) => {});
 
      socket.on("friend-remove", async ({ currentUser, _id, userToRemove }) => {
           const currentUserId = REGISTERED_USERS.users[currentUser].id;
@@ -114,7 +132,7 @@ const userNamespaceController = (socket) => {
           socket.emit("friend-remove-success", { removedUser: userToRemove, _id });
 
           if (ONLINE_USERS.isOnline({ username: userToRemove })) {
-               socket.to(ONLINE_USERS.users[userToRemove].socketId).emit("friend-removed", { removedByUser: currentUser, _id });
+               socket.to(ONLINE_USERS.users[userToRemove].socketId).emit("friend-removed", { removedByUser: currentUser, _id: currentUserId });
           }
      });
 };
