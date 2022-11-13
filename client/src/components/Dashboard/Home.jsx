@@ -40,6 +40,13 @@ const Home = () => {
                store.dispatch({ type: ACTIONS.FRIENDS.REQUEST_REJECTED_BY_CURRENT_USER, payload: { rejectedOfUser, _id } });
           });
 
+          // error occured while cancelling an outgoing friend request
+          socket.on("friend-request-cancel-response", (message) => toast.error(message));
+          // an outgoing friend request was successfully cancelled
+          socket.on("friend-request-cancel-success", ({ requestCancelledToUser, _id }) => {
+               store.dispatch({ type: ACTIONS.FRIENDS.REQUEST_CANCELLED_BY_CURRENT_USER, payload: { requestCancelledToUser, _id } });
+          });
+
           // error occured while removing friend
           socket.on("friend-remove-response", (message) => toast.error(message));
           // friend successfully removed
@@ -54,6 +61,8 @@ const Home = () => {
                socket.off("friend-request-accept-success");
                socket.off("friend-request-reject-response");
                socket.off("friend-request-reject-success");
+               socket.off("friend-request-cancel-response");
+               socket.off("friend-request-cancel-success");
                socket.off("friend-remove-response");
                socket.off("friend-remove-success");
           };
@@ -95,7 +104,10 @@ const Home = () => {
           const { username, _id } = event.currentTarget.dataset;
           socket.emit("friend-request-reject", { currentUser: user.username, rejectedOfUser: username, _id });
      };
-     const cancelFriendRequest = (event) => {};
+     const cancelFriendRequest = (event) => {
+          const { username, _id } = event.currentTarget.dataset;
+          socket.emit("friend-request-cancel", { currentUser: user.username, _id, requestCancelledToUser: username });
+     };
      const removeFriend = (event) => {
           const { username, _id } = event.currentTarget.dataset;
           socket.emit("friend-remove", { currentUser: user.username, _id, userToRemove: username });

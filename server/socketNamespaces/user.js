@@ -114,7 +114,25 @@ const userNamespaceController = (socket) => {
           }
      });
 
-     socket.on("friend-request-cancel", ({ _id, username }) => {});
+     socket.on("friend-request-cancel", async ({ currentUser, _id, requestCancelledToUser }) => {
+          const currentUserId = REGISTERED_USERS.users[currentUser].id;
+          const requestCancelledToUserId = REGISTERED_USERS.users[requestCancelledToUser].id;
+
+          try {
+               await User.findByIdAndUpdate(currentUserId, { $pull: { friendRequestsSent: requestCancelledToUserId } });
+               await User.findByIdAndUpdate(requestCancelledToUserId, { $pull: { friendRequestsPending: currentUserId } });
+          } catch (error) {
+               console.log(error.message);
+               socket.emit("friend-request-cancel-response", "Something went wrong");
+               return;
+          }
+
+          socket.emit("friend-request-cancel-success", { requestCancelledToUser, _id });
+
+          if (ONLINE_USERS.isOnline({ username: requestCancelledToUser })) {
+               socket.to(ONLINE_USERS.users[requestCancelledToUser].socketId).emit("friend-request-cancelled", { cancelledByUser: currentUser, _id: currentUserId });
+          }
+     });
 
      socket.on("friend-remove", async ({ currentUser, _id, userToRemove }) => {
           const currentUserId = REGISTERED_USERS.users[currentUser].id;
