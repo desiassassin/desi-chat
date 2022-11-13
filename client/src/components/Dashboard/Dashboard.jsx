@@ -44,9 +44,14 @@ const Dashboard = () => {
                toast.info(`${acceptedByUser} accepted your friend request.`);
           });
 
+          socket.on("friend-removed", ({ removedByUser, _id }) => {
+               store.dispatch({ type: ACTIONS.FRIENDS.UNFRIEND, payload: { removedByUser, _id } });
+          });
+
           return () => {
                socket.off("friend-request-recieved");
                socket.off("friend-request-accepted");
+               socket.off("friend-removed");
           };
      }, []);
 

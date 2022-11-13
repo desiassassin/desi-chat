@@ -6,9 +6,10 @@ export const USER = {
 export const FRIENDS = {
      REQUEST_SENT: "requestSent",
      REQUEST_RECEIVED: "requestReceived",
-     REQUEST_ACCEPTED_CURRENT_USER: "requestAcceptedCurrentUser",
+     REQUEST_ACCEPTED_BY_CURRENT_USER: "requestAcceptedByCurrentUser",
      REQUEST_ACCEPTED: "requestAccepted",
-     REQUEST_REJECTED_CURRENT_USER: "requestRejectedCurrentUser",
+     REQUEST_REJECTED_BY_CURRENT_USER: "requestRejectedByCurrentUser",
      REQUEST_REJECTED: "requestRejected",
-     // UNFRIEND: "unfriend",
+     UNFRIEND_BY_CURRENT_USER: "unfriendByCurrentUser",
+     UNFRIEND: "unfriend",
 };

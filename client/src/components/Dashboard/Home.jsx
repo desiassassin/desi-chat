@@ -16,32 +16,45 @@ const Home = () => {
      const [optionSelected, setOptionSelected] = useState("Online");
 
      useEffect(() => {
+          // if validation fails during sending a friend request
           socket.on("friend-request-initiated-response", (message) => {
                const errorDiv = document.getElementById("friend-request-error");
                errorDiv.innerText = message;
           });
-
+          // friend request was sent successfully
           socket.on("friend-request-sent", ({ _id, username }) => {
                toast.success("Friend request sent.");
                store.dispatch({ type: ACTIONS.FRIENDS.REQUEST_SENT, payload: { _id, username } });
           });
 
-          socket.on("friend-request-initiated-response", (message) => toast.error(message));
-
+          // error occured while accepting an incoming friend request
+          socket.on("friend-request-accept-initiated-response", (message) => toast.error(message));
+          // an incoming friend request was successfully accepted
           socket.on("friend-request-accept-success", ({ acceptedUser, _id }) => {
-               store.dispatch({ type: ACTIONS.FRIENDS.REQUEST_ACCEPTED_CURRENT_USER, payload: { acceptedUser, _id } });
+               store.dispatch({ type: ACTIONS.FRIENDS.REQUEST_ACCEPTED_BY_CURRENT_USER, payload: { acceptedUser, _id } });
+          });
+
+          // error occured while removing friend
+          socket.on("friend-remove-response", (message) => toast.error(message));
+          // friend successfully removed
+          socket.on("friend-remove-success", ({ removedUser, _id }) => {
+               store.dispatch({ type: ACTIONS.FRIENDS.UNFRIEND_BY_CURRENT_USER, payload: { removedUser, _id } });
           });
 
           return () => {
                socket.off("friend-request-initiated-response");
                socket.off("friend-request-sent");
-               socket.off("friend-request-initiated-response");
+               socket.off("friend-request-accept-initiated-response");
                socket.off("friend-request-accept-success");
+               socket.off("friend-remove-response");
+               socket.off("friend-remove-success");
           };
      }, []);
 
-     const handleOptionChange = (e) => {
-          const { innerText } = e.target;
+     const handleOptionChange = (event) => {
+          let { innerText } = event.target;
+          // workaround for the pending tab
+          if (innerText.includes("\n")) innerText = innerText.split("\n")[0];
           setOptionSelected(innerText);
      };
      const sendFriendRequest = (event) => {
@@ -63,7 +76,7 @@ const Home = () => {
                errorMessage = `You have blocked ${usernameToAdd}. Unblock them to send a friend request.`;
           }
 
-          // errorDiv.innerText = errorMessage;
+          errorDiv.innerText = errorMessage;
           !errorMessage && socket.emit("friend-request-initiated", { usernameToAdd, username: user.username });
      };
      const acceptFriendRequest = (event) => {
@@ -72,6 +85,10 @@ const Home = () => {
      };
      const rejectFriendRequest = (event) => {};
      const cancelFriendRequest = (event) => {};
+     const removeFriend = (event) => {
+          const { username, _id } = event.currentTarget.dataset;
+          socket.emit("friend-remove", { currentUser: user.username, _id, userToRemove: username });
+     };
      const openConversation = (event) => {};
 
      return (
@@ -128,7 +145,7 @@ const Home = () => {
                                                                       <span>Video Call</span>
                                                                       <IoIosVideocam />
                                                                  </div>
-                                                                 <div className="option remove-friend">
+                                                                 <div className="option remove-friend" onClick={removeFriend} data-username={username} data-_id={_id}>
                                                                       <span>Unfriend</span>
                                                                       <MdPersonOff />
                                                                  </div>
