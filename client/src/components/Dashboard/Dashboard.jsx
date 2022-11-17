@@ -56,12 +56,22 @@ const Dashboard = () => {
                store.dispatch({ type: ACTIONS.FRIENDS.REQUEST_REJECTED, payload: { rejectedByUser, _id } });
           });
 
+          socket.on("friend-came-online", ({ friendWhoCameOnline, _id }) => {
+               store.dispatch({ type: ACTIONS.FRIENDS.CAME_ONLINE, payload: { friendWhoCameOnline, _id } });
+          });
+
+          socket.on("friend-went-offline", ({ friendWhoWentOffline, _id }) => {
+               store.dispatch({ type: ACTIONS.FRIENDS.WENT_OFFLINE, payload: { friendWhoWentOffline, _id } });
+          });
+
           return () => {
                socket.off("friend-request-recieved");
                socket.off("friend-request-accepted");
                socket.off("friend-removed");
                socket.off("friend-request-cancelled");
                socket.off("friend-request-rejected");
+               socket.off("friend-came-online");
+               socket.off("friend-went-offline");
           };
      }, []);
 

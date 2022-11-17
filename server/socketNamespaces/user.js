@@ -2,13 +2,30 @@ import { ONLINE_USERS, REGISTERED_USERS } from "../Globals.js";
 import { User } from "../model/user.js";
 
 const userNamespaceController = (socket) => {
-     ONLINE_USERS.add({ username: socket.handshake.query.username, socketId: socket.id, id: socket.handshake.query.id });
-     console.log(ONLINE_USERS.users);
+     // change user's status to offline
+     userLoggedIn(socket);
 
-     socket.on("disconnect", () => {
-          ONLINE_USERS.remove({ socketId: socket.id });
+     socket.on("disconnect", async () => {
+          const { username, id } = socket.handshake.query;
+          const socketId = socket.id;
+
+          ONLINE_USERS.remove({ socketId });
           console.log(ONLINE_USERS.users);
+
+          try {
+               const user = await User.findByIdAndUpdate(id, { status: "Offline" }, { returnDocument: true }).populate("friends", "username status");
+               user.friends
+                    .filter(({ status }) => status === "Online")
+                    .forEach(({ username, _id }) => {
+                         const socketId = ONLINE_USERS.users[username].socketId;
+                         socket.to(socketId).emit("friend-went-offline", { friendWhoWentOffline: socket.handshake.query.username, _id: socket.handshake.query.id });
+                    });
+          } catch (error) {
+               console.log(error.message);
+          }
      });
+
+     // socket.on("disconnect", userDisconnected);
 
      socket.on("friend-request-initiated", async ({ username, usernameToAdd }) => {
           // 1
@@ -156,3 +173,22 @@ const userNamespaceController = (socket) => {
 };
 
 export default userNamespaceController;
+
+async function userLoggedIn(socket) {
+     const { username, id } = socket.handshake.query;
+     const socketId = socket.id;
+     ONLINE_USERS.add({ username, socketId, id });
+     console.log(ONLINE_USERS.users);
+
+     try {
+          const user = await User.findByIdAndUpdate(id, { status: "Online" }, { returnDocument: true }).populate("friends", "username status");
+          user.friends
+               .filter(({ status }) => status === "Online")
+               .forEach(({ username, _id }) => {
+                    const socketId = ONLINE_USERS.users[username].socketId;
+                    socket.to(socketId).emit("friend-came-online", { friendWhoCameOnline: socket.handshake.query.username, _id: socket.handshake.query.id });
+               });
+     } catch (error) {
+          console.log(error.message);
+     }
+}

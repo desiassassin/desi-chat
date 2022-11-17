@@ -37,6 +37,12 @@ const userSchema = new mongoose.Schema(
                     message: "Password is weak.",
                },
           },
+          status: {
+               type: String,
+               required: [true, "Status is required."],
+               enum: ["Online", "Offline"],
+               default: "Online",
+          },
           friends: [{ type: mongoose.Types.ObjectId, ref: "User" }],
           friendRequestsSent: [{ type: mongoose.Types.ObjectId, ref: "User" }],
           friendRequestsPending: [{ type: mongoose.Types.ObjectId, ref: "User" }],

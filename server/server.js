@@ -98,7 +98,7 @@ app.post("/login", authenticateTokenAndSendUserDetails, async (req, res) => {
 
      if (username && password) {
           try {
-               const user = await User.findOne({ username: username }).populate("friends friendRequestsSent friendRequestsPending blocked", "username");
+               const user = await User.findOne({ username: username }).populate("friends friendRequestsSent friendRequestsPending blocked", "username status");
                if (user) {
                     return (await compare(password, user.password))
                          ? res.status(200).json({
@@ -107,6 +107,7 @@ app.post("/login", authenticateTokenAndSendUserDetails, async (req, res) => {
                                      username: user.username,
                                      id: user._id,
                                      accessToken: jwt.sign({ id: user._id, username }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "30d" }),
+                                     status: user.status,
                                      friends: user.friends,
                                      friendRequestsSent: user.friendRequestsSent,
                                      friendRequestsPending: user.friendRequestsPending,

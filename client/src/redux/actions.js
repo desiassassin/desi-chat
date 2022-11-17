@@ -14,4 +14,6 @@ export const FRIENDS = {
      REQUEST_REJECTED: "requestRejected",
      UNFRIEND_BY_CURRENT_USER: "unfriendByCurrentUser",
      UNFRIEND: "unfriend",
+     CAME_ONLINE: "friendCameOnline",
+     WENT_OFFLINE: "friendWentOffline",
 };

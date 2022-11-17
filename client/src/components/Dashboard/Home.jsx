@@ -141,47 +141,129 @@ const Home = () => {
 
                {(() => {
                     switch (optionSelected) {
-                         case "All":
+                         case "Online":
                               return (
-                                   <All>
-                                        {user.friends.map(({ username, _id, status }) => (
-                                             <div key={username} className="contact">
-                                                  <div className="user">
-                                                       <FaUserCircle className="profile" size="30px" />
-                                                       <div>
-                                                            <div className="username">{username}</div>
-                                                            <div className="status">{status ? status : "Offline"}</div>
+                                   <OnlineAll>
+                                        <div className="header">{`Online - ${user.friends.filter((friend) => friend.status === "Online").length}`}</div>
+                                        {user.friends
+                                             .filter((friend) => friend.status === "Online")
+                                             .map(({ username, _id, status }) => (
+                                                  <div key={username} className="contact">
+                                                       <div className="user">
+                                                            <FaUserCircle className="profile" size="30px" />
+                                                            <div>
+                                                                 <div className="username">{username}</div>
+                                                                 <div className="status">{status}</div>
+                                                            </div>
                                                        </div>
-                                                  </div>
-                                                  <div className="actions">
-                                                       <div className="message">
-                                                            <RiMessage2Fill title="Send Message" size="20px" onClick={openConversation} data-username={username} data-_id={_id} />
-                                                       </div>
-                                                       <div className="more-options">
-                                                            <BsThreeDotsVertical title="Options" size="20px" data-username={username} data-_id={_id} />
-                                                            <div className="options">
-                                                                 <div className="option">
-                                                                      <span>Voice Call</span>
-                                                                      <IoIosCall />
-                                                                 </div>
-                                                                 <div className="option">
-                                                                      <span>Video Call</span>
-                                                                      <IoIosVideocam />
-                                                                 </div>
-                                                                 <div className="option remove-friend" onClick={removeFriend} data-username={username} data-_id={_id}>
-                                                                      <span>Unfriend</span>
-                                                                      <MdPersonOff />
+                                                       <div className="actions">
+                                                            <div className="message">
+                                                                 <RiMessage2Fill title="Send Message" size="20px" onClick={openConversation} data-username={username} data-_id={_id} />
+                                                            </div>
+                                                            <div className="more-options">
+                                                                 <BsThreeDotsVertical title="Options" size="20px" data-username={username} data-_id={_id} />
+                                                                 <div className="options">
+                                                                      <div className="option">
+                                                                           <span>Voice Call</span>
+                                                                           <IoIosCall />
+                                                                      </div>
+                                                                      <div className="option">
+                                                                           <span>Video Call</span>
+                                                                           <IoIosVideocam />
+                                                                      </div>
+                                                                      <div className="option remove-friend" onClick={removeFriend} data-username={username} data-_id={_id}>
+                                                                           <span>Unfriend</span>
+                                                                           <MdPersonOff />
+                                                                      </div>
                                                                  </div>
                                                             </div>
                                                        </div>
                                                   </div>
-                                             </div>
-                                        ))}
-                                   </All>
+                                             ))}
+                                   </OnlineAll>
+                              );
+                         case "All":
+                              return (
+                                   <OnlineAll>
+                                        <div className="header">{`Friends - ${user.friends.length}`}</div>
+                                        {user.friends
+                                             .filter(({ status }) => status === "Online")
+                                             .sort((friend1, friend2) => friend1.username.localeCompare(friend2.username))
+                                             .map(({ username, _id, status }) => (
+                                                  <div key={username} className="contact">
+                                                       <div className="user">
+                                                            <FaUserCircle className="profile" size="30px" />
+                                                            <div>
+                                                                 <div className="username">{username}</div>
+                                                                 <div className="status">{status ? status : "Offline"}</div>
+                                                            </div>
+                                                       </div>
+                                                       <div className="actions">
+                                                            <div className="message">
+                                                                 <RiMessage2Fill title="Send Message" size="20px" onClick={openConversation} data-username={username} data-_id={_id} />
+                                                            </div>
+                                                            <div className="more-options">
+                                                                 <BsThreeDotsVertical title="Options" size="20px" data-username={username} data-_id={_id} />
+                                                                 <div className="options">
+                                                                      <div className="option">
+                                                                           <span>Voice Call</span>
+                                                                           <IoIosCall />
+                                                                      </div>
+                                                                      <div className="option">
+                                                                           <span>Video Call</span>
+                                                                           <IoIosVideocam />
+                                                                      </div>
+                                                                      <div className="option remove-friend" onClick={removeFriend} data-username={username} data-_id={_id}>
+                                                                           <span>Unfriend</span>
+                                                                           <MdPersonOff />
+                                                                      </div>
+                                                                 </div>
+                                                            </div>
+                                                       </div>
+                                                  </div>
+                                             ))}
+                                        {user.friends
+                                             .filter(({ status }) => status !== "Online")
+                                             .sort((friend1, friend2) => friend1.username.localeCompare(friend2.username))
+                                             .map(({ username, _id, status }) => (
+                                                  <div key={username} className="contact">
+                                                       <div className="user">
+                                                            <FaUserCircle className="profile" size="30px" />
+                                                            <div>
+                                                                 <div className="username">{username}</div>
+                                                                 <div className="status">{status ? status : "Offline"}</div>
+                                                            </div>
+                                                       </div>
+                                                       <div className="actions">
+                                                            <div className="message">
+                                                                 <RiMessage2Fill title="Send Message" size="20px" onClick={openConversation} data-username={username} data-_id={_id} />
+                                                            </div>
+                                                            <div className="more-options">
+                                                                 <BsThreeDotsVertical title="Options" size="20px" data-username={username} data-_id={_id} />
+                                                                 <div className="options">
+                                                                      <div className="option">
+                                                                           <span>Voice Call</span>
+                                                                           <IoIosCall />
+                                                                      </div>
+                                                                      <div className="option">
+                                                                           <span>Video Call</span>
+                                                                           <IoIosVideocam />
+                                                                      </div>
+                                                                      <div className="option remove-friend" onClick={removeFriend} data-username={username} data-_id={_id}>
+                                                                           <span>Unfriend</span>
+                                                                           <MdPersonOff />
+                                                                      </div>
+                                                                 </div>
+                                                            </div>
+                                                       </div>
+                                                  </div>
+                                             ))}
+                                   </OnlineAll>
                               );
                          case "Pending":
                               return (
                                    <Pending>
+                                        <div className="header">{`Pending - ${user.friendRequestsPending.length + user.friendRequestsSent.length}`}</div>
                                         {user.friendRequestsPending.map(({ username, _id }) => (
                                              <div key={username} className="request">
                                                   <div className="user">
@@ -315,8 +397,17 @@ const TopBar = styled.div`
      }
 `;
 
-const All = styled.div`
+const OnlineAll = styled.div`
      padding: var(--spacing);
+
+     .header {
+          color: rgb(var(--font-dark));
+          text-transform: uppercase;
+          font-weight: 700;
+          border-bottom: 1px solid rgb(var(--font-dark), 0.5);
+          padding-left: var(--spacing);
+          padding-bottom: var(--spacing);
+     }
 
      .contact {
           display: flex;
@@ -439,6 +530,15 @@ const All = styled.div`
 
 const Pending = styled.div`
      padding: var(--spacing);
+
+     .header {
+          color: rgb(var(--font-dark));
+          text-transform: uppercase;
+          font-weight: 700;
+          border-bottom: 1px solid rgb(var(--font-dark), 0.5);
+          padding-left: var(--spacing);
+          padding-bottom: var(--spacing);
+     }
 
      .request {
           display: flex;

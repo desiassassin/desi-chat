@@ -1,7 +1,14 @@
 import * as ACTIONS from "./actions";
 
 const initialState = {
-     user: {},
+     user: {
+          _id: "",
+          usernme: "",
+          friends: [],
+          friendRequestsPending: [],
+          friendRequestsSent: [],
+          blocked: [],
+     },
 };
 
 export const user = (state = initialState.user, { type, payload }) => {
@@ -10,7 +17,7 @@ export const user = (state = initialState.user, { type, payload }) => {
                return { ...payload };
           }
           case ACTIONS.USER.LOGGED_OUT: {
-               return {};
+               return { ...initialState.user };
           }
           case ACTIONS.FRIENDS.REQUEST_SENT: {
                return { ...state, friendRequestsSent: [...state.friendRequestsSent, payload] };
@@ -24,7 +31,7 @@ export const user = (state = initialState.user, { type, payload }) => {
           }
           case ACTIONS.FRIENDS.REQUEST_ACCEPTED: {
                const friendRequestsSent = state.friendRequestsSent.filter((request) => request.username !== payload.acceptedByUser);
-               return { ...state, friendRequestsSent, friends: [...state.friends, { username: payload.acceptedByUser, _id: payload._id }] };
+               return { ...state, friendRequestsSent, friends: [...state.friends, { username: payload.acceptedByUser, _id: payload._id, status: "Online" }] };
           }
           case ACTIONS.FRIENDS.REQUEST_REJECTED_BY_CURRENT_USER: {
                const friendRequestsPending = state.friendRequestsPending.filter((request) => request.username !== payload.rejectedOfUser);
@@ -50,7 +57,19 @@ export const user = (state = initialState.user, { type, payload }) => {
                const friends = state.friends.filter((friend) => friend.username !== payload.removedByUser);
                return { ...state, friends };
           }
+          case ACTIONS.FRIENDS.CAME_ONLINE: {
+               const { friendWhoCameOnline, _id } = payload;
+               const friends = state.friends.filter((friend) => friend.username !== friendWhoCameOnline);
+               friends.push({ username: friendWhoCameOnline, _id, status: "Online" });
+               return { ...state, friends };
+          }
+          case ACTIONS.FRIENDS.WENT_OFFLINE: {
+               const { friendWhoWentOffline, _id } = payload;
+               const friends = state.friends.filter((friend) => friend.username !== friendWhoWentOffline);
+               friends.push({ username: friendWhoWentOffline, _id, status: "Offline" });
+               return { ...state, friends };
+          }
           default:
-               return false;
+               return state;
      }
 };

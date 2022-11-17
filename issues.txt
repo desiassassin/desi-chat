@@ -1,4 +1,6 @@
 CLIENT
-- Socket io isn't working on mobile devices.
+- if the client can't connect to the server but there's an accessToken in the cookies, what to do?
+	a. Logout the user?
+	b. Show a loader and don't let the user do anything.
 
 SERVER:
