@@ -14,7 +14,7 @@ const messageSchema = new mongoose.Schema(
                minlength: [1, "Content is too short."],
                maxlenght: [2000, "Content is too long."],
           },
-          channel_id: {
+          conversation: {
                type: mongoose.Types.ObjectId,
                ref: "Conversation",
                required: true,

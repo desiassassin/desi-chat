@@ -47,6 +47,12 @@ const userSchema = new mongoose.Schema(
           friendRequestsSent: [{ type: mongoose.Types.ObjectId, ref: "User" }],
           friendRequestsPending: [{ type: mongoose.Types.ObjectId, ref: "User" }],
           blocked: [{ type: mongoose.Types.ObjectId, ref: "User" }],
+          conversations: [
+               {
+                    type: mongoose.Types.ObjectId,
+                    ref: "Conversation",
+               },
+          ],
           locked: {
                type: Boolean,
                default: false,
