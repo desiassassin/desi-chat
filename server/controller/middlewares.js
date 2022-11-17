@@ -8,15 +8,15 @@ export const authenticateTokenAndSendUserDetails = (req, res, next) => {
      if (token) {
           jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
                if (err) return res.status(403).json({ message: "Invalid token." });
-               const { id } = user;
-               const currentUser = await User.findById(id).populate("friends friendRequestsSent friendRequestsPending blocked", "username status");
+               const { _id } = user;
+               const currentUser = await User.findById(_id).populate("friends friendRequestsSent friendRequestsPending blocked", "username status");
                return res.json({
                     message: "Authenticated",
                     user: {
                          accessToken: token,
                          username: currentUser.username,
                          status: user.status,
-                         id: currentUser._id,
+                         _id: currentUser._id,
                          friends: currentUser.friends,
                          friendRequestsSent: currentUser.friendRequestsSent,
                          friendRequestsPending: currentUser.friendRequestsPending,

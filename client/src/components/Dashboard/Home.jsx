@@ -21,13 +21,16 @@ const Home = () => {
                const errorDiv = document.getElementById("friend-request-error");
                errorDiv.innerText = message;
           });
+
           // friend request was sent successfully
           socket.on("friend-request-sent", ({ _id, username }) => {
+               const successDiv = document.getElementById("friend-request-success");
+               successDiv.innerText = `A request has been sent to ${username}. They'll appear in friends, once they have accepted your friend request.`;
                store.dispatch({ type: ACTIONS.FRIENDS.REQUEST_SENT, payload: { _id, username } });
           });
 
           // error occured while accepting an incoming friend request
-          socket.on("friend-request-accept-initiated-response", (message) => toast.error(message));
+          socket.on("friend-request-accept-response", (message) => toast.error(message));
           // an incoming friend request was successfully accepted
           socket.on("friend-request-accept-success", ({ acceptedUser, _id }) => {
                store.dispatch({ type: ACTIONS.FRIENDS.REQUEST_ACCEPTED_BY_CURRENT_USER, payload: { acceptedUser, _id } });
@@ -57,7 +60,7 @@ const Home = () => {
           return () => {
                socket.off("friend-request-initiated-response");
                socket.off("friend-request-sent");
-               socket.off("friend-request-accept-initiated-response");
+               socket.off("friend-request-accept-response");
                socket.off("friend-request-accept-success");
                socket.off("friend-request-reject-response");
                socket.off("friend-request-reject-success");
@@ -77,6 +80,8 @@ const Home = () => {
      const sendFriendRequest = (event) => {
           event.preventDefault();
           const usernameToAdd = document.getElementById("friend-request-username").value;
+          // clear out previous responses
+          document.getElementById("friend-request-success").innerText = "";
           const errorDiv = document.getElementById("friend-request-error");
           let errorMessage = "";
 
@@ -98,7 +103,7 @@ const Home = () => {
      };
      const acceptFriendRequest = (event) => {
           const { username, _id } = event.currentTarget.dataset;
-          socket.emit("friend-request-accept-initiated", { currentUser: user.username, acceptedUser: username, _id });
+          socket.emit("friend-request-accept", { currentUser: user.username, acceptedUser: username, _id });
      };
      const rejectFriendRequest = (event) => {
           const { username, _id } = event.currentTarget.dataset;
@@ -310,6 +315,7 @@ const Home = () => {
                                                        const username = e.target.value.trim();
                                                        const button = document.getElementById("friend-request-button");
                                                        document.getElementById("friend-request-error").innerText = "";
+                                                       document.getElementById("friend-request-success").innerText = "";
                                                        button.disabled = username ? false : true;
                                                   }}
                                              />
@@ -318,6 +324,7 @@ const Home = () => {
                                              </button>
                                         </form>
                                         <div id="friend-request-error"></div>
+                                        <div id="friend-request-success"></div>
                                    </AddFriend>
                               );
                          default:
@@ -592,6 +599,14 @@ const AddFriend = styled.div`
 
      #friend-request-error {
           color: rgb(var(--accent-error));
+          padding-inline: var(--spacing);
+
+          :empty {
+               display: none;
+          }
+     }
+     #friend-request-success {
+          color: rgb(var(--accent-secondary-dark));
           padding-inline: var(--spacing);
 
           :empty {

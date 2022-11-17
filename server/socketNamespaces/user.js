@@ -6,26 +6,24 @@ const userNamespaceController = (socket) => {
      userLoggedIn(socket);
 
      socket.on("disconnect", async () => {
-          const { username, id } = socket.handshake.query;
+          const { username, _id } = socket.handshake.query;
           const socketId = socket.id;
 
           ONLINE_USERS.remove({ socketId });
           console.log(ONLINE_USERS.users);
 
           try {
-               const user = await User.findByIdAndUpdate(id, { status: "Offline" }, { returnDocument: true }).populate("friends", "username status");
+               const user = await User.findByIdAndUpdate(_id, { status: "Offline" }, { returnDocument: true }).populate("friends", "username status");
                user.friends
                     .filter(({ status }) => status === "Online")
                     .forEach(({ username, _id }) => {
                          const socketId = ONLINE_USERS.users[username].socketId;
-                         socket.to(socketId).emit("friend-went-offline", { friendWhoWentOffline: socket.handshake.query.username, _id: socket.handshake.query.id });
+                         socket.to(socketId).emit("friend-went-offline", { friendWhoWentOffline: socket.handshake.query.username, _id: socket.handshake.query._id });
                     });
           } catch (error) {
                console.log(error.message);
           }
      });
-
-     // socket.on("disconnect", userDisconnected);
 
      socket.on("friend-request-initiated", async ({ username, usernameToAdd }) => {
           // 1
@@ -41,7 +39,7 @@ const userNamespaceController = (socket) => {
           // 3
           let currentUser = null;
           try {
-               currentUser = await User.findById(REGISTERED_USERS.users[username].id).populate("friends friendRequestsSent friendRequestsPending blocked", "username");
+               currentUser = await User.findById(REGISTERED_USERS.users[username]._id).populate("friends friendRequestsSent friendRequestsPending blocked", "username");
           } catch (error) {
                console.log(error.message);
                socket.emit("friend-request-initiated-response", "Something went wrong.");
@@ -67,8 +65,8 @@ const userNamespaceController = (socket) => {
                return;
           }
 
-          const currentUserId = REGISTERED_USERS.users[username].id;
-          const requestedUserId = REGISTERED_USERS.users[usernameToAdd].id;
+          const currentUserId = REGISTERED_USERS.users[username]._id;
+          const requestedUserId = REGISTERED_USERS.users[usernameToAdd]._id;
 
           // 6
           try {
@@ -91,16 +89,16 @@ const userNamespaceController = (socket) => {
           }
      });
 
-     socket.on("friend-request-accept-initiated", async ({ currentUser, _id, acceptedUser }) => {
-          const currentUserId = REGISTERED_USERS.users[currentUser].id;
-          const acceptedUserId = REGISTERED_USERS.users[acceptedUser].id;
+     socket.on("friend-request-accept", async ({ currentUser, _id, acceptedUser }) => {
+          const currentUserId = REGISTERED_USERS.users[currentUser]._id;
+          const acceptedUserId = REGISTERED_USERS.users[acceptedUser]._id;
 
           try {
                await User.findByIdAndUpdate(currentUserId, { $pull: { friendRequestsPending: acceptedUserId }, $push: { friends: acceptedUserId } });
                await User.findByIdAndUpdate(acceptedUserId, { $pull: { friendRequestsSent: currentUserId }, $push: { friends: currentUserId } });
           } catch (error) {
                console.log(error.message);
-               socket.emit("friend-request-accept-initiated-response", "Something went wrong");
+               socket.emit("friend-request-accept-response", "Something went wrong");
                return;
           }
 
@@ -112,8 +110,8 @@ const userNamespaceController = (socket) => {
      });
 
      socket.on("friend-request-reject", async ({ currentUser, _id, rejectedOfUser }) => {
-          const currentUserId = REGISTERED_USERS.users[currentUser].id;
-          const rejectedOfUserId = REGISTERED_USERS.users[rejectedOfUser].id;
+          const currentUserId = REGISTERED_USERS.users[currentUser]._id;
+          const rejectedOfUserId = REGISTERED_USERS.users[rejectedOfUser]._id;
 
           try {
                await User.findByIdAndUpdate(currentUserId, { $pull: { friendRequestsPending: rejectedOfUserId } });
@@ -132,8 +130,8 @@ const userNamespaceController = (socket) => {
      });
 
      socket.on("friend-request-cancel", async ({ currentUser, _id, requestCancelledToUser }) => {
-          const currentUserId = REGISTERED_USERS.users[currentUser].id;
-          const requestCancelledToUserId = REGISTERED_USERS.users[requestCancelledToUser].id;
+          const currentUserId = REGISTERED_USERS.users[currentUser]._id;
+          const requestCancelledToUserId = REGISTERED_USERS.users[requestCancelledToUser]._id;
 
           try {
                await User.findByIdAndUpdate(currentUserId, { $pull: { friendRequestsSent: requestCancelledToUserId } });
@@ -152,8 +150,8 @@ const userNamespaceController = (socket) => {
      });
 
      socket.on("friend-remove", async ({ currentUser, _id, userToRemove }) => {
-          const currentUserId = REGISTERED_USERS.users[currentUser].id;
-          const userToRemoveId = REGISTERED_USERS.users[userToRemove].id;
+          const currentUserId = REGISTERED_USERS.users[currentUser]._id;
+          const userToRemoveId = REGISTERED_USERS.users[userToRemove]._id;
 
           try {
                await User.findByIdAndUpdate(currentUserId, { $pull: { friends: userToRemoveId } });
@@ -175,18 +173,18 @@ const userNamespaceController = (socket) => {
 export default userNamespaceController;
 
 async function userLoggedIn(socket) {
-     const { username, id } = socket.handshake.query;
+     const { username, _id } = socket.handshake.query;
      const socketId = socket.id;
-     ONLINE_USERS.add({ username, socketId, id });
+     ONLINE_USERS.add({ username, socketId, _id });
      console.log(ONLINE_USERS.users);
 
      try {
-          const user = await User.findByIdAndUpdate(id, { status: "Online" }, { returnDocument: true }).populate("friends", "username status");
+          const user = await User.findByIdAndUpdate(_id, { status: "Online" }, { returnDocument: true }).populate("friends", "username status");
           user.friends
                .filter(({ status }) => status === "Online")
                .forEach(({ username, _id }) => {
                     const socketId = ONLINE_USERS.users[username].socketId;
-                    socket.to(socketId).emit("friend-came-online", { friendWhoCameOnline: socket.handshake.query.username, _id: socket.handshake.query.id });
+                    socket.to(socketId).emit("friend-came-online", { friendWhoCameOnline: socket.handshake.query.username, _id: socket.handshake.query._id });
                });
      } catch (error) {
           console.log(error.message);

@@ -10,7 +10,7 @@ import store from "../../redux/store";
 import Main from "./Main";
 import LeftSidebar from "./Sidebar/LeftSidebar";
 
-let query = { username: null, id: null };
+let query = { username: null, _id: null };
 export const socket = io(`${process.env.REACT_APP_BASE_URL}/users`, {
      autoConnect: false,
      query,
@@ -23,7 +23,7 @@ const Dashboard = () => {
      useEffect(() => {
           if (user.username) {
                query.username = user.username;
-               query.id = user.id;
+               query._id = user._id;
 
                socket.connect();
           }
@@ -31,7 +31,7 @@ const Dashboard = () => {
           return () => {
                socket.disconnect();
           };
-     }, [user.username, user.id]);
+     }, [user.username, user._id]);
 
      useEffect(() => {
           socket.on("friend-request-received", ({ _id, username }) => {

@@ -85,7 +85,7 @@ app.post("/register", async (req, res) => {
      const { username, password } = req.body;
      try {
           const user = await new User({ username, password }).save();
-          REGISTERED_USERS.add({ id: user._id, username: user.username }).update();
+          REGISTERED_USERS.add({ _id: user._id, username: user.username }).update();
           return res.json({ message: "Registered" });
      } catch (error) {
           console.log(error.message);
@@ -105,8 +105,8 @@ app.post("/login", authenticateTokenAndSendUserDetails, async (req, res) => {
                                 message: "Authenticated",
                                 user: {
                                      username: user.username,
-                                     id: user._id,
-                                     accessToken: jwt.sign({ id: user._id, username }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "30d" }),
+                                     _id: user._id,
+                                     accessToken: jwt.sign({ _id: user._id, username }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "30d" }),
                                      status: user.status,
                                      friends: user.friends,
                                      friendRequestsSent: user.friendRequestsSent,
