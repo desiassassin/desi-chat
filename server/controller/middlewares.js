@@ -9,7 +9,16 @@ export const authenticateTokenAndSendUserDetails = (req, res, next) => {
           jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, user) => {
                if (err) return res.status(403).json({ message: "Invalid token." });
                const { _id } = user;
-               const currentUser = await User.findById(_id).populate("friends friendRequestsSent friendRequestsPending blocked", "username status");
+               const currentUser = await User.findById(_id)
+                    .populate("friends friendRequestsSent friendRequestsPending blocked", "username status")
+                    .populate({
+                         path: "conversations",
+                         populate: {
+                              path: "participants",
+                              model: "User",
+                              select: "username",
+                         },
+                    });
                return res.json({
                     message: "Authenticated",
                     user: {
@@ -21,6 +30,7 @@ export const authenticateTokenAndSendUserDetails = (req, res, next) => {
                          friendRequestsSent: currentUser.friendRequestsSent,
                          friendRequestsPending: currentUser.friendRequestsPending,
                          blocked: currentUser.blocked,
+                         conversations: currentUser.conversations,
                     },
                });
           });

@@ -98,7 +98,16 @@ app.post("/login", authenticateTokenAndSendUserDetails, async (req, res) => {
 
      if (username && password) {
           try {
-               const user = await User.findOne({ username: username }).populate("friends friendRequestsSent friendRequestsPending blocked", "username status");
+               const user = await User.findOne({ username: username })
+                    .populate("friends friendRequestsSent friendRequestsPending blocked", "username status")
+                    .populate({
+                         path: "conversations",
+                         populate: {
+                              path: "participants",
+                              model: "User",
+                              select: "username",
+                         },
+                    });
                if (user) {
                     return (await compare(password, user.password))
                          ? res.status(200).json({
@@ -112,6 +121,7 @@ app.post("/login", authenticateTokenAndSendUserDetails, async (req, res) => {
                                      friendRequestsSent: user.friendRequestsSent,
                                      friendRequestsPending: user.friendRequestsPending,
                                      blocked: user.blocked,
+                                     conversations: user.conversations,
                                 },
                            })
                          : res.status(400).json({ message: "Wrong password." });

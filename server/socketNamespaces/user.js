@@ -1,5 +1,6 @@
 import { ONLINE_USERS, REGISTERED_USERS } from "../Globals.js";
 import { User } from "../model/user.js";
+import { Conversation } from "../model/conversation.js";
 
 const userNamespaceController = (socket) => {
      // change user's status to offline
@@ -94,18 +95,23 @@ const userNamespaceController = (socket) => {
           const acceptedUserId = REGISTERED_USERS.users[acceptedUser]._id;
 
           try {
-               await User.findByIdAndUpdate(currentUserId, { $pull: { friendRequestsPending: acceptedUserId }, $push: { friends: acceptedUserId } });
-               await User.findByIdAndUpdate(acceptedUserId, { $pull: { friendRequestsSent: currentUserId }, $push: { friends: currentUserId } });
+               // create a conversation
+               const conversation = await new Conversation({ participants: [currentUserId, acceptedUserId] }).save();
+               // remove the pending request and add to friends
+               await User.findByIdAndUpdate(currentUserId, { $pull: { friendRequestsPending: acceptedUserId }, $push: { friends: acceptedUserId, conversations: conversation._id } });
+               // remove the sent request and add to friends
+               await User.findByIdAndUpdate(acceptedUserId, { $pull: { friendRequestsSent: currentUserId }, $push: { friends: currentUserId, conversations: conversation._id } });
+
+               // emit event to both the users
+               socket.emit("friend-request-accept-success", { acceptedUser, _id, newConversation: conversation._id });
+
+               if (ONLINE_USERS.isOnline({ username: acceptedUser })) {
+                    socket.to(ONLINE_USERS.users[acceptedUser].socketId).emit("friend-request-accepted", { acceptedByUser: currentUser, _id: currentUserId, newConversation: conversation._id });
+               }
           } catch (error) {
                console.log(error.message);
                socket.emit("friend-request-accept-response", "Something went wrong");
                return;
-          }
-
-          socket.emit("friend-request-accept-success", { acceptedUser, _id });
-
-          if (ONLINE_USERS.isOnline({ username: acceptedUser })) {
-               socket.to(ONLINE_USERS.users[acceptedUser].socketId).emit("friend-request-accepted", { acceptedByUser: currentUser, _id: currentUserId });
           }
      });
 
