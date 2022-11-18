@@ -96,17 +96,17 @@ const userNamespaceController = (socket) => {
 
           try {
                // create a conversation
-               const conversation = await new Conversation({ participants: [currentUserId, acceptedUserId] }).save();
+               const conversation = await (await new Conversation({ participants: [currentUserId, acceptedUserId] }).save()).populate("participants", "username");
                // remove the pending request and add to friends
                await User.findByIdAndUpdate(currentUserId, { $pull: { friendRequestsPending: acceptedUserId }, $push: { friends: acceptedUserId, conversations: conversation._id } });
                // remove the sent request and add to friends
                await User.findByIdAndUpdate(acceptedUserId, { $pull: { friendRequestsSent: currentUserId }, $push: { friends: currentUserId, conversations: conversation._id } });
 
                // emit event to both the users
-               socket.emit("friend-request-accept-success", { acceptedUser, _id, newConversation: conversation._id });
+               socket.emit("friend-request-accept-success", { acceptedUser, _id, newConversation: conversation });
 
                if (ONLINE_USERS.isOnline({ username: acceptedUser })) {
-                    socket.to(ONLINE_USERS.users[acceptedUser].socketId).emit("friend-request-accepted", { acceptedByUser: currentUser, _id: currentUserId, newConversation: conversation._id });
+                    socket.to(ONLINE_USERS.users[acceptedUser].socketId).emit("friend-request-accepted", { acceptedByUser: currentUser, _id: currentUserId, newConversation: conversation });
                }
           } catch (error) {
                console.log(error.message);

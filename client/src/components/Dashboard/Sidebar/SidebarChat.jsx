@@ -1,7 +1,19 @@
 import styled from "styled-components";
 import { FaUserCircle } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
-const SidebarChat = () => {
+const SidebarChat = ({ conversation }) => {
+     const defaultMessage = "You are now connected.";
+     const { participants, isGroup, groupName } = conversation;
+     const user = useSelector((state) => state.user);
+     const chatTitle = isGroup ? groupName : figureOutChatsTitle(participants);
+     const lastMessage = null;
+     const unreadCount = 0;
+
+     function figureOutChatsTitle(participants) {
+          return participants.filter((participant) => participant.username !== user.username)[0].username;
+     }
+
      return (
           <Slakdjald className="sidebar-chat">
                <div className="profile-container">
@@ -10,12 +22,12 @@ const SidebarChat = () => {
                     </div>
                     <div className="details">
                          <div className="username-time">
-                              <div className="username">Ajay Devgan</div>
-                              <div className="time">03:00 PM</div>
+                              <div className="username">{chatTitle}</div>
+                              <div className="time"></div>
                          </div>
                          <div className="last-message-unread">
-                              <div className="last-message">Bhai gaadi dega?</div>
-                              <div className="unread">1</div>
+                              <div className="last-message">{lastMessage ? lastMessage : defaultMessage}</div>
+                              <div className="unread">{unreadCount ? unreadCount : ""}</div>
                          </div>
                     </div>
                </div>
@@ -96,9 +108,12 @@ const Slakdjald = styled.div`
                               background-color: rgb(var(--accent-error));
                               border-radius: 1em;
                               padding: 0px calc(var(--spacing) / 3);
-                              /* padding: 0px 7px; */
                               font-weight: 700;
                               font-size: var(--font-small);
+
+                              :empty {
+                                   display: none;
+                              }
                          }
                     }
                }

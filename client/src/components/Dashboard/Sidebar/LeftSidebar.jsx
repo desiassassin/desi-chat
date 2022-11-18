@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 
 const LeftSidebar = () => {
      const navigate = useNavigate();
-     const { username, bio } = useSelector((state) => state.user);
+     const user = useSelector((state) => state.user);
      const handleLogout = (e) => {
           cookies.remove("accessToken", { path: "/" });
           store.dispatch({ type: ACTIONS.USER.LOGGED_OUT });
@@ -26,8 +26,8 @@ const LeftSidebar = () => {
                               <FaUserCircle size="40px" />
                          </div>
                          <div className="details">
-                              <div className="username">{username}</div>
-                              <div className="bio">{bio || "Bio"}</div>
+                              <div className="username">{user.username}</div>
+                              <div className="bio">{user.bio || "Bio"}</div>
                          </div>
                     </div>
                     <div className="more-options" tabIndex={0}>
@@ -51,6 +51,9 @@ const LeftSidebar = () => {
                     </div>
                     Recent Chats
                </div>
+               {user.conversations.map((conversation) => {
+                    return <SidebarChat key={conversation._id} conversation={conversation} />;
+               })}
                {/* <SidebarChat />
                <SidebarChat />
                <SidebarChat /> */}
