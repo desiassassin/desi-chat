@@ -54,9 +54,6 @@ const LeftSidebar = () => {
                {user.conversations.map((conversation) => {
                     return <SidebarChat key={conversation._id} conversation={conversation} />;
                })}
-               {/* <SidebarChat />
-               <SidebarChat />
-               <SidebarChat /> */}
                <Filler />
           </Wrapper>
      );

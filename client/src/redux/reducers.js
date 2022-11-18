@@ -28,7 +28,7 @@ export const user = (state = initialState.user, { type, payload }) => {
           }
           case ACTIONS.FRIENDS.REQUEST_ACCEPTED_BY_CURRENT_USER: {
                const friendRequestsPending = state.friendRequestsPending.filter((request) => request.username !== payload.acceptedUser);
-               return { ...state, friendRequestsPending, friends: [...state.friends, { username: payload.acceptedUser, _id: payload._id, status: "Online" }] };
+               return { ...state, friendRequestsPending, friends: [...state.friends, { username: payload.acceptedUser, _id: payload._id, status: payload.status }] };
           }
           case ACTIONS.FRIENDS.REQUEST_ACCEPTED: {
                const friendRequestsSent = state.friendRequestsSent.filter((request) => request.username !== payload.acceptedByUser);

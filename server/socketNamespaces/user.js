@@ -109,7 +109,7 @@ const userNamespaceController = (socket) => {
                await User.findByIdAndUpdate(acceptedUserId, { $pull: { friendRequestsSent: currentUserId }, $addToSet: { friends: currentUserId, conversations: conversation._id } });
 
                // emit event to both the users
-               socket.emit("friend-request-accept-success", { acceptedUser, _id, newConversation: conversation });
+               socket.emit("friend-request-accept-success", { acceptedUser, _id, newConversation: conversation, status: ONLINE_USERS.isOnline({ username: acceptedUser }) ? "Online" : "Offline" });
 
                if (ONLINE_USERS.isOnline({ username: acceptedUser })) {
                     socket.to(ONLINE_USERS.users[acceptedUser].socketId).emit("friend-request-accepted", { acceptedByUser: currentUser, _id: currentUserId, newConversation: conversation });
