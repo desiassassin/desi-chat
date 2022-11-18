@@ -32,8 +32,9 @@ const Home = () => {
           // error occured while accepting an incoming friend request
           socket.on("friend-request-accept-response", (message) => toast.error(message));
           // an incoming friend request was successfully accepted
-          socket.on("friend-request-accept-success", ({ acceptedUser, _id }) => {
+          socket.on("friend-request-accept-success", ({ acceptedUser, _id, newConversation }) => {
                store.dispatch({ type: ACTIONS.FRIENDS.REQUEST_ACCEPTED_BY_CURRENT_USER, payload: { acceptedUser, _id } });
+               store.dispatch({ type: ACTIONS.FRIENDS.CONVERSATION_CREATED, payload: { newConversation } });
           });
 
           //error occured while rejecting an incoming friend request

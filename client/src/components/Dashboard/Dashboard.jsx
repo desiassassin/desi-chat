@@ -39,8 +39,9 @@ const Dashboard = () => {
                toast.info(`New request from ${username}`);
           });
 
-          socket.on("friend-request-accepted", ({ acceptedByUser, _id }) => {
+          socket.on("friend-request-accepted", ({ acceptedByUser, _id, newConversation }) => {
                store.dispatch({ type: ACTIONS.FRIENDS.REQUEST_ACCEPTED, payload: { acceptedByUser, _id } });
+               store.dispatch({ type: ACTIONS.FRIENDS.CONVERSATION_CREATED, payload: { newConversation } });
                toast.info(`${acceptedByUser} accepted your friend request.`);
           });
 

@@ -16,4 +16,6 @@ export const FRIENDS = {
      UNFRIEND: "unfriend",
      CAME_ONLINE: "friendCameOnline",
      WENT_OFFLINE: "friendWentOffline",
+     CONVERSATION_CREATED: "conversationCreated",
+     CONVERSATION_CLOSED: "conversationClosed",
 };

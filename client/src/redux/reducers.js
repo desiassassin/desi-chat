@@ -8,6 +8,7 @@ const initialState = {
           friendRequestsPending: [],
           friendRequestsSent: [],
           blocked: [],
+          conversations: [],
      },
 };
 
@@ -68,6 +69,9 @@ export const user = (state = initialState.user, { type, payload }) => {
                const friends = state.friends.filter((friend) => friend.username !== friendWhoWentOffline);
                friends.push({ username: friendWhoWentOffline, _id, status: "Offline" });
                return { ...state, friends };
+          }
+          case ACTIONS.FRIENDS.CONVERSATION_CREATED: {
+               return { ...state, conversations: [...state.conversations, payload.newConversation] };
           }
           default:
                return state;
