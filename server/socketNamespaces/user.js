@@ -96,11 +96,17 @@ const userNamespaceController = (socket) => {
 
           try {
                // create a conversation
-               const conversation = await (await new Conversation({ participants: [currentUserId, acceptedUserId] }).save()).populate("participants", "username");
+               let conversation = null;
+               const existingConversation = await Conversation.findOne({ participants: { $all: [currentUserId, acceptedUserId], $size: 2 }, isGroup: false }).populate("participants", "username");
+
+               if (!existingConversation) {
+                    conversation = await (await new Conversation({ participants: [currentUserId, acceptedUserId] }).save()).populate("participants", "username");
+               } else conversation = existingConversation;
+
                // remove the pending request and add to friends
-               await User.findByIdAndUpdate(currentUserId, { $pull: { friendRequestsPending: acceptedUserId }, $push: { friends: acceptedUserId, conversations: conversation._id } });
+               await User.findByIdAndUpdate(currentUserId, { $pull: { friendRequestsPending: acceptedUserId }, $addToSet: { friends: acceptedUserId, conversations: conversation._id } });
                // remove the sent request and add to friends
-               await User.findByIdAndUpdate(acceptedUserId, { $pull: { friendRequestsSent: currentUserId }, $push: { friends: currentUserId, conversations: conversation._id } });
+               await User.findByIdAndUpdate(acceptedUserId, { $pull: { friendRequestsSent: currentUserId }, $addToSet: { friends: currentUserId, conversations: conversation._id } });
 
                // emit event to both the users
                socket.emit("friend-request-accept-success", { acceptedUser, _id, newConversation: conversation });

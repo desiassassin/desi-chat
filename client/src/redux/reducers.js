@@ -28,7 +28,7 @@ export const user = (state = initialState.user, { type, payload }) => {
           }
           case ACTIONS.FRIENDS.REQUEST_ACCEPTED_BY_CURRENT_USER: {
                const friendRequestsPending = state.friendRequestsPending.filter((request) => request.username !== payload.acceptedUser);
-               return { ...state, friendRequestsPending, friends: [...state.friends, { username: payload.acceptedUser, _id: payload._id }] };
+               return { ...state, friendRequestsPending, friends: [...state.friends, { username: payload.acceptedUser, _id: payload._id, status: "Online" }] };
           }
           case ACTIONS.FRIENDS.REQUEST_ACCEPTED: {
                const friendRequestsSent = state.friendRequestsSent.filter((request) => request.username !== payload.acceptedByUser);
@@ -71,6 +71,8 @@ export const user = (state = initialState.user, { type, payload }) => {
                return { ...state, friends };
           }
           case ACTIONS.FRIENDS.CONVERSATION_CREATED: {
+               const conversationAlreadyExists = state.conversations.find((conversation) => conversation._id === payload.newConversation._id);
+               if (conversationAlreadyExists) return state;
                return { ...state, conversations: [...state.conversations, payload.newConversation] };
           }
           default:
