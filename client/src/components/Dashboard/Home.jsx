@@ -19,6 +19,8 @@ const Home = () => {
           socket.on("friend-request-initiated-response", (message) => {
                const errorDiv = document.getElementById("friend-request-error");
                errorDiv.innerText = message;
+               // re-enable the button
+               document.getElementById("friend-request-button").disabled = false;
           });
 
           // friend request was sent successfully
@@ -26,6 +28,8 @@ const Home = () => {
                const successDiv = document.getElementById("friend-request-success");
                successDiv.innerText = `A request has been sent to ${username}. They'll appear in friends, once they have accepted your friend request.`;
                store.dispatch({ type: ACTIONS.FRIENDS.REQUEST_SENT, payload: { _id, username } });
+               // re-enable the button
+               document.getElementById("friend-request-button").disabled = false;
           });
 
           // error occured while accepting an incoming friend request
@@ -79,6 +83,8 @@ const Home = () => {
      };
      const sendFriendRequest = (event) => {
           event.preventDefault();
+          // disable the button until the response arrives
+          document.getElementById("friend-request-button").disabled = true;
           const usernameToAdd = document.getElementById("friend-request-username").value;
           // clear out previous responses
           document.getElementById("friend-request-success").innerText = "";
@@ -165,13 +171,6 @@ const Home = () => {
                                    <OnlineAll>
                                         <div className="header">{`Friends - ${user.friends.length}`}</div>
                                         {user.friends
-                                             .filter(({ status }) => status === "Online")
-                                             .sort((friend1, friend2) => friend1.username.localeCompare(friend2.username))
-                                             .map(({ username, _id, status }) => (
-                                                  <FriendCard key={_id} _id={_id} username={username} status={status} openConversation={openConversation} removeFriend={removeFriend} />
-                                             ))}
-                                        {user.friends
-                                             .filter(({ status }) => status !== "Online")
                                              .sort((friend1, friend2) => friend1.username.localeCompare(friend2.username))
                                              .map(({ username, _id, status }) => (
                                                   <FriendCard key={_id} _id={_id} username={username} status={status} openConversation={openConversation} removeFriend={removeFriend} />

@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { FaUserCircle } from "react-icons/fa";
 import { useSelector } from "react-redux";
 
-const SidebarChat = ({ conversation }) => {
+const SidebarChat = ({ conversation, openConversation }) => {
      const defaultMessage = "You are now connected.";
      const { participants, isGroup, groupName } = conversation;
      const user = useSelector((state) => state.user);
@@ -15,7 +15,7 @@ const SidebarChat = ({ conversation }) => {
      }
 
      return (
-          <Slakdjald className="sidebar-chat">
+          <Slakdjald className="sidebar-chat" onClick={openConversation} data-username={chatTitle}>
                <div className="profile-container">
                     <div className="photo">
                          <FaUserCircle size="40px" />

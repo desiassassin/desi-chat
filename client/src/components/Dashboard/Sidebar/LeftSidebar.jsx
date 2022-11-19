@@ -21,6 +21,10 @@ const LeftSidebar = () => {
           store.dispatch({ type: ACTIONS.USER.LOGGED_OUT });
           navigate("/login");
      };
+     const openConversation = (event) => {
+          const { username } = event.currentTarget.dataset;
+          navigate(`/me/${username}`);
+     };
      return (
           <Wrapper>
                <Profile className="">
@@ -59,7 +63,7 @@ const LeftSidebar = () => {
                     Recent Chats
                </div>
                {user.conversations.map((conversation) => {
-                    return <SidebarChat key={conversation._id} conversation={conversation} />;
+                    return <SidebarChat key={conversation._id} conversation={conversation} openConversation={openConversation} />;
                })}
                <Filler />
           </Wrapper>

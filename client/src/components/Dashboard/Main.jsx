@@ -19,5 +19,5 @@ const Wrapper = styled.div`
      backdrop-filter: blur(10px);
      /* background-color: transparent; */
      outline: 1px solid rgb(var(--bg-light));
-     /* overflow: hidden; */
+     overflow: hidden;
 `;

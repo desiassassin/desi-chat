@@ -7,7 +7,7 @@ import Register from "./components/GetStarted/Register";
 import HomePage from "./components/HomePage/HomePage";
 import SessionExpired from "./components/misc/SessionExpired";
 import Navbar from "./components/Navbar";
-import Chat from "./components/Dashboard/Chat";
+import Chat from "./components/Dashboard/Chat/Chat";
 import Home from "./components/Dashboard/Home";
 
 function App() {
