@@ -1,17 +1,16 @@
 import { useEffect, useState } from "react";
-import { BsCheckCircle, BsThreeDotsVertical, BsXCircle } from "react-icons/bs";
-import { FaUserCircle, FaUserFriends } from "react-icons/fa";
-import { RiMessage2Fill } from "react-icons/ri";
-import { MdPersonOff } from "react-icons/md";
+import { FaUserFriends } from "react-icons/fa";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import styled from "styled-components";
 import * as ACTIONS from "../../redux/actions";
 import store from "../../redux/store";
 import { socket } from "./Dashboard";
-import { IoIosCall, IoIosVideocam } from "react-icons/io";
+import { FriendCard, RequestCard } from "./Misc";
 
 const Home = () => {
+     const navigate = useNavigate();
      const user = useSelector((state) => state.user);
      const [optionSelected, setOptionSelected] = useState("Online");
 
@@ -118,7 +117,10 @@ const Home = () => {
           const { username, _id } = event.currentTarget.dataset;
           socket.emit("friend-remove", { currentUser: user.username, _id, userToRemove: username });
      };
-     const openConversation = (event) => {};
+     const openConversation = (event) => {
+          const { username } = event.currentTarget.dataset;
+          navigate(`/me/${username}`);
+     };
 
      return (
           <>
@@ -154,37 +156,7 @@ const Home = () => {
                                         {user.friends
                                              .filter((friend) => friend.status === "Online")
                                              .map(({ username, _id, status }) => (
-                                                  <div key={username} className="contact">
-                                                       <div className="user">
-                                                            <FaUserCircle className="profile" size="30px" />
-                                                            <div>
-                                                                 <div className="username">{username}</div>
-                                                                 <div className="status">{status}</div>
-                                                            </div>
-                                                       </div>
-                                                       <div className="actions">
-                                                            <div className="message">
-                                                                 <RiMessage2Fill title="Send Message" size="20px" onClick={openConversation} data-username={username} data-_id={_id} />
-                                                            </div>
-                                                            <div className="more-options">
-                                                                 <BsThreeDotsVertical title="Options" size="20px" data-username={username} data-_id={_id} />
-                                                                 <div className="options">
-                                                                      <div className="option">
-                                                                           <span>Voice Call</span>
-                                                                           <IoIosCall />
-                                                                      </div>
-                                                                      <div className="option">
-                                                                           <span>Video Call</span>
-                                                                           <IoIosVideocam />
-                                                                      </div>
-                                                                      <div className="option remove-friend" onClick={removeFriend} data-username={username} data-_id={_id}>
-                                                                           <span>Unfriend</span>
-                                                                           <MdPersonOff />
-                                                                      </div>
-                                                                 </div>
-                                                            </div>
-                                                       </div>
-                                                  </div>
+                                                  <FriendCard key={_id} _id={_id} username={username} status={status} openConversation={openConversation} removeFriend={removeFriend} />
                                              ))}
                                    </OnlineAll>
                               );
@@ -196,73 +168,13 @@ const Home = () => {
                                              .filter(({ status }) => status === "Online")
                                              .sort((friend1, friend2) => friend1.username.localeCompare(friend2.username))
                                              .map(({ username, _id, status }) => (
-                                                  <div key={username} className="contact">
-                                                       <div className="user">
-                                                            <FaUserCircle className="profile" size="30px" />
-                                                            <div>
-                                                                 <div className="username">{username}</div>
-                                                                 <div className="status">{status ? status : "Offline"}</div>
-                                                            </div>
-                                                       </div>
-                                                       <div className="actions">
-                                                            <div className="message">
-                                                                 <RiMessage2Fill title="Send Message" size="20px" onClick={openConversation} data-username={username} data-_id={_id} />
-                                                            </div>
-                                                            <div className="more-options">
-                                                                 <BsThreeDotsVertical title="Options" size="20px" data-username={username} data-_id={_id} />
-                                                                 <div className="options">
-                                                                      <div className="option">
-                                                                           <span>Voice Call</span>
-                                                                           <IoIosCall />
-                                                                      </div>
-                                                                      <div className="option">
-                                                                           <span>Video Call</span>
-                                                                           <IoIosVideocam />
-                                                                      </div>
-                                                                      <div className="option remove-friend" onClick={removeFriend} data-username={username} data-_id={_id}>
-                                                                           <span>Unfriend</span>
-                                                                           <MdPersonOff />
-                                                                      </div>
-                                                                 </div>
-                                                            </div>
-                                                       </div>
-                                                  </div>
+                                                  <FriendCard key={_id} _id={_id} username={username} status={status} openConversation={openConversation} removeFriend={removeFriend} />
                                              ))}
                                         {user.friends
                                              .filter(({ status }) => status !== "Online")
                                              .sort((friend1, friend2) => friend1.username.localeCompare(friend2.username))
                                              .map(({ username, _id, status }) => (
-                                                  <div key={username} className="contact">
-                                                       <div className="user">
-                                                            <FaUserCircle className="profile" size="30px" />
-                                                            <div>
-                                                                 <div className="username">{username}</div>
-                                                                 <div className="status">{status ? status : "Offline"}</div>
-                                                            </div>
-                                                       </div>
-                                                       <div className="actions">
-                                                            <div className="message">
-                                                                 <RiMessage2Fill title="Send Message" size="20px" onClick={openConversation} data-username={username} data-_id={_id} />
-                                                            </div>
-                                                            <div className="more-options">
-                                                                 <BsThreeDotsVertical title="Options" size="20px" data-username={username} data-_id={_id} />
-                                                                 <div className="options">
-                                                                      <div className="option">
-                                                                           <span>Voice Call</span>
-                                                                           <IoIosCall />
-                                                                      </div>
-                                                                      <div className="option">
-                                                                           <span>Video Call</span>
-                                                                           <IoIosVideocam />
-                                                                      </div>
-                                                                      <div className="option remove-friend" onClick={removeFriend} data-username={username} data-_id={_id}>
-                                                                           <span>Unfriend</span>
-                                                                           <MdPersonOff />
-                                                                      </div>
-                                                                 </div>
-                                                            </div>
-                                                       </div>
-                                                  </div>
+                                                  <FriendCard key={_id} _id={_id} username={username} status={status} openConversation={openConversation} removeFriend={removeFriend} />
                                              ))}
                                    </OnlineAll>
                               );
@@ -271,33 +183,10 @@ const Home = () => {
                                    <Pending>
                                         <div className="header">{`Pending - ${user.friendRequestsPending.length + user.friendRequestsSent.length}`}</div>
                                         {user.friendRequestsPending.map(({ username, _id }) => (
-                                             <div key={username} className="request">
-                                                  <div className="user">
-                                                       <FaUserCircle className="profile" size="30px" />
-                                                       <div>
-                                                            <div className="username">{username}</div>
-                                                            <div className="request-type">Incoming friend request</div>
-                                                       </div>
-                                                  </div>
-                                                  <div className="actions">
-                                                       <BsCheckCircle title="Accept" className="accept" size="25px" onClick={acceptFriendRequest} data-username={username} data-_id={_id} />
-                                                       <BsXCircle title="Reject" className="reject" size="25px" onClick={rejectFriendRequest} data-username={username} data-_id={_id} />
-                                                  </div>
-                                             </div>
+                                             <RequestCard key={_id} _id={_id} username={username} type="incoming" acceptFriendRequest={acceptFriendRequest} rejectFriendRequest={rejectFriendRequest} />
                                         ))}
                                         {user.friendRequestsSent.map(({ username, _id }) => (
-                                             <div key={username} className="request">
-                                                  <div className="user">
-                                                       <FaUserCircle className="profile" size="30px" />
-                                                       <div>
-                                                            <div className="username">{username}</div>
-                                                            <div className="request-type">Outgoing friend request</div>
-                                                       </div>
-                                                  </div>
-                                                  <div className="actions">
-                                                       <BsXCircle title="Cancel request" className="reject" size="25px" onClick={cancelFriendRequest} data-username={username} data-_id={_id} />
-                                                  </div>
-                                             </div>
+                                             <RequestCard key={_id} _id={_id} username={username} type="outgoing" cancelFriendRequest={cancelFriendRequest} />
                                         ))}
                                    </Pending>
                               );
@@ -423,8 +312,14 @@ const OnlineAll = styled.div`
           align-items: center;
           padding: var(--spacing);
           border-bottom: 1px solid rgb(var(--font-dark), 0.5);
+          cursor: pointer;
+          transition: all var(--transition-time);
 
           &:hover {
+               border-radius: var(--border-radius);
+               background-color: rgb(var(--font-dark), 0.25);
+               /* border: none; */
+
                .actions {
                     .message,
                     .more-options {

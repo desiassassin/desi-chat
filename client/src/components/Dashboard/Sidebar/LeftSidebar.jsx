@@ -1,4 +1,4 @@
-import { FaUserCircle } from "react-icons/fa";
+import { FaUserCircle, FaUserFriends } from "react-icons/fa";
 import { RiMoreFill, RiEdit2Fill } from "react-icons/ri";
 import { IoIosSearch } from "react-icons/io";
 import { MdLogout } from "react-icons/md";
@@ -13,6 +13,9 @@ import { useNavigate } from "react-router-dom";
 const LeftSidebar = () => {
      const navigate = useNavigate();
      const user = useSelector((state) => state.user);
+     const navigateToHome = (e) => {
+          navigate("/me");
+     };
      const handleLogout = (e) => {
           cookies.remove("accessToken", { path: "/" });
           store.dispatch({ type: ACTIONS.USER.LOGGED_OUT });
@@ -33,6 +36,10 @@ const LeftSidebar = () => {
                     <div className="more-options" tabIndex={0}>
                          <RiMoreFill className="" />
                          <div className="options">
+                              <div className="option" onClick={navigateToHome} tabIndex={0}>
+                                   <span>Home</span>
+                                   <FaUserFriends />
+                              </div>
                               <div className="option edit" tabIndex={0}>
                                    <span>Edit</span>
                                    <RiEdit2Fill />
@@ -177,7 +184,9 @@ const Profile = styled.div`
                          }
                     }
 
-                    :hover {
+                    :hover,
+                    :focus {
+                         outline: none;
                          background-color: rgb(var(--font-bright), 0.25);
                     }
                }
