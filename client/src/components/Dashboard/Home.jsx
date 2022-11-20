@@ -120,6 +120,7 @@ const Home = () => {
           socket.emit("friend-request-cancel", { currentUser: user.username, _id, requestCancelledToUser: username });
      };
      const removeFriend = (event) => {
+          event.stopPropagation();
           const { username, _id } = event.currentTarget.dataset;
           socket.emit("friend-remove", { currentUser: user.username, _id, userToRemove: username });
      };

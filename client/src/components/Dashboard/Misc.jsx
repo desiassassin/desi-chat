@@ -7,7 +7,7 @@ import styled from "styled-components";
 
 export const FriendCard = ({ username, _id, status, openConversation, removeFriend }) => {
      return (
-          <div key={username} className="contact" data-username={username} data-_id={_id}>
+          <div key={username} className="contact" data-username={username} data-_id={_id} onClick={openConversation}>
                <div className="user">
                     <PfpStatus size="30px" status={status} bgc="rgb(var(--bg-light))" />
                     <div>
@@ -16,11 +16,12 @@ export const FriendCard = ({ username, _id, status, openConversation, removeFrie
                     </div>
                </div>
                <div className="actions">
-                    <div className="message" onClick={openConversation} data-username={username} data-_id={_id}>
+                    <div className="message" data-username={username} data-_id={_id}>
                          <RiMessage2Fill title="Send Message" size="20px" />
                     </div>
                     <div className="more-options">
                          <BsThreeDotsVertical title="Options" size="20px" data-username={username} data-_id={_id} />
+                         {/* call event.stopPropagation() immediately in the event handler to stop the app from opening the chat */}
                          <div className="options">
                               <div className="option">
                                    <span>Voice Call</span>
