@@ -1,10 +1,8 @@
 import { useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import TopBar from "./TopBar";
-import { useNavigate, Navigate } from "react-router-dom";
 
 const Chat = () => {
-     const navigate = useNavigate();
      const { username } = useParams();
      const isFriend = useSelector((state) => state.user.friends).find((friend) => friend.username === username);
      const status = useSelector((state) => state.user.friends).find((friend) => friend.username === username)?.status;

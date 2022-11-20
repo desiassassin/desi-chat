@@ -1,6 +1,6 @@
-import styled from "styled-components";
-import { FaUserCircle } from "react-icons/fa";
 import { useSelector } from "react-redux";
+import styled from "styled-components";
+import { PfpStatus } from "../Misc";
 
 const SidebarChat = ({ conversation, openConversation }) => {
      const defaultMessage = "You are now connected.";
@@ -9,6 +9,7 @@ const SidebarChat = ({ conversation, openConversation }) => {
      const chatTitle = isGroup ? groupName : figureOutChatsTitle(participants);
      const lastMessage = null;
      const unreadCount = 0;
+     const friend = user.friends.find((friend) => friend.username === chatTitle);
 
      function figureOutChatsTitle(participants) {
           return participants.filter((participant) => participant.username !== user.username)[0].username;
@@ -17,9 +18,7 @@ const SidebarChat = ({ conversation, openConversation }) => {
      return (
           <Slakdjald className="sidebar-chat" onClick={openConversation} data-username={chatTitle}>
                <div className="profile-container">
-                    <div className="photo">
-                         <FaUserCircle size="40px" />
-                    </div>
+                    <PfpStatus size="40px" bgc="rgb(var(--bg-light))" status={friend.status} />
                     <div className="details">
                          <div className="username-time">
                               <div className="username">{chatTitle}</div>
@@ -55,14 +54,6 @@ const Slakdjald = styled.div`
           .profile-container {
                display: flex;
                gap: calc(var(--spacing) / 4 * 3);
-
-               .photo {
-                    display: flex;
-                    align-items: center;
-                    svg {
-                         fill: rgb(var(--accent-primary));
-                    }
-               }
 
                .details {
                     display: flex;
