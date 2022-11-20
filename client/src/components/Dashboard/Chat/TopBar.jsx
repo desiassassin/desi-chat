@@ -2,18 +2,23 @@ import styled from "styled-components";
 import { IoArrowBack } from "react-icons/io5";
 import { BiInfoCircle } from "react-icons/bi";
 import { PfpStatus } from "../Misc";
+import { useNavigate } from "react-router-dom";
 
 const TopBar = ({ username, status = "Offline" }) => {
+     const navigate = useNavigate();
+     const gotoHome = (event) => {
+          navigate("/me");
+     };
      return (
           <TopBarWrapper>
                <div className="user-wrapper">
-                    <IoArrowBack className="back" size="30px" />
+                    <IoArrowBack className="back" size="25px" onClick={gotoHome} />
                     <div className="user">
                          <PfpStatus status={status} size="30px" />
                          <div className="name">{username}</div>
                     </div>
                </div>
-               <BiInfoCircle className="info" size="30px" />
+               <BiInfoCircle className="info" size="25px" />
           </TopBarWrapper>
      );
 };
@@ -29,8 +34,12 @@ const TopBarWrapper = styled.div`
 
      .user-wrapper {
           display: flex;
-          gap: var(--spacing);
+          gap: calc(var(--spacing) * 2);
           align-items: center;
+
+          .back {
+               cursor: pointer;
+          }
 
           .user {
                display: flex;
@@ -42,5 +51,9 @@ const TopBarWrapper = styled.div`
                     font-size: var(--font-big);
                }
           }
+     }
+
+     .info {
+          cursor: pointer;
      }
 `;

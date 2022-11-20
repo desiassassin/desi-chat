@@ -18,7 +18,7 @@ const SidebarChat = ({ conversation, openConversation }) => {
      return (
           <Slakdjald className="sidebar-chat" onClick={openConversation} data-username={chatTitle}>
                <div className="profile-container">
-                    <PfpStatus size="40px" bgc="rgb(var(--bg-light))" status={friend.status} />
+                    <PfpStatus size="40px" bgc="rgb(var(--bg-light))" status={friend?.status} />
                     <div className="details">
                          <div className="username-time">
                               <div className="username">{chatTitle}</div>
