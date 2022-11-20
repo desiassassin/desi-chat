@@ -63,3 +63,12 @@ export const RequestCard = ({ username, _id, type, acceptFriendRequest, rejectFr
           </div>
      );
 };
+
+export const PfpStatus = ({ status, size }) => {
+     return (
+          <div className="pfp-status">
+               <FaUserCircle className="pfp" size={size} fill="rgb(var(--accent-primary))" />
+               <div className={`status ${status === "Online" ? "online" : "offline"}`}></div>
+          </div>
+     );
+};
