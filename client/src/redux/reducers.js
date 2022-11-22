@@ -75,6 +75,18 @@ export const user = (state = initialState.user, { type, payload }) => {
                if (conversationAlreadyExists) return state;
                return { ...state, conversations: [...state.conversations, payload.newConversation] };
           }
+          case ACTIONS.FRIENDS.PERSONAL_MESSAGE_SENT: {
+               const currentConversation = state.conversations.find((conversation) => conversation._id === payload.message.conversation);
+               const conversations = state.conversations.filter((conversation) => conversation._id !== payload.message.conversation);
+               currentConversation.messages.push(payload.message);
+               return { ...state, conversations: [currentConversation, ...conversations] };
+          }
+          case ACTIONS.FRIENDS.PERSONAL_MESSAGE_RECEIVED: {
+               const currentConversation = state.conversations.find((conversation) => conversation._id === payload.message.conversation);
+               const conversations = state.conversations.filter((conversation) => conversation._id !== payload.message.conversation);
+               currentConversation.messages.push(payload.message);
+               return { ...state, conversations: [currentConversation, ...conversations] };
+          }
           default:
                return state;
      }

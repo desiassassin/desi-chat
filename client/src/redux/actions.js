@@ -18,4 +18,6 @@ export const FRIENDS = {
      WENT_OFFLINE: "friendWentOffline",
      CONVERSATION_CREATED: "conversationCreated",
      CONVERSATION_CLOSED: "conversationClosed",
+     PERSONAL_MESSAGE_SENT: "personalMessageSent",
+     PERSONAL_MESSAGE_RECEIVED: "personalMessageReceived",
 };

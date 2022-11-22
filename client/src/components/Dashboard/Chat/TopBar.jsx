@@ -26,7 +26,7 @@ const TopBar = ({ username, status = "Offline" }) => {
 export default TopBar;
 
 const TopBarWrapper = styled.div`
-     padding: var(--spacing);
+     padding: calc(var(--spacing) / 2) var(--spacing);
      background-color: rgb(var(--bg-dark));
      display: flex;
      justify-content: space-between;

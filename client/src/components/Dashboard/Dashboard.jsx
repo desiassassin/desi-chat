@@ -65,6 +65,10 @@ const Dashboard = () => {
                store.dispatch({ type: ACTIONS.FRIENDS.WENT_OFFLINE, payload: { friendWhoWentOffline, _id } });
           });
 
+          socket.on("personal-message-received", ({ message }) => {
+               store.dispatch({ type: ACTIONS.FRIENDS.PERSONAL_MESSAGE_RECEIVED, payload: { message } });
+          });
+
           return () => {
                socket.off("friend-request-recieved");
                socket.off("friend-request-accepted");
