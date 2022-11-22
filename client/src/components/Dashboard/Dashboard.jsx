@@ -65,8 +65,8 @@ const Dashboard = () => {
                store.dispatch({ type: ACTIONS.FRIENDS.WENT_OFFLINE, payload: { friendWhoWentOffline, _id } });
           });
 
-          socket.on("personal-message-received", ({ message }) => {
-               store.dispatch({ type: ACTIONS.FRIENDS.PERSONAL_MESSAGE_RECEIVED, payload: { message } });
+          socket.on("personal-message", ({ message }) => {
+               store.dispatch({ type: ACTIONS.FRIENDS.PERSONAL_MESSAGE, payload: { message } });
           });
 
           return () => {
@@ -77,6 +77,7 @@ const Dashboard = () => {
                socket.off("friend-request-rejected");
                socket.off("friend-came-online");
                socket.off("friend-went-offline");
+               socket.off("personal-message");
           };
      }, []);
 

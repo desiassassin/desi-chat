@@ -1,26 +1,18 @@
-import styled from "styled-components";
+import { useEffect, useState } from "react";
 import { IoMdSend } from "react-icons/io";
-import { useState } from "react";
-import { socket } from "../Dashboard";
-import { useEffect } from "react";
 import { toast } from "react-toastify";
-import store from "../../../redux/store";
-import * as ACTIONS from "../../../redux/actions";
+import styled from "styled-components";
+import { socket } from "../Dashboard";
 
 const SendMessage = ({ friend, conversation }) => {
      const [message, setMessage] = useState("");
 
      useEffect(() => {
-          socket.on("personal-message-sent", ({ message }) => {
-               // update store
-               store.dispatch({ type: ACTIONS.FRIENDS.PERSONAL_MESSAGE_SENT, payload: { message } });
-          });
           socket.on("personal-message-response", (message) => {
                toast.error(message);
           });
 
           return () => {
-               socket.off("personal-message-sent");
                socket.off("personal-message-response");
           };
      }, []);
@@ -31,7 +23,6 @@ const SendMessage = ({ friend, conversation }) => {
      const sendMessage = (event) => {
           event.preventDefault();
           const { sendto, _id } = event.currentTarget.dataset;
-          console.log({ sendto, _id, message, conversationId: conversation._id });
           socket.emit("personal-message", { content: message, messageTo: sendto, _id, conversationId: conversation._id });
      };
      return (

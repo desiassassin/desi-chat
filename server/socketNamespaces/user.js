@@ -183,15 +183,14 @@ const userNamespaceController = (socket) => {
      });
 
      socket.on("personal-message", async ({ content, messageTo, conversationId, _id }) => {
-          const currentUsername = socket.handshake.query.username;
           const currentUserId = socket.handshake.query._id;
           // add the message to the database under the conversation id
           try {
                const message = await (await new Message({ author: currentUserId, content, conversation: conversationId }).save()).populate("author", "username");
-               socket.emit("personal-message-sent", { message });
+               socket.emit("personal-message", { message });
 
                if (ONLINE_USERS.isOnline({ username: messageTo })) {
-                    socket.to(ONLINE_USERS.users[messageTo].socketId).emit("personal-message-received", { message });
+                    socket.to(ONLINE_USERS.users[messageTo].socketId).emit("personal-message", { message });
                }
           } catch (error) {
                console.log(error.message);
