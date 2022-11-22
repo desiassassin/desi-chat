@@ -1,6 +1,7 @@
 import { ONLINE_USERS, REGISTERED_USERS } from "../Globals.js";
 import { User } from "../model/user.js";
 import { Conversation } from "../model/conversation.js";
+import { Message } from "../model/message.js";
 
 const userNamespaceController = (socket) => {
      // change user's status to offline
@@ -178,6 +179,23 @@ const userNamespaceController = (socket) => {
 
           if (ONLINE_USERS.isOnline({ username: userToRemove })) {
                socket.to(ONLINE_USERS.users[userToRemove].socketId).emit("friend-removed", { removedByUser: currentUser, _id: currentUserId });
+          }
+     });
+
+     socket.on("personal-message", async ({ content, messageTo, conversationId, _id }) => {
+          const currentUsername = socket.handshake.query.username;
+          const currentUserId = socket.handshake.query._id;
+          // add the message to the database under the conversation id
+          try {
+               const message = await (await new Message({ author: currentUserId, content, conversation: conversationId }).save()).populate("author", "username");
+               socket.emit("personal-message-sent", { message });
+
+               if (ONLINE_USERS.isOnline({ username: messageTo })) {
+                    socket.to(ONLINE_USERS.users[messageTo].socketId).emit("personal-message-received", { message });
+               }
+          } catch (error) {
+               console.log(error.message);
+               socket.emit("personal-message-response", "Something went wrong.");
           }
      });
 };
