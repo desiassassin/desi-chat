@@ -16,6 +16,11 @@ const conversationSchema = new mongoose.Schema(
                required: true,
                default: [],
           },
+          lastMessage: {
+               required: true,
+               type: String,
+               default: "",
+          },
      },
      { timestamps: true }
 );

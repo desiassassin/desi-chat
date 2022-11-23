@@ -7,7 +7,7 @@ const SidebarChat = ({ conversation, openConversation }) => {
      const { participants, isGroup, groupName } = conversation;
      const user = useSelector((state) => state.user);
      const chatTitle = isGroup ? groupName : figureOutChatsTitle(participants);
-     const lastMessage = conversation?.messages[conversation?.messages?.length - 1]?.content;
+     const lastMessage = conversation?.lastMessage;
      const unreadCount = 0;
      const friend = user.friends.find((friend) => friend.username === chatTitle);
 

@@ -24,6 +24,7 @@ const SendMessage = ({ friend, conversation }) => {
           event.preventDefault();
           const { sendto, _id } = event.currentTarget.dataset;
           socket.emit("personal-message", { content: message, messageTo: sendto, _id, conversationId: conversation._id });
+          setMessage("");
      };
      return (
           <Wrapper className="">

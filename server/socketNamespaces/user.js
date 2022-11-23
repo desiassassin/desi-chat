@@ -187,6 +187,7 @@ const userNamespaceController = (socket) => {
           // add the message to the database under the conversation id
           try {
                const message = await (await new Message({ author: currentUserId, content, conversation: conversationId }).save()).populate("author", "username");
+               await Conversation.findByIdAndUpdate(conversationId, { lastMessage: content });
                socket.emit("personal-message", { message });
 
                if (ONLINE_USERS.isOnline({ username: messageTo })) {

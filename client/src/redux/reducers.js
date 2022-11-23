@@ -79,6 +79,7 @@ export const user = (state = initialState.user, { type, payload }) => {
                const currentConversation = state.conversations.find((conversation) => conversation._id === payload.message.conversation);
                const conversations = state.conversations.filter((conversation) => conversation._id !== payload.message.conversation);
                currentConversation.messages.push(payload.message);
+               currentConversation.lastMessage = payload.message.content;
                return { ...state, conversations: [currentConversation, ...conversations] };
           }
           default:
