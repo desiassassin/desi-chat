@@ -60,6 +60,7 @@ io.of("/users").on("connection", userNamespaceController);
 })();
 
 // ROUTERS
+import { apiRouter } from "./routes/api.js";
 
 // MIDDLEWARES
 app.use(
@@ -80,6 +81,7 @@ app.use(
           credentials: true,
      })
 );
+app.use("/api/v1", apiRouter);
 
 app.post("/register", async (req, res) => {
      const { username, password } = req.body;
