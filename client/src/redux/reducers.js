@@ -82,6 +82,12 @@ export const user = (state = initialState.user, { type, payload }) => {
                currentConversation.lastMessage = payload.message.content;
                return { ...state, conversations: [currentConversation, ...conversations] };
           }
+          case ACTIONS.FRIENDS.PERSONAL_MESSAGES_LOADED: {
+               const currentConversation = state.conversations.find((conversation) => conversation._id === payload.conversationId);
+               currentConversation.messages = payload.messages;
+               const conversations = state.conversations.filter((conversation) => conversation._id !== payload.conversationId);
+               return { ...state, conversations: [currentConversation, ...conversations] };
+          }
           default:
                return state;
      }

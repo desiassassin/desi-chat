@@ -19,4 +19,5 @@ export const FRIENDS = {
      CONVERSATION_CREATED: "conversationCreated",
      CONVERSATION_CLOSED: "conversationClosed",
      PERSONAL_MESSAGE: "personalMessage",
+     PERSONAL_MESSAGES_LOADED: "personalMessagesLoaded",
 };

@@ -8,7 +8,7 @@ const SidebarChat = ({ conversation, openConversation }) => {
      const user = useSelector((state) => state.user);
      const chatTitle = isGroup ? groupName : figureOutChatsTitle(participants);
      const lastMessage = conversation?.lastMessage;
-     const unreadCount = 0;
+     const unreadCount = user.unread?.[conversation._id];
      const friend = user.friends.find((friend) => friend.username === chatTitle);
 
      function figureOutChatsTitle(participants) {
@@ -26,7 +26,7 @@ const SidebarChat = ({ conversation, openConversation }) => {
                          </div>
                          <div className="last-message-unread">
                               <div className="last-message">{lastMessage ? lastMessage : defaultMessage}</div>
-                              <div className="unread">{unreadCount ? unreadCount : ""}</div>
+                              <div className="unread">{unreadCount}</div>
                          </div>
                     </div>
                </div>
