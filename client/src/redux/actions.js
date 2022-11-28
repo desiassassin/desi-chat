@@ -20,4 +20,6 @@ export const FRIENDS = {
      CONVERSATION_CLOSED: "conversationClosed",
      PERSONAL_MESSAGE: "personalMessage",
      PERSONAL_MESSAGES_LOADED: "personalMessagesLoaded",
+     UNREAD_ADDED: "unreadAdded",
+     UNREAD_REMOVED: "unreadRemoved",
 };

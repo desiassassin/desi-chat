@@ -9,6 +9,7 @@ const initialState = {
           friendRequestsSent: [],
           blocked: [],
           conversations: [],
+          unread: {},
      },
 };
 
@@ -87,6 +88,11 @@ export const user = (state = initialState.user, { type, payload }) => {
                currentConversation.messages = payload.messages;
                const conversations = state.conversations.filter((conversation) => conversation._id !== payload.conversationId);
                return { ...state, conversations: [currentConversation, ...conversations] };
+          }
+          case ACTIONS.FRIENDS.UNREAD_REMOVED: {
+               const unreads = { ...state.unread };
+               delete unreads[payload.conversationId];
+               return { ...state, unread: unreads };
           }
           default:
                return state;

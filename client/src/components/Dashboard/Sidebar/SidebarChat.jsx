@@ -3,11 +3,10 @@ import styled from "styled-components";
 import { PfpStatus } from "../Misc";
 
 const SidebarChat = ({ conversation, openConversation }) => {
-     const defaultMessage = "You are now connected.";
      const { participants, isGroup, groupName } = conversation;
      const user = useSelector((state) => state.user);
      const chatTitle = isGroup ? groupName : figureOutChatsTitle(participants);
-     const lastMessage = conversation?.lastMessage;
+     const lastMessage = conversation?.lastMessage ? conversation.lastMessage : "You are now connected.";
      const unreadCount = user.unread?.[conversation._id];
      const friend = user.friends.find((friend) => friend.username === chatTitle);
 
@@ -25,7 +24,7 @@ const SidebarChat = ({ conversation, openConversation }) => {
                               <div className="time"></div>
                          </div>
                          <div className="last-message-unread">
-                              <div className="last-message">{lastMessage ? lastMessage : defaultMessage}</div>
+                              <div className="last-message">{lastMessage}</div>
                               <div className="unread">{unreadCount}</div>
                          </div>
                     </div>
