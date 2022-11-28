@@ -60,7 +60,7 @@ io.of("/users").on("connection", userNamespaceController);
 })();
 
 // ROUTERS
-import { apiRouter } from "./routes/api.js";
+import { apiV1Router } from "./routes/apiV1.js";
 
 // MIDDLEWARES
 app.use(
@@ -81,7 +81,7 @@ app.use(
           credentials: true,
      })
 );
-app.use("/api/v1", apiRouter);
+app.use("/api/v1", apiV1Router);
 
 app.post("/register", async (req, res) => {
      const { username, password } = req.body;
@@ -90,7 +90,7 @@ app.post("/register", async (req, res) => {
           REGISTERED_USERS.add({ _id: user._id, username: user.username }).update();
           return res.json({ message: "Registered" });
      } catch (error) {
-          console.log(error.message);
+          console.log(error);
           return res.status(400).json({ message: error });
      }
 });
@@ -124,12 +124,13 @@ app.post("/login", authenticateTokenAndSendUserDetails, async (req, res) => {
                                      friendRequestsPending: user.friendRequestsPending,
                                      blocked: user.blocked,
                                      conversations: user.conversations,
+                                     unread: user.unread,
                                 },
                            })
                          : res.status(400).json({ message: "Wrong password." });
                } else return res.status(400).json({ message: "Username does not exists." });
           } catch (error) {
-               console.log(error.message);
+               console.log(error);
                return res.status(500).json({ message: "Something went wrong. Please try again later." });
           }
      } else return res.status(400).json({ message: "Please fill out all the fields." });

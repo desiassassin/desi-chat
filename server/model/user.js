@@ -53,12 +53,16 @@ const userSchema = new mongoose.Schema(
                     ref: "Conversation",
                },
           ],
+          unread: {
+               type: Object,
+               default: {},
+          },
           locked: {
                type: Boolean,
                default: false,
           },
      },
-     { timestamps: true }
+     { timestamps: true, minimize: false }
 );
 
 userSchema.pre("save", async function (next) {

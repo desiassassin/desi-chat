@@ -17,7 +17,6 @@ const conversationSchema = new mongoose.Schema(
                default: [],
           },
           lastMessage: {
-               required: true,
                type: String,
                default: "",
           },

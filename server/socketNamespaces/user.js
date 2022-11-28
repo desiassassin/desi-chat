@@ -23,7 +23,7 @@ const userNamespaceController = (socket) => {
                          socket.to(socketId).emit("friend-went-offline", { friendWhoWentOffline: socket.handshake.query.username, _id: socket.handshake.query._id });
                     });
           } catch (error) {
-               console.log(error.message);
+               console.log(error);
           }
      });
 
@@ -43,7 +43,7 @@ const userNamespaceController = (socket) => {
           try {
                currentUser = await User.findById(REGISTERED_USERS.users[username]._id).populate("friends friendRequestsSent friendRequestsPending blocked", "username");
           } catch (error) {
-               console.log(error.message);
+               console.log(error);
                socket.emit("friend-request-initiated-response", "Something went wrong.");
                return;
           }
@@ -77,7 +77,7 @@ const userNamespaceController = (socket) => {
                // update receiver
                await User.findByIdAndUpdate(requestedUserId, { $push: { friendRequestsPending: currentUserId } });
           } catch (error) {
-               console.log(error.message);
+               console.log(error);
                socket.emit("friend-request-initiated-response", "Something went wrong.");
                return;
           }
@@ -116,7 +116,7 @@ const userNamespaceController = (socket) => {
                     socket.to(ONLINE_USERS.users[acceptedUser].socketId).emit("friend-request-accepted", { acceptedByUser: currentUser, _id: currentUserId, newConversation: conversation });
                }
           } catch (error) {
-               console.log(error.message);
+               console.log(error);
                socket.emit("friend-request-accept-response", "Something went wrong");
                return;
           }
@@ -130,7 +130,7 @@ const userNamespaceController = (socket) => {
                await User.findByIdAndUpdate(currentUserId, { $pull: { friendRequestsPending: rejectedOfUserId } });
                await User.findByIdAndUpdate(rejectedOfUserId, { $pull: { friendRequestsSent: currentUserId } });
           } catch (error) {
-               console.log(error.message);
+               console.log(error);
                socket.emit("friend-request-reject-response", "Something went wrong");
                return;
           }
@@ -150,7 +150,7 @@ const userNamespaceController = (socket) => {
                await User.findByIdAndUpdate(currentUserId, { $pull: { friendRequestsSent: requestCancelledToUserId } });
                await User.findByIdAndUpdate(requestCancelledToUserId, { $pull: { friendRequestsPending: currentUserId } });
           } catch (error) {
-               console.log(error.message);
+               console.log(error);
                socket.emit("friend-request-cancel-response", "Something went wrong");
                return;
           }
@@ -170,7 +170,7 @@ const userNamespaceController = (socket) => {
                await User.findByIdAndUpdate(currentUserId, { $pull: { friends: userToRemoveId } });
                await User.findByIdAndUpdate(userToRemoveId, { $pull: { friends: currentUserId } });
           } catch (error) {
-               console.log(error.message);
+               console.log(error);
                socket.emit("friend-remove-response", "Something went wrong");
                return;
           }
@@ -192,9 +192,12 @@ const userNamespaceController = (socket) => {
 
                if (ONLINE_USERS.isOnline({ username: messageTo })) {
                     socket.to(ONLINE_USERS.users[messageTo].socketId).emit("personal-message", { message });
+               } else {
+                    const { unread } = await User.findById(_id, "unread");
+                    await User.findByIdAndUpdate(_id, { $set: { ["unread." + conversationId]: unread.hasOwnProperty(conversationId) ? unread[conversationId] + 1 : 1 } });
                }
           } catch (error) {
-               console.log(error.message);
+               console.log(error);
                socket.emit("personal-message-response", "Something went wrong.");
           }
      });
@@ -217,6 +220,6 @@ async function userLoggedIn(socket) {
                     socket.to(socketId).emit("friend-came-online", { friendWhoCameOnline: socket.handshake.query.username, _id: socket.handshake.query._id });
                });
      } catch (error) {
-          console.log(error.message);
+          console.log(error);
      }
 }
