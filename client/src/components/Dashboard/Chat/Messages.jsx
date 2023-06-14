@@ -5,8 +5,10 @@ import Axios from "axios";
 import { fetchToken } from "../../../lib/universalCookies";
 import * as ACTIONS from "../../../redux/actions";
 import store from "../../../redux/store";
+import { useSelector } from "react-redux";
 
 const Messages = ({ conversation }) => {
+     const user = useSelector((state) => state.user);
      useEffect(() => {
           (async function () {
                const token = fetchToken("accessToken");
@@ -35,7 +37,7 @@ const Messages = ({ conversation }) => {
      return (
           <MessageWrapper id="messages">
                {conversation?.messages?.map?.((message) => (
-                    <div key={message._id} className="message">
+                    <div key={message._id} className={`message ${message.author.username === user.username ? "self" : ""}`}>
                          <div className="profile">
                               <FaUserCircle size="35px" />
                          </div>
@@ -58,11 +60,14 @@ const MessageWrapper = styled.div`
      height: 100%;
      padding-inline: var(--spacing);
      overflow-y: scroll;
+     display: flex;
+     flex-direction: column;
 
      .message {
           display: flex;
           gap: var(--spacing);
           padding-top: var(--spacing);
+          /* max-width: 70%; */
 
           .profile svg {
                fill: rgb(var(--accent-primary));
@@ -87,4 +92,37 @@ const MessageWrapper = styled.div`
                }
           }
      }
+     /* .message.self {
+          align-self: flex-end;
+
+          display: flex;
+          flex-direction: row-reverse;
+          gap: var(--spacing);
+          padding-top: var(--spacing);
+          max-width: 70%;
+
+          .profile svg {
+               fill: rgb(var(--accent-primary));
+          }
+
+          .sender-content {
+               .sender-time {
+                    display: flex;
+                    flex-direction: row-reverse;
+                    align-items: center;
+                    gap: var(--spacing);
+               }
+
+               .sender {
+                    font-weight: 700;
+               }
+
+               .time {
+                    font-size: var(--font-xs);
+                    color: rgb(var(--font-dark));
+               }
+               .content {
+               }
+          }
+     } */
 `;

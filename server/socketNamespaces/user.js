@@ -20,7 +20,7 @@ const userNamespaceController = (socket) => {
                     .filter(({ status }) => status === "Online")
                     .forEach(({ username, _id }) => {
                          const socketId = ONLINE_USERS.users[username].socketId;
-                         socket.to(socketId).emit("friend-went-offline", { friendWhoWentOffline: socket.handshake.query.username, _id: socket.handshake.query._id });
+                         if (socketId) socket.to(socketId).emit("friend-went-offline", { friendWhoWentOffline: socket.handshake.query.username, _id: socket.handshake.query._id });
                     });
           } catch (error) {
                console.log(error);
@@ -217,7 +217,7 @@ async function userLoggedIn(socket) {
                .filter(({ status }) => status === "Online")
                .forEach(({ username, _id }) => {
                     const socketId = ONLINE_USERS.users[username].socketId;
-                    socket.to(socketId).emit("friend-came-online", { friendWhoCameOnline: socket.handshake.query.username, _id: socket.handshake.query._id });
+                    if (socketId) socket.to(socketId).emit("friend-came-online", { friendWhoCameOnline: socket.handshake.query.username, _id: socket.handshake.query._id });
                });
      } catch (error) {
           console.log(error);

@@ -18,7 +18,7 @@ const Chat = () => {
      const user = useSelector((state) => state.user);
 
      useEffect(() => {
-          if (user.unread.hasOwnProperty(conversation._id)) {
+          if (user.unread.hasOwnProperty(conversation?._id)) {
                (async function () {
                     const token = fetchToken("accessToken");
 
