@@ -32,7 +32,7 @@ const Login = () => {
                          const response = await Axios({
                               method: "post",
                               headers: { authorization: `Bearer ${token}` },
-                              url: `${process.env.REACT_APP_BASE_URL}/login`,
+                              url: `${import.meta.env.VITE_APP_BASE_URL}/login`,
                          });
                          if (response.status === 200 && response.data.message === "Authenticated") {
                               navigate("/me", { replace: true });
@@ -98,7 +98,7 @@ const Login = () => {
 
           // request
           try {
-               const response = await Axios({ method: "POST", baseURL: `${process.env.REACT_APP_BASE_URL}/login`, data: { username, password } });
+               const response = await Axios({ method: "POST", baseURL: `${import.meta.env.VITE_APP_BASE_URL}/login`, data: { username, password } });
 
                if (response.status === 200 && response.data.message === "Authenticated") {
                     cookies.set("accessToken", response.data.user.accessToken, { path: "/" });

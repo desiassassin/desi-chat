@@ -17,7 +17,7 @@ const Messages = ({ conversation }) => {
 
                try {
                     const response = await Axios({
-                         baseURL: `${process.env.REACT_APP_BASE_URL}/api/v1/conversation/${conversation._id}/messages`,
+                         baseURL: `${import.meta.env.VITE_APP_BASE_URL}/api/v1/conversation/${conversation._id}/messages`,
                          method: "GET",
                          headers: {
                               authorization: `BEARER ${token}`,

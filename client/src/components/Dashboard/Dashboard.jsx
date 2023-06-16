@@ -11,7 +11,7 @@ import Main from "./Main";
 import LeftSidebar from "./Sidebar/LeftSidebar";
 
 let query = { username: null, _id: null };
-export const socket = io(`${process.env.REACT_APP_BASE_URL}/users`, {
+export const socket = io(`${import.meta.env.VITE_APP_BASE_URL}/users`, {
      autoConnect: false,
      query,
      // auth: cookies.get("accessToken")
@@ -89,7 +89,7 @@ const Dashboard = () => {
                          const response = await Axios({
                               method: "post",
                               headers: { authorization: `Bearer ${token}` },
-                              url: `${process.env.REACT_APP_BASE_URL}/login`,
+                              url: `${import.meta.env.VITE_APP_BASE_URL}/login`,
                          });
                          if (response.status === 200 && response.data.message === "Authenticated") {
                               const { user } = response.data;
