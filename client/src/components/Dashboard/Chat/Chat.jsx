@@ -25,7 +25,7 @@ const Chat = () => {
                     if (token) {
                          try {
                               const response = await Axios({
-                                   baseURL: `${process.env.REACT_APP_BASE_URL_API_V1}/conversation/${conversation._id}/unread`,
+                                   baseURL: `${import.meta.env.VITE_APP_BASE_URL_API_V1}/conversation/${conversation._id}/unread`,
                                    method: "delete",
                                    headers: { authorization: `BEARER ${token}` },
                               });

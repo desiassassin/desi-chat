@@ -10,7 +10,7 @@ import { MainWrapper, Wrapper } from "./misc";
 import { Button } from "../misc/Button";
 import { io } from "socket.io-client";
 
-const socket = io(`${process.env.REACT_APP_BASE_URL}/register`);
+const socket = io(`${import.meta.env.VITE_APP_BASE_URL}/register`);
 const Register = () => {
      const initialRender = useRef(true);
      const [errors, setErrors] = useState({
@@ -112,7 +112,7 @@ const Register = () => {
 
                const response = await Axios({
                     method: "POST",
-                    url: `${process.env.REACT_APP_BASE_URL}/register`,
+                    url: `${import.meta.env.VITE_APP_BASE_URL}/register`,
                     data: { username, password },
                });
 
