@@ -1,4 +1,4 @@
-import { ONLINE_USERS, REGISTERED_USERS } from "../Globals.js";
+import { REGISTERED_USERS, ONLINE_USERS } from "../server.js";
 import { User } from "../model/user.js";
 import { Conversation } from "../model/conversation.js";
 import { Message } from "../model/message.js";

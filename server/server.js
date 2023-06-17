@@ -9,7 +9,6 @@ import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { Server } from "socket.io";
 import { authenticateTokenAndSendUserDetails } from "./controller/middlewares.js";
-import { REGISTERED_USERS } from "./Globals.js";
 import { User } from "./model/user.js";
 import registerNamespaceController from "./socketNamespaces/register.js";
 import userNamespaceController from "./socketNamespaces/user.js";
@@ -18,7 +17,7 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: "*",
+        origin: `https://${process.env.APP_NAME}.${process.env.DOMAIN}` || "*",
         credentials: true
     }
 });
@@ -41,7 +40,7 @@ io.of("/users").on("connection", userNamespaceController);
 // MODELS
 
 // Connect to MongoDB Atlas
-(async () => {
+await (async () => {
     try {
         await mongoose.connect(process.env.DB_URL);
         console.log("Connected to MongoDB Atlas Cloud Database");
@@ -83,11 +82,55 @@ app.use(
 );
 app.use("/api/v1", apiV1Router);
 
+
+
+//======================== GLOBALS ========================
+export const REGISTERED_USERS = {
+     users: await (async function () {
+          return (await User.find({}, "username")).reduce((accumulator, { username, _id }) => {
+                         accumulator[username] = { _id: _id.toString() };
+                         return accumulator;
+                    }, {});
+     })(),
+     add: function ({ username, _id }) {
+          this.users[username] = { _id };
+          return this;
+     },
+     remove: function (username) {
+          delete this.users[username];
+          return this;
+     },
+     exists: function (username) {
+          console.log(this);
+          return this.users.hasOwnProperty(username);
+     }
+};
+
+export const ONLINE_USERS = {
+     users: {},
+     add: function ({ username, socketId, _id }) {
+          this.users[username] = { socketId, _id };
+     },
+     remove: function ({ socketId: socketIdToRemove }) {
+          for (const [username, { socketId }] of Object.entries(this.users)) {
+               if (socketId === socketIdToRemove) {
+                    delete this.users[username];
+                    break;
+               }
+          }
+     },
+     isOnline: function ({ username, socketId, _id }) {
+          return this.users.hasOwnProperty(username);
+     }
+};
+
+//================================================
+
 app.post("/register", async (req, res) => {
     const { username, password } = req.body;
     try {
         const user = await new User({ username, password }).save();
-        REGISTERED_USERS.add({ _id: user._id, username: user.username }).update();
+        REGISTERED_USERS.add({ _id: user._id, username: user.username });
         return res.json({ message: "Registered" });
     } catch (error) {
         console.log(error);
