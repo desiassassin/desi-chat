@@ -13,6 +13,7 @@ const userNamespaceController = (socket) => {
 
           ONLINE_USERS.remove({ socketId });
           console.log(ONLINE_USERS.users);
+          console.log(`[!] LOGOUT [!] ${username} went offline.`)
 
           try {
                const user = await User.findByIdAndUpdate(_id, { status: "Offline" }, { returnDocument: true }).populate("friends", "username status");
@@ -209,7 +210,7 @@ async function userLoggedIn(socket) {
      const { username, _id } = socket.handshake.query;
      const socketId = socket.id;
      ONLINE_USERS.add({ username, socketId, _id });
-     console.log(ONLINE_USERS.users);
+     console.log(`[!] LOGIN [!] ${username}, came online.`);
 
      try {
           const user = await User.findByIdAndUpdate(_id, { status: "Online" }, { returnDocument: true }).populate("friends", "username status");

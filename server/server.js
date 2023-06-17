@@ -4,7 +4,7 @@ import { compare } from "bcrypt";
 import cors from "cors";
 import "dotenv/config";
 import express from "express";
-import { createServer } from "http";
+import { createServer } from "node:http";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { Server } from "socket.io";
@@ -12,6 +12,7 @@ import { authenticateTokenAndSendUserDetails } from "./controller/middlewares.js
 import { User } from "./model/user.js";
 import registerNamespaceController from "./socketNamespaces/register.js";
 import userNamespaceController from "./socketNamespaces/user.js";
+import path from "node:path";
 
 const app = express();
 const httpServer = createServer(app);
@@ -25,12 +26,12 @@ const io = new Server(httpServer, {
 instrument(io, {
     namespaceName: "/adminUI",
     mode: "development",
-    auth: false
-    // auth: {
-    //      type: "basic",
-    //      username: "admin",
-    //      password: "$2b$10$Gw6MHmE9GRCUkMKHuN4Uwe9xq40t6KergyFRroOxyPUoLQkgCvc3C",
-    // },
+    auth: true,
+    auth: {
+         type: "basic",
+         username: "admin",
+         password: "$2b$10$Gw6MHmE9GRCUkMKHuN4Uwe9xq40t6KergyFRroOxyPUoLQkgCvc3C",
+    },
 });
 
 // namespace creation
@@ -81,8 +82,7 @@ app.use(
     })
 );
 app.use("/api/v1", apiV1Router);
-
-
+app.use("/", express.static("./socket-admin-ui"));
 
 //======================== GLOBALS ========================
 export const REGISTERED_USERS = {
@@ -101,7 +101,6 @@ export const REGISTERED_USERS = {
           return this;
      },
      exists: function (username) {
-          console.log(this);
           return this.users.hasOwnProperty(username);
      }
 };
@@ -178,5 +177,9 @@ app.post("/login", authenticateTokenAndSendUserDetails, async (req, res) => {
         }
     } else return res.status(400).json({ message: "Please fill out all the fields." });
 });
+
+app.get("/adminUI", (req, res) => {
+     res.sendFile(`${path.resolve()}/socket-admin-ui/index.html`);
+})
 
 httpServer.listen(3001, () => console.log("Server running on PORT 3001"));
