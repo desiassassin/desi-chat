@@ -7,8 +7,9 @@ import SidebarChat from "./SidebarChat";
 import store from "../../../redux/store";
 import * as ACTIONS from "../../../redux/actions";
 import { useSelector } from "react-redux";
-import cookies from "../../../lib/universalCookies";
 import { useNavigate } from "react-router-dom";
+import Axios from "axios";
+import {StatusCodes} from "http-status-codes"
 
 const LeftSidebar = () => {
      const navigate = useNavigate();
@@ -16,10 +17,16 @@ const LeftSidebar = () => {
      const navigateToHome = (e) => {
           navigate("/me");
      };
-     const handleLogout = (e) => {
-          cookies.remove("accessToken", { path: "/" });
-          store.dispatch({ type: ACTIONS.USER.LOGGED_OUT });
-          navigate("/login");
+     const handleLogout = async () => {
+          try {
+               const response = await Axios({ method: "GET", url: `${import.meta.env.VITE_APP_BASE_URL}/logout` });
+               if (response.status === StatusCodes.OK) {
+                    navigate("/login", { replace: true });
+                    store.dispatch({ type: ACTIONS.USER.LOGGED_OUT });
+               }
+          } catch (error) {
+               console.log(error.message);
+          }
      };
      const openConversation = (event) => {
           const { username } = event.currentTarget.dataset;

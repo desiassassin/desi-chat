@@ -9,6 +9,9 @@ import SessionExpired from "./components/misc/SessionExpired";
 import Navbar from "./components/Navbar";
 import Chat from "./components/Dashboard/Chat/Chat";
 import Home from "./components/Dashboard/Home";
+import axios from "axios"
+
+axios.defaults.withCredentials = true;
 
 function App() {
      return (

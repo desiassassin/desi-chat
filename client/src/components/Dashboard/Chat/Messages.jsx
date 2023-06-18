@@ -2,7 +2,6 @@ import styled from "styled-components";
 import { FaUserCircle } from "react-icons/fa";
 import { useEffect } from "react";
 import Axios from "axios";
-import { fetchToken } from "../../../lib/universalCookies";
 import * as ACTIONS from "../../../redux/actions";
 import store from "../../../redux/store";
 import { useSelector } from "react-redux";
@@ -11,17 +10,10 @@ const Messages = ({ conversation }) => {
      const user = useSelector((state) => state.user);
      useEffect(() => {
           (async function () {
-               const token = fetchToken("accessToken");
-
-               if (!token) return;
-
                try {
                     const response = await Axios({
                          baseURL: `${import.meta.env.VITE_APP_BASE_URL}/api/v1/conversation/${conversation._id}/messages`,
                          method: "GET",
-                         headers: {
-                              authorization: `BEARER ${token}`,
-                         },
                          params: { limit: 50 },
                     });
 
