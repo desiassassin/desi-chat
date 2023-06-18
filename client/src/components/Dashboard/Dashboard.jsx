@@ -4,7 +4,6 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { io } from "socket.io-client";
 import styled from "styled-components";
-import { fetchToken } from "../../lib/universalCookies";
 import * as ACTIONS from "../../redux/actions";
 import store from "../../redux/store";
 import Main from "./Main";
@@ -13,7 +12,7 @@ import LeftSidebar from "./Sidebar/LeftSidebar";
 let query = { username: null, _id: null };
 export const socket = io(`${import.meta.env.VITE_APP_BASE_URL}/users`, {
      autoConnect: false,
-     query,
+     query
      // auth: cookies.get("accessToken")
 });
 
@@ -83,21 +82,17 @@ const Dashboard = () => {
 
      useEffect(() => {
           (async function () {
-               const token = fetchToken("accessToken");
-               if (token) {
-                    try {
-                         const response = await Axios({
-                              method: "post",
-                              headers: { authorization: `Bearer ${token}` },
-                              url: `${import.meta.env.VITE_APP_BASE_URL}/login`,
-                         });
-                         if (response.status === 200 && response.data.message === "Authenticated") {
-                              const { user } = response.data;
-                              store.dispatch({ type: ACTIONS.USER.LOGGED_IN, payload: user });
-                         }
-                    } catch (error) {
-                         console.log(error.message);
+               try {
+                    const response = await Axios({
+                         method: "get",
+                         url: `${import.meta.env.VITE_APP_BASE_URL}/login/getUserData`
+                    });
+                    if (response.status === 200) {
+                         const { user } = response.data;
+                         store.dispatch({ type: ACTIONS.USER.LOGGED_IN, payload: user });
                     }
+               } catch (error) {
+                    console.log(error.message);
                }
           })();
      }, []);

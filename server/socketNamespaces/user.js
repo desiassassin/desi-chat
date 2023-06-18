@@ -12,7 +12,6 @@ const userNamespaceController = (socket) => {
           const socketId = socket.id;
 
           ONLINE_USERS.remove({ socketId });
-          console.log(ONLINE_USERS.users);
           console.log(`[!] LOGOUT [!] ${username} went offline.`)
 
           try {

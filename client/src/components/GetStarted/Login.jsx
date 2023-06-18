@@ -26,12 +26,9 @@ const Login = () => {
 
      useEffect(() => {
           (async function () {
-               const token = cookies.get("accessToken");
-               if (token) {
                     try {
                          const response = await Axios({
                               method: "post",
-                              headers: { authorization: `Bearer ${token}` },
                               url: `${import.meta.env.VITE_APP_BASE_URL}/login`,
                          });
                          if (response.status === 200 && response.data.message === "Authenticated") {
@@ -40,7 +37,6 @@ const Login = () => {
                     } catch (error) {
                          console.log(error.message);
                     }
-               }
           })();
      }, [navigate]);
 
@@ -100,10 +96,9 @@ const Login = () => {
           try {
                const response = await Axios({ method: "POST", baseURL: `${import.meta.env.VITE_APP_BASE_URL}/login`, data: { username, password } });
 
-               if (response.status === 200 && response.data.message === "Authenticated") {
-                    cookies.set("accessToken", response.data.user.accessToken, { path: "/" });
-                    const { user } = response.data;
-                    store.dispatch({ type: ACTIONS.USER.LOGGED_IN, payload: user });
+               if (response.status === 200) {
+                    // const { user } = response.data;
+                    // store.dispatch({ type: ACTIONS.USER.LOGGED_IN, payload: user });
                     navigate("/me", { replace: true });
                }
           } catch (error) {
