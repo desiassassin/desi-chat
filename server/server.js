@@ -16,6 +16,23 @@ import path from "node:path";
 
 const app = express();
 const httpServer = createServer(app);
+const CLIENT = {
+     url: null,
+     domain: null
+}
+
+// set the client's domain and sub-domain (if exists) so that httpOnly cookies can work
+if(process.env.MODE === "production") {
+     CLIENT.url = `https://${process.env.APP_NAME}.${process.env.DOMAIN}`;
+     CLIENT.domain = process.env.DOMAIN;
+} else if(process.env.MODE === "development") {
+     const internalIP = networkInterfaces().Ethernet[1].address;
+
+     CLIENT.url = `http://${internalIP}:3000}`;
+     CLIENT.domain = internalIP;
+}
+
+
 const io = new Server(httpServer, {
     cors: {
         origin: `https://${process.env.APP_NAME}.${process.env.DOMAIN}` || "*",
