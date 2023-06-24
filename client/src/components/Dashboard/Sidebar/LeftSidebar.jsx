@@ -69,7 +69,7 @@ const LeftSidebar = () => {
                     </div>
                     Recent Chats
                </div>
-               {user.conversations.map((conversation) => {
+               {user.conversations?.map((conversation) => {
                     return <SidebarChat key={conversation._id} conversation={conversation} openConversation={openConversation} />;
                })}
                <Filler />

@@ -22,6 +22,7 @@ const SendMessage = ({ friend, conversation }) => {
      };
      const sendMessage = (event) => {
           event.preventDefault();
+          if(!message) return;
           const { sendto, _id } = event.currentTarget.dataset;
           socket.emit("personal-message", { content: message, messageTo: sendto, _id, conversationId: conversation._id });
           setMessage("");
@@ -30,7 +31,7 @@ const SendMessage = ({ friend, conversation }) => {
           <Wrapper className="">
                <form className="wrapper" onSubmit={sendMessage} data-sendto={friend?.username} data-_id={friend?._id}>
                     <input type="text" name="message" id="message" className="message" placeholder={`Message @${friend?.username}`} value={message} onChange={handleMessageChange} />
-                    <button type="submit" className="send">
+                    <button type="submit" className="send" disabled={!message}>
                          Send
                          <IoMdSend size="20px" />
                     </button>
@@ -73,6 +74,10 @@ const Wrapper = styled.div`
 
                :hover {
                     background-color: rgb(var(--font-bright), 0.15);
+               }
+
+               :disabled {
+                    opacity: 0.5;
                }
 
                svg {

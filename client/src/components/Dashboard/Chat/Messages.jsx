@@ -26,6 +26,11 @@ const Messages = ({ conversation }) => {
           })();
      }, []);
 
+     useEffect(() => {
+          const messagesContainer = document.getElementById("messages");
+          messagesContainer.scrollTo({top: messagesContainer.scrollHeight, behavior: "smooth"});
+     }, [user])
+
      return (
           <MessageWrapper id="messages">
                {conversation?.messages?.map?.((message) => (
@@ -36,7 +41,7 @@ const Messages = ({ conversation }) => {
                          <div className="sender-content">
                               <div className="sender-time">
                                    <div className="sender">{message.author.username}</div>
-                                   <div className="time">{new Date(message.createdAt).toDateString()}</div>
+                                   <div className="time">{`${message.createdAt.split("T")[0].split("-").reverse().join("-")} | ${new Date(message.createdAt).toLocaleTimeString()}`}</div>
                               </div>
                               <div className="content">{message.content}</div>
                          </div>

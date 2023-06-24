@@ -8,6 +8,8 @@ import * as ACTIONS from "../../redux/actions";
 import store from "../../redux/store";
 import Main from "./Main";
 import LeftSidebar from "./Sidebar/LeftSidebar";
+import { StatusCodes } from "http-status-codes";
+import { useNavigate } from "react-router-dom";
 
 let query = { username: null, _id: null };
 export const socket = io(`${import.meta.env.VITE_APP_BASE_URL}/users`, {
@@ -18,6 +20,7 @@ export const socket = io(`${import.meta.env.VITE_APP_BASE_URL}/users`, {
 
 const Dashboard = () => {
      const user = useSelector((state) => state.user);
+     const navigate = useNavigate();
 
      useEffect(() => {
           if (user.username) {
@@ -92,6 +95,9 @@ const Dashboard = () => {
                          store.dispatch({ type: ACTIONS.USER.LOGGED_IN, payload: user });
                     }
                } catch (error) {
+                    if(error.response.status === StatusCodes.UNAUTHORIZED) {
+                         navigate("/login", {replace: true});
+                    }
                     console.log(error.message);
                }
           })();
