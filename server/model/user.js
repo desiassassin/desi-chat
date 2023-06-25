@@ -57,6 +57,10 @@ const userSchema = new mongoose.Schema(
                type: Object,
                default: {},
           },
+          notificationsAllowed: {
+               type: Boolean,
+               default: false
+          },
           locked: {
                type: Boolean,
                default: false,

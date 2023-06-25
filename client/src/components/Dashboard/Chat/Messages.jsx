@@ -28,7 +28,7 @@ const Messages = ({ conversation }) => {
 
      useEffect(() => {
           const messagesContainer = document.getElementById("messages");
-          messagesContainer.scrollTo({top: messagesContainer.scrollHeight, behavior: "smooth"});
+          messagesContainer.scrollTo({top: messagesContainer.scrollHeight});
      }, [user])
 
      return (

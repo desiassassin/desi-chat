@@ -2,6 +2,7 @@ import { FaUserCircle, FaUserFriends } from "react-icons/fa";
 import { RiMoreFill, RiEdit2Fill } from "react-icons/ri";
 import { IoIosSearch } from "react-icons/io";
 import { MdLogout } from "react-icons/md";
+import { BsArrowRight } from "react-icons/bs";
 import styled from "styled-components";
 import SidebarChat from "./SidebarChat";
 import store from "../../../redux/store";
@@ -9,7 +10,7 @@ import * as ACTIONS from "../../../redux/actions";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Axios from "axios";
-import {StatusCodes} from "http-status-codes"
+import { StatusCodes } from "http-status-codes";
 
 const LeftSidebar = () => {
      const navigate = useNavigate();
@@ -32,52 +33,67 @@ const LeftSidebar = () => {
           const { username } = event.currentTarget.dataset;
           navigate(`/me/${username}`);
      };
+     const showSideBar = (event) => {};
      return (
-          <Wrapper>
-               <Profile className="">
-                    <div className="profile-container">
-                         <div className="photo">
-                              <FaUserCircle size="40px" />
-                         </div>
-                         <div className="details">
-                              <div className="username">{user.username}</div>
-                              <div className="bio">{user.bio || "Bio"}</div>
-                         </div>
-                    </div>
-                    <div className="more-options" tabIndex={0}>
-                         <RiMoreFill className="" />
-                         <div className="options">
-                              <div className="option" onClick={navigateToHome} tabIndex={0}>
-                                   <span>Home</span>
-                                   <FaUserFriends />
+          <>
+               <Wrapper show={true}>
+                    <Profile className="">
+                         <div className="profile-container">
+                              <div className="photo">
+                                   <FaUserCircle size="40px" />
                               </div>
-                              <div className="option edit" tabIndex={0}>
-                                   <span>Edit</span>
-                                   <RiEdit2Fill />
-                              </div>
-                              <div className="option logout" onClick={handleLogout} tabIndex={0}>
-                                   <span>Logout</span>
-                                   <MdLogout />
+                              <div className="details">
+                                   <div className="username">{user.username}</div>
+                                   <div className="bio">{user.bio || "Bio"}</div>
                               </div>
                          </div>
+                         <div className="more-options" tabIndex={0}>
+                              <RiMoreFill className="" />
+                              <div className="options">
+                                   <div className="option" onClick={navigateToHome} tabIndex={0}>
+                                        <span>Home</span>
+                                        <FaUserFriends />
+                                   </div>
+                                   <div className="option edit" tabIndex={0}>
+                                        <span>Edit</span>
+                                        <RiEdit2Fill />
+                                   </div>
+                                   <div className="option logout" onClick={handleLogout} tabIndex={0}>
+                                        <span>Logout</span>
+                                        <MdLogout />
+                                   </div>
+                              </div>
+                         </div>
+                    </Profile>
+                    <div className="recent-chats ">
+                         <div className="search">
+                              <input type="search" placeholder="Search conversations" spellCheck="false" />
+                              <IoIosSearch size="18px" />
+                         </div>
+                         Recent Chats
                     </div>
-               </Profile>
-               <div className="recent-chats ">
-                    <div className="search">
-                         <input type="search" placeholder="Search conversations" spellCheck="false" />
-                         <IoIosSearch size="18px" />
-                    </div>
-                    Recent Chats
-               </div>
-               {user.conversations?.map((conversation) => {
-                    return <SidebarChat key={conversation._id} conversation={conversation} openConversation={openConversation} />;
-               })}
-               <Filler />
-          </Wrapper>
+                    {user.conversations?.map((conversation) => {
+                         return <SidebarChat key={conversation._id} conversation={conversation} openConversation={openConversation} />;
+                    })}
+                    <Filler />
+               </Wrapper>
+               <ExpandButton onClick={showSideBar} />
+          </>
      );
 };
 
 export default LeftSidebar;
+
+const ExpandButton = styled.div`
+     position: fixed;
+     height: 200px;
+     width: 5px;
+     z-index: 1;
+     left: 0;
+     border-radius: 0px 100px 100px 0px;
+     background-color: grey;
+     align-items: center;
+`;
 
 const Wrapper = styled.div`
      flex: 1;
@@ -87,9 +103,14 @@ const Wrapper = styled.div`
      border-radius: var(--border-radius);
      backdrop-filter: blur(5px);
      overflow-y: auto;
-     display: flex;
      flex-direction: column;
      outline: 1px solid rgb(var(--bg-light));
+     display: ${props => props.show ? "flex": "none"};
+
+     @media (max-width: 900px) {
+          position: absolute;
+          display: none;
+     }
 
      .recent-chats {
           display: flex;
@@ -108,7 +129,6 @@ const Wrapper = styled.div`
                     outline: 1px solid rgb(255, 255, 255, 0.5);
                     border: none;
                     color: rgb(var(--font-bright));
-                    /* font-weight: 700; */
                     font-size: 1rem;
                     padding: calc(var(--spacing));
                     padding-left: 35px;

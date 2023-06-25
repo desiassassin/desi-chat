@@ -1,5 +1,6 @@
 import { Message } from "../model/message.js";
 import { User } from "../model/user.js";
+import {StatusCodes} from "http-status-codes"
 
 export const fetchMessages = async (req, res) => {
      const { conversationId } = req.params;
@@ -25,3 +26,12 @@ export const removeUnread = async (req, res) => {
      }
 };
 export const createUnread = async (req, res) => {};
+
+export const updateNotificationsPreference = async (req, res) => {
+     try {
+          await User.findByIdAndUpdate(req.user._id, { notificationsAllowed: true });
+          res.sendStatus(StatusCodes.OK);
+     } catch (error) {
+          console.log(`Couldn't update notification preferences: ERR: ${error.message}`);
+     }
+}

@@ -199,7 +199,7 @@ app.post("/login", async (req, res) => {
 
 app.get("/login/getUserData", isUserAuthorized, async (req, res) => {
      const userDetails = await User.findById(req.user._id)
-          .populate("friends friendRequestsSent friendRequestsPending blocked", "username status")
+          .populate("friends friendRequestsSent friendRequestsPending blocked notificationsAllowed", "username status")
           .populate({
                path: "conversations",
                populate: {

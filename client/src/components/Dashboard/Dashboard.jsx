@@ -36,6 +36,27 @@ const Dashboard = () => {
      }, [user.username, user._id]);
 
      useEffect(() => {
+          // request the user to allow notifications
+          (async function notifications() {
+               const notificationsAllowed = user.notificationsAllowed;
+
+               if (!notificationsAllowed) {
+                    await Notification.requestPermission();
+
+                    if (Notification.permission === "granted") {
+                         try {
+                              const response = await Axios.post(`${import.meta.env.VITE_APP_BASE_URL_API_V1}/notifications-allowed`, {
+                                   _id: user._id
+                              });
+
+                              if (response.status === StatusCodes.OK) store.dispatch({ type: ACTIONS.USER.NOTIFICATIONS_ALLOWED });
+                         } catch (error) {
+                              toast.info(`Something went wrong.`);
+                         }
+                    }
+               }
+          })();
+
           socket.on("friend-request-received", ({ _id, username }) => {
                store.dispatch({ type: ACTIONS.FRIENDS.REQUEST_RECEIVED, payload: { _id, username } });
                toast.info(`New request from ${username}`);
@@ -69,6 +90,16 @@ const Dashboard = () => {
 
           socket.on("personal-message", ({ message }) => {
                store.dispatch({ type: ACTIONS.FRIENDS.PERSONAL_MESSAGE, payload: { message } });
+               console.log(message.author.username !== user.username)
+               if (message.author.username !== user.username) {
+                    const notification = new Notification(message.author.username, {
+                         body: message.content,
+                         vibrate: true
+                    });
+                    notification.addEventListener("click", (event) =>
+                         window.open(`${import.meta.env.VITE_APP_CLIENT_URL}/me/${message.author.username}`)
+                    );
+               }
           });
 
           return () => {
@@ -81,7 +112,7 @@ const Dashboard = () => {
                socket.off("friend-went-offline");
                socket.off("personal-message");
           };
-     }, []);
+     }, [user]);
 
      useEffect(() => {
           (async function () {
@@ -95,8 +126,8 @@ const Dashboard = () => {
                          store.dispatch({ type: ACTIONS.USER.LOGGED_IN, payload: user });
                     }
                } catch (error) {
-                    if(error.response.status === StatusCodes.UNAUTHORIZED) {
-                         navigate("/login", {replace: true});
+                    if (error.response.status === StatusCodes.UNAUTHORIZED) {
+                         navigate("/login", { replace: true });
                     }
                     console.log(error.message);
                }
