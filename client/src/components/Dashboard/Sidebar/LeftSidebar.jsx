@@ -2,7 +2,6 @@ import { FaUserCircle, FaUserFriends } from "react-icons/fa";
 import { RiMoreFill, RiEdit2Fill } from "react-icons/ri";
 import { IoIosSearch } from "react-icons/io";
 import { MdLogout } from "react-icons/md";
-import { BsArrowRight } from "react-icons/bs";
 import styled from "styled-components";
 import SidebarChat from "./SidebarChat";
 import store from "../../../redux/store";
@@ -11,10 +10,13 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Axios from "axios";
 import { StatusCodes } from "http-status-codes";
+import { useEffect, useRef } from "react";
+import { useDrag } from "@use-gesture/react";
 
 const LeftSidebar = () => {
      const navigate = useNavigate();
      const user = useSelector((state) => state.user);
+     const wrapperRef = useRef(null);
      const navigateToHome = (e) => {
           navigate("/me");
      };
@@ -33,10 +35,45 @@ const LeftSidebar = () => {
           const { username } = event.currentTarget.dataset;
           navigate(`/me/${username}`);
      };
-     const showSideBar = (event) => {};
+
+     const expandButtonSwipeAndDragHandler = useDrag(
+          ({ movement: [mx] }) => {
+               if (mx >= wrapperRef.current.offsetWidth) return;
+               wrapperRef.current.style.translate = `${mx - wrapperRef.current.offsetWidth}px 0`;
+          },
+          {
+               axis: "x"
+          }
+     );
+
+     const sidebarWrapperSwipeAndDragHandler = useDrag(
+          ({ movement: [mx] }) => {
+               // hide the siderbar when user slider the wrapper by half the width
+               if (mx <= -wrapperRef.current.offsetWidth / 2)
+                    wrapperRef.current.style.translate = `${(wrapperRef.current.offsetWidth + 16) * -1}px 0`;
+               else if (mx < 0) wrapperRef.current.style.translate = `${mx}px 0`;
+          },
+          {
+               axis: "x"
+          }
+     );
+
+     // useEffect(() => {
+     //      window.addEventListener("resize", (event) => {
+     //           if(window.innerWidth > 900) {
+     //                wrapperRef.current.removeAttribute("style");
+     //           }
+     //      })
+
+     //      return () => {
+     //           window.onresize = null;
+     //      }
+
+     // }, [])
+
      return (
           <>
-               <Wrapper show={true}>
+               <Wrapper ref={wrapperRef} {...sidebarWrapperSwipeAndDragHandler()}>
                     <Profile className="">
                          <div className="profile-container">
                               <div className="photo">
@@ -77,7 +114,7 @@ const LeftSidebar = () => {
                     })}
                     <Filler />
                </Wrapper>
-               <ExpandButton onClick={showSideBar} />
+               <ExpandButton {...expandButtonSwipeAndDragHandler()} />
           </>
      );
 };
@@ -93,6 +130,8 @@ const ExpandButton = styled.div`
      border-radius: 0px 100px 100px 0px;
      background-color: grey;
      align-items: center;
+     cursor: pointer;
+     touch-action: none;
 `;
 
 const Wrapper = styled.div`
@@ -103,13 +142,17 @@ const Wrapper = styled.div`
      border-radius: var(--border-radius);
      backdrop-filter: blur(5px);
      overflow-y: auto;
-     flex-direction: column;
      outline: 1px solid rgb(var(--bg-light));
-     display: ${props => props.show ? "flex": "none"};
+     display: flex;
+     flex-direction: column;
+     border: 1px solid rgb(var(--bg-dark));
+     touch-action: none;
 
      @media (max-width: 900px) {
           position: absolute;
-          display: none;
+          z-index: 1;
+          left: 1rem;
+          translate: calc(-100% - 1rem) 0;
      }
 
      .recent-chats {
@@ -162,8 +205,11 @@ const Profile = styled.div`
      align-items: center;
      padding: var(--spacing);
      background-color: rgb(var(--bg-light), 0);
-
      border-bottom: 1px solid rgb(255, 255, 255, 0.5);
+
+     @media (max-width: 900px) {
+          background-color: rgb(var(--bg-light), 1);
+     }
 
      .more-options {
           cursor: pointer;
@@ -273,5 +319,5 @@ const Profile = styled.div`
 
 const Filler = styled.div`
      background-color: rgb(var(--bg-light));
-     height: 100%;
+     flex-grow: 1;
 `;

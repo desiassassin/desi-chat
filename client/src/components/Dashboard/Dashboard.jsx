@@ -150,4 +150,5 @@ const MainWrapper = styled.div`
      gap: calc(var(--spacing) * 1);
      min-height: 100vh;
      padding: calc(var(--spacing) * 1);
+     position: relative;
 `;
