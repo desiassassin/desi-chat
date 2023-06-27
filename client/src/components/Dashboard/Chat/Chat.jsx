@@ -36,7 +36,7 @@ const Chat = () => {
                     }
                })();
           }
-     }, []);
+     }, [username]);
      return (
           <ChatWrapper>
                {!friend && <Navigate to="/me" replace={true} />}

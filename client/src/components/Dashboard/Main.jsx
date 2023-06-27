@@ -20,4 +20,8 @@ const Wrapper = styled.div`
      /* background-color: transparent; */
      outline: 1px solid rgb(var(--bg-light));
      overflow: hidden;
+
+     @media (max-width: 900px) {
+          height: 100dvh;
+     }
 `;

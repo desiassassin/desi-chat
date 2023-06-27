@@ -3,7 +3,7 @@ import * as ACTIONS from "./actions";
 const initialState = {
      user: {
           _id: "",
-          usernme: "",
+          username: "",
           friends: [],
           friendRequestsPending: [],
           friendRequestsSent: [],

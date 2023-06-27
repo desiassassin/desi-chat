@@ -24,7 +24,7 @@ const Messages = ({ conversation }) => {
                     console.log(error.message);
                }
           })();
-     }, []);
+     }, [conversation]);
 
      useEffect(() => {
           const messagesContainer = document.getElementById("messages");

@@ -148,7 +148,12 @@ const MainWrapper = styled.div`
      justify-content: center;
      align-items: center;
      gap: calc(var(--spacing) * 1);
-     min-height: 100vh;
+     min-height: 100dvh;
      padding: calc(var(--spacing) * 1);
      position: relative;
+
+     @media (max-width: 900px) {
+          padding: 0;
+          gap: 0;
+     }
 `;

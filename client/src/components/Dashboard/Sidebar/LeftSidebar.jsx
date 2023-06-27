@@ -24,8 +24,12 @@ const LeftSidebar = () => {
           try {
                const response = await Axios({ method: "GET", url: `${import.meta.env.VITE_APP_BASE_URL}/logout` });
                if (response.status === StatusCodes.OK) {
-                    navigate("/login", { replace: true });
                     store.dispatch({ type: ACTIONS.USER.LOGGED_OUT });
+                    // navigate("/login");
+                    /**
+                     * TEMPORARY SOLUTION UNTIL NAVIGATE DOESN'T WORKS
+                     */
+                    window.location.href = `${import.meta.env.VITE_APP_CLIENT_URL}/login`;
                }
           } catch (error) {
                console.log(error.message);
@@ -37,39 +41,44 @@ const LeftSidebar = () => {
      };
 
      const expandButtonSwipeAndDragHandler = useDrag(
-          ({ movement: [mx] }) => {
-               if (mx >= wrapperRef.current.offsetWidth) return;
-               wrapperRef.current.style.translate = `${mx - wrapperRef.current.offsetWidth}px 0`;
+          ({ swipe: [swipeX] }) => {
+               if (swipeX === 1) wrapperRef.current.style.translate = `0px 0`;
           },
           {
-               axis: "x"
+               axis: "x",
+               swipe: {
+                    velocity: [0.1, 0.1],
+                    duration: 1000,
+                    distance: 10,
+               }
           }
      );
 
      const sidebarWrapperSwipeAndDragHandler = useDrag(
-          ({ movement: [mx] }) => {
-               // hide the siderbar when user slider the wrapper by half the width
-               if (mx <= -wrapperRef.current.offsetWidth / 2)
-                    wrapperRef.current.style.translate = `${(wrapperRef.current.offsetWidth + 16) * -1}px 0`;
-               else if (mx < 0) wrapperRef.current.style.translate = `${mx}px 0`;
+          ({ swipe: [swipeX] }) => {
+               if (swipeX === -1) wrapperRef.current.style.translate = `${-wrapperRef.current.offsetWidth}px 0`;
           },
           {
-               axis: "x"
+               axis: "x",
+               swipe: {
+                    velocity: [0.1, 0.1],
+                    duration: 500,
+                    distance: 25,
+               }
           }
      );
 
-     // useEffect(() => {
-     //      window.addEventListener("resize", (event) => {
-     //           if(window.innerWidth > 900) {
-     //                wrapperRef.current.removeAttribute("style");
-     //           }
-     //      })
+     useEffect(() => {
+          window.addEventListener("resize", (event) => {
+               if (window.innerWidth > 900) {
+                    wrapperRef.current?.removeAttribute("style");
+               }
+          });
 
-     //      return () => {
-     //           window.onresize = null;
-     //      }
-
-     // }, [])
+          return () => {
+               window.onresize = null;
+          };
+     }, [wrapperRef.current]);
 
      return (
           <>
@@ -132,6 +141,11 @@ const ExpandButton = styled.div`
      align-items: center;
      cursor: pointer;
      touch-action: none;
+     display: none;
+
+     @media (max-width: 900px) {
+          display: block;
+     }
 `;
 
 const Wrapper = styled.div`
@@ -151,8 +165,9 @@ const Wrapper = styled.div`
      @media (max-width: 900px) {
           position: absolute;
           z-index: 1;
-          left: 1rem;
-          translate: calc(-100% - 1rem) 0;
+          left: 0;
+          translate: -100% 0;
+          height: 100dvh;
      }
 
      .recent-chats {
@@ -213,14 +228,17 @@ const Profile = styled.div`
 
      .more-options {
           cursor: pointer;
-          border-radius: 50%;
           position: relative;
+          height: 20px;
+          width: 20px;
+          display: grid;
+          place-items: center;
 
           .options {
                display: none;
                position: absolute;
                right: 0;
-               top: 0;
+               top: 1rem;
                z-index: 1;
                background-color: black;
                border-radius: var(--border-radius);
