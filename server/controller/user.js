@@ -7,7 +7,7 @@ export const fetchMessages = async (req, res) => {
      const {limit} = req.query;
 
      try {
-          const messages = await Message.find({ conversation: conversationId }).sort({ createdAt: 1 }).limit(limit).populate("author", "username");
+          const messages = (await Message.find({ conversation: conversationId }).sort({ createdAt: -1 }).limit(limit).populate("author", "username")).reverse();
           res.json({ messages });
      } catch (error) {
           res.json({ message: "Something went wrong." });

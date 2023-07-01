@@ -37,24 +37,8 @@ const Dashboard = () => {
 
      useEffect(() => {
           // request the user to allow notifications
-          (async function notifications() {
-               const notificationsAllowed = user.notificationsAllowed;
-
-               if (!notificationsAllowed) {
-                    await Notification.requestPermission();
-
-                    if (Notification.permission === "granted") {
-                         try {
-                              const response = await Axios.post(`${import.meta.env.VITE_APP_BASE_URL_API_V1}/notifications-allowed`, {
-                                   _id: user._id
-                              });
-
-                              if (response.status === StatusCodes.OK) store.dispatch({ type: ACTIONS.USER.NOTIFICATIONS_ALLOWED });
-                         } catch (error) {
-                              toast.info(`Something went wrong.`);
-                         }
-                    }
-               }
+          (function notifications() {
+               if (Notification.permission === "default") Notification.requestPermission();
           })();
 
           socket.on("friend-request-received", ({ _id, username }) => {
@@ -103,7 +87,7 @@ const Dashboard = () => {
           });
 
           return () => {
-               socket.off("friend-request-recieved");
+               socket.off("friend-request-received");
                socket.off("friend-request-accepted");
                socket.off("friend-removed");
                socket.off("friend-request-cancelled");

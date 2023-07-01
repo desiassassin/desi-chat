@@ -9,4 +9,3 @@ apiV1Router.use(isUserAuthorized);
 
 apiV1Router.get("/conversation/:conversationId/messages", fetchMessages);
 apiV1Router.route("/conversation/:conversationId/unread").post(createUnread).delete(removeUnread);
-apiV1Router.route("/notifications-allowed").post(updateNotificationsPreference);

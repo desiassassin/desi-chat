@@ -21,9 +21,6 @@ export const user = (state = initialState.user, { type, payload }) => {
           case ACTIONS.USER.LOGGED_OUT: {
                return { ...initialState.user };
           }
-          case ACTIONS.USER.NOTIFICATIONS_ALLOWED: {
-               return {...state, notificationsAllowed: true};
-          }
           case ACTIONS.FRIENDS.REQUEST_SENT: {
           return { ...state, friendRequestsSent: [...state.friendRequestsSent, payload] };
           }
