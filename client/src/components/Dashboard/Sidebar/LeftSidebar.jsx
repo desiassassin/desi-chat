@@ -7,70 +7,146 @@ import SidebarChat from "./SidebarChat";
 import store from "../../../redux/store";
 import * as ACTIONS from "../../../redux/actions";
 import { useSelector } from "react-redux";
-import cookies from "../../../lib/universalCookies";
 import { useNavigate } from "react-router-dom";
+import Axios from "axios";
+import { StatusCodes } from "http-status-codes";
+import { useEffect, useRef } from "react";
+import { useDrag } from "@use-gesture/react";
 
 const LeftSidebar = () => {
      const navigate = useNavigate();
      const user = useSelector((state) => state.user);
+     const wrapperRef = useRef(null);
      const navigateToHome = (e) => {
           navigate("/me");
      };
-     const handleLogout = (e) => {
-          cookies.remove("accessToken", { path: "/" });
-          store.dispatch({ type: ACTIONS.USER.LOGGED_OUT });
-          navigate("/login");
+     const handleLogout = async () => {
+          try {
+               const response = await Axios({ method: "GET", url: `${import.meta.env.VITE_APP_BASE_URL}/logout` });
+               if (response.status === StatusCodes.OK) {
+                    store.dispatch({ type: ACTIONS.USER.LOGGED_OUT });
+                    // navigate("/login");
+                    /**
+                     * TEMPORARY SOLUTION UNTIL NAVIGATE DOESN'T WORKS
+                     */
+                    window.location.href = `${import.meta.env.VITE_APP_CLIENT_URL}/login`;
+               }
+          } catch (error) {
+               console.log(error.message);
+          }
      };
      const openConversation = (event) => {
           const { username } = event.currentTarget.dataset;
           navigate(`/me/${username}`);
      };
+
+     const expandButtonSwipeAndDragHandler = useDrag(
+          ({ swipe: [swipeX] }) => {
+               if (swipeX === 1) wrapperRef.current.style.translate = `0px 0`;
+          },
+          {
+               axis: "x",
+               swipe: {
+                    velocity: [0.1, 0.1],
+                    duration: 1000,
+                    distance: 10,
+               }
+          }
+     );
+
+     const sidebarWrapperSwipeAndDragHandler = useDrag(
+          ({ swipe: [swipeX] }) => {
+               if (swipeX === -1) wrapperRef.current.style.translate = `${-wrapperRef.current.offsetWidth}px 0`;
+          },
+          {
+               axis: "x",
+               swipe: {
+                    velocity: [0.1, 0.1],
+                    duration: 500,
+                    distance: 25,
+               }
+          }
+     );
+
+     useEffect(() => {
+          window.addEventListener("resize", (event) => {
+               if (window.innerWidth > 900) {
+                    wrapperRef.current?.removeAttribute("style");
+               }
+          });
+
+          return () => {
+               window.onresize = null;
+          };
+     }, [wrapperRef.current]);
+
      return (
-          <Wrapper>
-               <Profile className="">
-                    <div className="profile-container">
-                         <div className="photo">
-                              <FaUserCircle size="40px" />
-                         </div>
-                         <div className="details">
-                              <div className="username">{user.username}</div>
-                              <div className="bio">{user.bio || "Bio"}</div>
-                         </div>
-                    </div>
-                    <div className="more-options" tabIndex={0}>
-                         <RiMoreFill className="" />
-                         <div className="options">
-                              <div className="option" onClick={navigateToHome} tabIndex={0}>
-                                   <span>Home</span>
-                                   <FaUserFriends />
+          <>
+               <Wrapper ref={wrapperRef} {...sidebarWrapperSwipeAndDragHandler()}>
+                    <Profile className="">
+                         <div className="profile-container">
+                              <div className="photo">
+                                   <FaUserCircle size="40px" />
                               </div>
-                              <div className="option edit" tabIndex={0}>
-                                   <span>Edit</span>
-                                   <RiEdit2Fill />
-                              </div>
-                              <div className="option logout" onClick={handleLogout} tabIndex={0}>
-                                   <span>Logout</span>
-                                   <MdLogout />
+                              <div className="details">
+                                   <div className="username">{user.username}</div>
+                                   <div className="bio">{user.bio || "Bio"}</div>
                               </div>
                          </div>
+                         <div className="more-options" tabIndex={0}>
+                              <RiMoreFill className="" />
+                              <div className="options">
+                                   <div className="option" onClick={navigateToHome} tabIndex={0}>
+                                        <span>Home</span>
+                                        <FaUserFriends />
+                                   </div>
+                                   <div className="option edit" tabIndex={0}>
+                                        <span>Edit</span>
+                                        <RiEdit2Fill />
+                                   </div>
+                                   <div className="option logout" onClick={handleLogout} tabIndex={0}>
+                                        <span>Logout</span>
+                                        <MdLogout />
+                                   </div>
+                              </div>
+                         </div>
+                    </Profile>
+                    <div className="recent-chats ">
+                         <div className="search">
+                              <input type="search" placeholder="Search conversations" spellCheck="false" />
+                              <IoIosSearch size="18px" />
+                         </div>
+                         Recent Chats
                     </div>
-               </Profile>
-               <div className="recent-chats ">
-                    <div className="search">
-                         <input type="search" placeholder="Search conversations" spellCheck="false" />
-                         <IoIosSearch size="18px" />
-                    </div>
-                    Recent Chats
-               </div>
-               {user.conversations.map((conversation) => {
-                    return <SidebarChat key={conversation._id} conversation={conversation} openConversation={openConversation} />;
-               })}
-               <Filler />
-          </Wrapper>
+                    {user.conversations?.map((conversation) => {
+                         return <SidebarChat key={conversation._id} conversation={conversation} openConversation={openConversation} />;
+                    })}
+                    <Filler />
+               </Wrapper>
+               <ExpandButton {...expandButtonSwipeAndDragHandler()} />
+          </>
      );
 };
 
 export default LeftSidebar;
+
+const ExpandButton = styled.div`
+     position: fixed;
+     height: 200px;
+     width: 5px;
+     z-index: 1;
+     left: 0;
+     border-radius: 0px 100px 100px 0px;
+     background-color: grey;
+     align-items: center;
+     cursor: pointer;
+     touch-action: none;
+     display: none;
+
+     @media (max-width: 900px) {
+          display: block;
+     }
+`;
 
 const Wrapper = styled.div`
      flex: 1;
@@ -80,9 +156,19 @@ const Wrapper = styled.div`
      border-radius: var(--border-radius);
      backdrop-filter: blur(5px);
      overflow-y: auto;
+     outline: 1px solid rgb(var(--bg-light));
      display: flex;
      flex-direction: column;
-     outline: 1px solid rgb(var(--bg-light));
+     border: 1px solid rgb(var(--bg-dark));
+     touch-action: none;
+
+     @media (max-width: 900px) {
+          position: absolute;
+          z-index: 1;
+          left: 0;
+          translate: -100% 0;
+          height: 100dvh;
+     }
 
      .recent-chats {
           display: flex;
@@ -101,7 +187,6 @@ const Wrapper = styled.div`
                     outline: 1px solid rgb(255, 255, 255, 0.5);
                     border: none;
                     color: rgb(var(--font-bright));
-                    /* font-weight: 700; */
                     font-size: 1rem;
                     padding: calc(var(--spacing));
                     padding-left: 35px;
@@ -135,19 +220,25 @@ const Profile = styled.div`
      align-items: center;
      padding: var(--spacing);
      background-color: rgb(var(--bg-light), 0);
-
      border-bottom: 1px solid rgb(255, 255, 255, 0.5);
+
+     @media (max-width: 900px) {
+          background-color: rgb(var(--bg-light), 1);
+     }
 
      .more-options {
           cursor: pointer;
-          border-radius: 50%;
           position: relative;
+          height: 20px;
+          width: 20px;
+          display: grid;
+          place-items: center;
 
           .options {
                display: none;
                position: absolute;
                right: 0;
-               top: 0;
+               top: 1rem;
                z-index: 1;
                background-color: black;
                border-radius: var(--border-radius);
@@ -246,5 +337,5 @@ const Profile = styled.div`
 
 const Filler = styled.div`
      background-color: rgb(var(--bg-light));
-     height: 100%;
+     flex-grow: 1;
 `;

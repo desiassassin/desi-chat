@@ -4,21 +4,23 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { io } from "socket.io-client";
 import styled from "styled-components";
-import { fetchToken } from "../../lib/universalCookies";
 import * as ACTIONS from "../../redux/actions";
 import store from "../../redux/store";
 import Main from "./Main";
 import LeftSidebar from "./Sidebar/LeftSidebar";
+import { StatusCodes } from "http-status-codes";
+import { useNavigate } from "react-router-dom";
 
 let query = { username: null, _id: null };
 export const socket = io(`${import.meta.env.VITE_APP_BASE_URL}/users`, {
      autoConnect: false,
-     query,
+     query
      // auth: cookies.get("accessToken")
 });
 
 const Dashboard = () => {
      const user = useSelector((state) => state.user);
+     const navigate = useNavigate();
 
      useEffect(() => {
           if (user.username) {
@@ -34,6 +36,11 @@ const Dashboard = () => {
      }, [user.username, user._id]);
 
      useEffect(() => {
+          // request the user to allow notifications
+          (function notifications() {
+               if (Notification.permission === "default") Notification.requestPermission();
+          })();
+
           socket.on("friend-request-received", ({ _id, username }) => {
                store.dispatch({ type: ACTIONS.FRIENDS.REQUEST_RECEIVED, payload: { _id, username } });
                toast.info(`New request from ${username}`);
@@ -67,10 +74,20 @@ const Dashboard = () => {
 
           socket.on("personal-message", ({ message }) => {
                store.dispatch({ type: ACTIONS.FRIENDS.PERSONAL_MESSAGE, payload: { message } });
+               console.log(message.author.username !== user.username)
+               if (message.author.username !== user.username) {
+                    const notification = new Notification(message.author.username, {
+                         body: message.content,
+                         vibrate: true
+                    });
+                    notification.addEventListener("click", (event) =>
+                         window.open(`${import.meta.env.VITE_APP_CLIENT_URL}/me/${message.author.username}`)
+                    );
+               }
           });
 
           return () => {
-               socket.off("friend-request-recieved");
+               socket.off("friend-request-received");
                socket.off("friend-request-accepted");
                socket.off("friend-removed");
                socket.off("friend-request-cancelled");
@@ -79,25 +96,24 @@ const Dashboard = () => {
                socket.off("friend-went-offline");
                socket.off("personal-message");
           };
-     }, []);
+     }, [user]);
 
      useEffect(() => {
           (async function () {
-               const token = fetchToken("accessToken");
-               if (token) {
-                    try {
-                         const response = await Axios({
-                              method: "post",
-                              headers: { authorization: `Bearer ${token}` },
-                              url: `${import.meta.env.VITE_APP_BASE_URL}/login`,
-                         });
-                         if (response.status === 200 && response.data.message === "Authenticated") {
-                              const { user } = response.data;
-                              store.dispatch({ type: ACTIONS.USER.LOGGED_IN, payload: user });
-                         }
-                    } catch (error) {
-                         console.log(error.message);
+               try {
+                    const response = await Axios({
+                         method: "get",
+                         url: `${import.meta.env.VITE_APP_BASE_URL}/login/getUserData`
+                    });
+                    if (response.status === 200) {
+                         const { user } = response.data;
+                         store.dispatch({ type: ACTIONS.USER.LOGGED_IN, payload: user });
                     }
+               } catch (error) {
+                    if (error.response.status === StatusCodes.UNAUTHORIZED) {
+                         navigate("/login", { replace: true });
+                    }
+                    console.log(error.message);
                }
           })();
      }, []);
@@ -116,6 +132,12 @@ const MainWrapper = styled.div`
      justify-content: center;
      align-items: center;
      gap: calc(var(--spacing) * 1);
-     min-height: 100vh;
+     min-height: 100dvh;
      padding: calc(var(--spacing) * 1);
+     position: relative;
+
+     @media (max-width: 900px) {
+          padding: 0;
+          gap: 0;
+     }
 `;

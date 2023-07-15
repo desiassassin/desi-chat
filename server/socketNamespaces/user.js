@@ -1,4 +1,4 @@
-import { ONLINE_USERS, REGISTERED_USERS } from "../Globals.js";
+import { REGISTERED_USERS, ONLINE_USERS } from "../server.js";
 import { User } from "../model/user.js";
 import { Conversation } from "../model/conversation.js";
 import { Message } from "../model/message.js";
@@ -12,7 +12,7 @@ const userNamespaceController = (socket) => {
           const socketId = socket.id;
 
           ONLINE_USERS.remove({ socketId });
-          console.log(ONLINE_USERS.users);
+          console.log(`[!] LOGOUT [!] ${username} went offline.`)
 
           try {
                const user = await User.findByIdAndUpdate(_id, { status: "Offline" }, { returnDocument: true }).populate("friends", "username status");
@@ -84,6 +84,7 @@ const userNamespaceController = (socket) => {
 
           // 7
           socket.emit("friend-request-sent", { _id: requestedUserId, username: usernameToAdd });
+          console.log(`[!] FRIEND REQUEST [!] ${username} sent a friend request to ${usernameToAdd}`);
 
           // 8
           if (ONLINE_USERS.isOnline({ username: usernameToAdd })) {
@@ -108,6 +109,8 @@ const userNamespaceController = (socket) => {
                await User.findByIdAndUpdate(currentUserId, { $pull: { friendRequestsPending: acceptedUserId }, $addToSet: { friends: acceptedUserId, conversations: conversation._id } });
                // remove the sent request and add to friends
                await User.findByIdAndUpdate(acceptedUserId, { $pull: { friendRequestsSent: currentUserId }, $addToSet: { friends: currentUserId, conversations: conversation._id } });
+
+               console.log(`[!] FRIEND REQUEST [!] ${currentUser} and ${acceptedUser} are now friends.`);
 
                // emit event to both the users
                socket.emit("friend-request-accept-success", { acceptedUser, _id, newConversation: conversation, status: ONLINE_USERS.isOnline({ username: acceptedUser }) ? "Online" : "Offline" });
@@ -209,7 +212,7 @@ async function userLoggedIn(socket) {
      const { username, _id } = socket.handshake.query;
      const socketId = socket.id;
      ONLINE_USERS.add({ username, socketId, _id });
-     console.log(ONLINE_USERS.users);
+     console.log(`[!] LOGIN [!] ${username}, came online.`);
 
      try {
           const user = await User.findByIdAndUpdate(_id, { status: "Online" }, { returnDocument: true }).populate("friends", "username status");

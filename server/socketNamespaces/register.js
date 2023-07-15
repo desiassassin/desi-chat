@@ -1,4 +1,4 @@
-import { REGISTERED_USERS } from "../Globals.js";
+import { REGISTERED_USERS } from "../server.js";
 
 const registerNamespaceController = (socket) => {
      socket.on("register-username-change", ({ username }) => {

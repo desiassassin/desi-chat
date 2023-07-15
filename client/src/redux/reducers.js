@@ -3,7 +3,7 @@ import * as ACTIONS from "./actions";
 const initialState = {
      user: {
           _id: "",
-          usernme: "",
+          username: "",
           friends: [],
           friendRequestsPending: [],
           friendRequestsSent: [],
@@ -22,7 +22,7 @@ export const user = (state = initialState.user, { type, payload }) => {
                return { ...initialState.user };
           }
           case ACTIONS.FRIENDS.REQUEST_SENT: {
-               return { ...state, friendRequestsSent: [...state.friendRequestsSent, payload] };
+          return { ...state, friendRequestsSent: [...state.friendRequestsSent, payload] };
           }
           case ACTIONS.FRIENDS.REQUEST_RECEIVED: {
                return { ...state, friendRequestsPending: [...state.friendRequestsPending, payload] };

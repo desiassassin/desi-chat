@@ -2,7 +2,6 @@ import styled from "styled-components";
 import { FaUserCircle } from "react-icons/fa";
 import { useEffect } from "react";
 import Axios from "axios";
-import { fetchToken } from "../../../lib/universalCookies";
 import * as ACTIONS from "../../../redux/actions";
 import store from "../../../redux/store";
 import { useSelector } from "react-redux";
@@ -11,17 +10,10 @@ const Messages = ({ conversation }) => {
      const user = useSelector((state) => state.user);
      useEffect(() => {
           (async function () {
-               const token = fetchToken("accessToken");
-
-               if (!token) return;
-
                try {
                     const response = await Axios({
                          baseURL: `${import.meta.env.VITE_APP_BASE_URL}/api/v1/conversation/${conversation._id}/messages`,
                          method: "GET",
-                         headers: {
-                              authorization: `BEARER ${token}`,
-                         },
                          params: { limit: 50 },
                     });
 
@@ -32,7 +24,12 @@ const Messages = ({ conversation }) => {
                     console.log(error.message);
                }
           })();
-     }, []);
+     }, [conversation]);
+
+     useEffect(() => {
+          const messagesContainer = document.getElementById("messages");
+          messagesContainer.scrollTo({top: messagesContainer.scrollHeight});
+     }, [user])
 
      return (
           <MessageWrapper id="messages">
@@ -44,7 +41,7 @@ const Messages = ({ conversation }) => {
                          <div className="sender-content">
                               <div className="sender-time">
                                    <div className="sender">{message.author.username}</div>
-                                   <div className="time">{new Date(message.createdAt).toDateString()}</div>
+                                   <div className="time">{`${message.createdAt.split("T")[0].split("-").reverse().join("-")} | ${new Date(message.createdAt).toLocaleTimeString()}`}</div>
                               </div>
                               <div className="content">{message.content}</div>
                          </div>
