@@ -225,4 +225,4 @@ app.get("/adminUI", (req, res) => {
      res.sendFile(`${path.resolve()}/socket-admin-ui/index.html`);
 });
 
-httpServer.listen(3001, () => console.log("Server running on PORT 3001"));
+httpServer.listen(process.env.PORT || 3001, () => console.log("Server running on PORT 3001"));
