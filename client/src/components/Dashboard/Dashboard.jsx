@@ -12,9 +12,10 @@ import { StatusCodes } from "http-status-codes";
 import { useNavigate } from "react-router-dom";
 
 let query = { username: null, _id: null };
-export const socket = io(`${import.meta.env.VITE_APP_BASE_URL}/users`, {
+export const socket = io(`${import.meta.env.VITE_APP_BASE_SOCKET_URL}/users`, {
      autoConnect: false,
-     query
+     query,
+     path: "/desi-chat/socket.io"
      // auth: cookies.get("accessToken")
 });
 
@@ -74,7 +75,7 @@ const Dashboard = () => {
 
           socket.on("personal-message", ({ message }) => {
                store.dispatch({ type: ACTIONS.FRIENDS.PERSONAL_MESSAGE, payload: { message } });
-               console.log(message.author.username !== user.username)
+               console.log(message.author.username !== user.username);
                if (message.author.username !== user.username) {
                     const notification = new Notification(message.author.username, {
                          body: message.content,

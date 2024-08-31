@@ -10,12 +10,14 @@ import { MainWrapper, Wrapper } from "./misc";
 import { Button } from "../misc/Button";
 import { io } from "socket.io-client";
 
-const socket = io(`${import.meta.env.VITE_APP_BASE_URL}/register`);
+const socket = io(`${import.meta.env.VITE_APP_BASE_SOCKET_URL}/register`, {
+     path: "/desi-chat/socket.io"
+});
 const Register = () => {
      const initialRender = useRef(true);
      const [errors, setErrors] = useState({
           username: { message: "", show: true },
-          password: { message: "", show: true },
+          password: { message: "", show: true }
      });
      const [username, setUsername] = useState("");
      const [password, setPassword] = useState("");
@@ -30,7 +32,12 @@ const Register = () => {
      useEffect(() => {
           socket.on(
                "register-username-validated",
-               ({ exists }) => exists && setErrors((errors) => ({ ...errors, username: { message: `"${username}" is already registered. Please choose another one.`, show: true } }))
+               ({ exists }) =>
+                    exists &&
+                    setErrors((errors) => ({
+                         ...errors,
+                         username: { message: `"${username}" is already registered. Please choose another one.`, show: true }
+                    }))
           );
           return () => {
                socket.removeAllListeners("register-username-validated");
@@ -77,7 +84,7 @@ const Register = () => {
                     minLowercase: 1,
                     minUppercase: 0,
                     minNumbers: 0,
-                    minSymbols: 0,
+                    minSymbols: 0
                })
           ) {
                message = "Password must contain atleast 8 characters.";
@@ -113,7 +120,7 @@ const Register = () => {
                const response = await Axios({
                     method: "POST",
                     url: `${import.meta.env.VITE_APP_BASE_URL}/register`,
-                    data: { username, password },
+                    data: { username, password }
                });
 
                if (response.status === 200 && response.data.message === "Registered") {
@@ -131,9 +138,14 @@ const Register = () => {
 
                     if (message?.code === 11000) {
                          const value = message.keyValue[Object.keys(message.keyValue)];
-                         return setErrors((errors) => ({ ...errors, username: { message: `"${value}" is already taken. Please use another one.`, show: true } }));
+                         return setErrors((errors) => ({
+                              ...errors,
+                              username: { message: `"${value}" is already taken. Please use another one.`, show: true }
+                         }));
                     } else if (message?.errors) {
-                         Object.entries(message?.errors).forEach(([key, { message }]) => setErrors((errors) => ({ ...errors, [key]: { message, show: true } })));
+                         Object.entries(message?.errors).forEach(([key, { message }]) =>
+                              setErrors((errors) => ({ ...errors, [key]: { message, show: true } }))
+                         );
                     }
                }, 2000);
           } finally {
