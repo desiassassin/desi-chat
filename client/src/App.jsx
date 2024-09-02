@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
 import Dashboard from "./components/Dashboard/Dashboard";
@@ -9,7 +9,7 @@ import SessionExpired from "./components/misc/SessionExpired";
 import Navbar from "./components/Navbar";
 import Chat from "./components/Dashboard/Chat/Chat";
 import Home from "./components/Dashboard/Home";
-import axios from "axios"
+import axios from "axios";
 
 axios.defaults.withCredentials = true;
 
@@ -17,13 +17,20 @@ function App() {
      return (
           <Router>
                <SessionExpired />
-               <ToastContainer autoClose={5000} position="bottom-left" theme="colored" draggable draggableDirection="x" draggablePercent={30} limit={5} />
+               <ToastContainer
+                    autoClose={5000}
+                    position="bottom-left"
+                    theme="colored"
+                    draggable
+                    draggableDirection="x"
+                    draggablePercent={30}
+                    limit={5}
+               />
                <Routes>
+                    <Route path="/" element={<Navigate to="/register" replace={true} />} />
                     <Route path="/" element={<Navbar />}>
-                         {/* <Route path="/" element={<HomePage />} /> */}
-                         <Route path="login" element={<Login />} />
-                         <Route path="register" element={<Register />} />
-                         {/* <Route path="*" element={<HomePage />} /> */}
+                         <Route path="/login" element={<Login />} />
+                         <Route path="/register" element={<Register />} />
                     </Route>
                     <Route path="/me" element={<Dashboard />}>
                          <Route path="/me/" element={<Home />} />

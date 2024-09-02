@@ -10,9 +10,9 @@ const Navbar = () => {
                          <RiChatSmile3Line size="50px" />
                     </NavbarHome>
                     <NavbarLinks>
-                         <li>
+                         {/* <li>
                               <Link to="/me">Chat</Link>
-                         </li>
+                         </li> */}
 
                          <li>
                               <Link to="/login" className="action">
