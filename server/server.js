@@ -226,4 +226,8 @@ app.get("/adminUI", (req, res) => {
      res.sendFile(`${path.resolve()}/socket-admin-ui/index.html`);
 });
 
+app.get("/health-check", function (req, res) {
+     return res.sendStatus(200);
+});
+
 httpServer.listen(process.env.PORT || 3001, () => console.log(`Server running on PORT ${process.env.PORT}`));
